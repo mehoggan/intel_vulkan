@@ -158,23 +158,46 @@ private:
 //                                                              //
 // General Vulkan parameters' container class                   //
 // ************************************************************ //
-struct VulkanCommonParameters {
-    VkInstance Instance;
-    VkPhysicalDevice PhysicalDevice;
-    VkDevice Device;
-    QueueParameters GraphicsQueue;
-    QueueParameters PresentQueue;
-    VkSurfaceKHR PresentationSurface;
-    SwapChainParameters SwapChain;
+class VulkanCommonParameters {
+public:
+    VulkanCommonParameters();
 
-    VulkanCommonParameters()
-            : Instance(VK_NULL_HANDLE)
-            , PhysicalDevice(VK_NULL_HANDLE)
-            , Device(VK_NULL_HANDLE)
-            , GraphicsQueue()
-            , PresentQueue()
-            , PresentationSurface(VK_NULL_HANDLE)
-            , SwapChain() {}
+    const VkInstance& getVkInstance() const;
+    VkInstance& getVkInstance();
+    void setVkInstance(const VkInstance& other);
+
+    const VkPhysicalDevice& getVkPhysicalDevice() const;
+    VkPhysicalDevice& getVkPhysicalDevice();
+    void setVkPhysicalDevice(const VkPhysicalDevice& other);
+
+    const VkDevice& getVkDevice() const;
+    VkDevice& getVkDevice();
+    void setVkDevice(const VkDevice& other);
+
+    const QueueParameters& getGraphicsQueueParameters() const;
+    QueueParameters& getGraphicsQueueParameters();
+    void setGraphicsQueueParameters(const QueueParameters& other);
+
+    const QueueParameters& getPresentQueueParameters() const;
+    QueueParameters& getPresentQueueParameters();
+    void setPresentQueueParameters(const QueueParameters& other);
+
+    const VkSurfaceKHR& getVkSurfaceKhr() const;
+    VkSurfaceKHR& getVkSurfaceKhr();
+    void setVkSurfaceKhr(const VkSurfaceKHR& other);
+
+    const SwapChainParameters& getSwapchainParameters() const;
+    SwapChainParameters& getSwapchainParameters();
+    void setSwapchainParameters(const SwapChainParameters& other);
+
+private:
+    VkInstance m_vk_instance;
+    VkPhysicalDevice m_vk_physical_device;
+    VkDevice m_vk_device;
+    QueueParameters m_graphics_queue_parameters;
+    QueueParameters m_present_queue_parameters;
+    VkSurfaceKHR m_vk_surface_khr;
+    SwapChainParameters m_swapchain_parameters;
 };
 
 // ************************************************************ //
@@ -193,8 +216,8 @@ public:
     VkPhysicalDevice GetPhysicalDevice() const;
     VkDevice GetDevice() const;
 
-    const QueueParameters GetGraphicsQueue() const;
-    const QueueParameters GetPresentQueue() const;
+    const QueueParameters& GetGraphicsQueue() const;
+    const QueueParameters& GetPresentQueue() const;
 
     const SwapChainParameters& GetSwapChain() const;
 

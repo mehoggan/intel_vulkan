@@ -262,10 +262,10 @@ bool VulkanCommon::CreatePresentationSurface() {
     VkXlibSurfaceCreateInfoKHR surface_create_info = {
             VK_STRUCTURE_TYPE_XLIB_SURFACE_CREATE_INFO_KHR,  // VkStructureType
                                                              // sType
-            nullptr,            // const void                    *pNext
-            0,                  // VkXlibSurfaceCreateFlagsKHR    flags
-            Window.DisplayPtr,  // Display                       *dpy
-            Window.Handle       // Window                         window
+            nullptr,                  // const void                    *pNext
+            0,                        // VkXlibSurfaceCreateFlagsKHR    flags
+            Window.getDisplayPtr(),   // Display                       *dpy
+            Window.getWindowHandle()  // Window                         window
     };
     if (vkCreateXlibSurfaceKHR(Vulkan.Instance,
                                &surface_create_info,

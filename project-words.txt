@@ -1,3 +1,4 @@
 # New Words
 SWAPCHAIN
 Xlib
+xconfigure

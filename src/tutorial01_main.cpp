@@ -21,7 +21,7 @@ int main(int argc, char** argv) {
     ApiWithoutSecrets::Tutorial01 tutorial01;
 
     // Window creation
-    if (!window.Create("01 - The Beginning")) {
+    if (!window.create("01 - The Beginning")) {
         return -1;
     }
 
@@ -31,7 +31,7 @@ int main(int argc, char** argv) {
     }
 
     // Rendering loop
-    if (!window.RenderingLoop(tutorial01)) {
+    if (!window.renderingLoop(tutorial01)) {
         return -1;
     }
 

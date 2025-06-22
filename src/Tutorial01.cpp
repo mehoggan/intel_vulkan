@@ -1,4 +1,4 @@
-////////////////////////////////////////////////////////////////////////////////
+///////////////////////////////////////////////////////////////////////////////
 // Copyright 2017 Intel Corporation
 //
 // Licensed under the Apache License, Version 2.0 (the "License"); you may not
@@ -12,7 +12,7 @@
 // WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.  See the
 // License for the specific language governing permissions and limitations
 // under the License.
-////////////////////////////////////////////////////////////////////////////////
+///////////////////////////////////////////////////////////////////////////////
 
 #include "intel_vulkan/Tutorial01.h"
 
@@ -24,66 +24,74 @@
 
 namespace ApiWithoutSecrets {
 
-Tutorial01::Tutorial01() : VulkanLibrary(), Vulkan() {}
+Tutorial01::Tutorial01()
+        : m_vk_library_handle(), m_vk_tutorial01_parameters() {}
+
+Tutorial01::~Tutorial01() {
+    if (m_vk_tutorial01_parameters.Device != VK_NULL_HANDLE) {
+        vkDeviceWaitIdle(m_vk_tutorial01_parameters.Device);
+        vkDestroyDevice(m_vk_tutorial01_parameters.Device, nullptr);
+    }
+
+    if (m_vk_tutorial01_parameters.Instance != VK_NULL_HANDLE) {
+        vkDestroyInstance(m_vk_tutorial01_parameters.Instance, nullptr);
+    }
+
+    if (m_vk_library_handle) {
+        dlclose(m_vk_library_handle);
+    }
+}
 
 bool Tutorial01::onWindowSizeChanged() { return true; }
 
 bool Tutorial01::draw() { return true; }
 
-bool Tutorial01::PrepareVulkan() {
-    if (!LoadVulkanLibrary()) {
+bool Tutorial01::prepareVulkan() {
+    if (!loadVulkanLibrary()) {
         return false;
     }
-    if (!LoadExportedEntryPoints()) {
+    if (!loadExportedEntryPoints()) {
         return false;
     }
-    if (!LoadGlobalLevelEntryPoints()) {
+    if (!loadGlobalLevelEntryPoints()) {
         return false;
     }
-    if (!CreateInstance()) {
+    if (!createInstance()) {
         return false;
     }
-    if (!LoadInstanceLevelEntryPoints()) {
+    if (!loadInstanceLevelEntryPoints()) {
         return false;
     }
-    if (!CreateDevice()) {
+    if (!createDevice()) {
         return false;
     }
-    if (!LoadDeviceLevelEntryPoints()) {
+    if (!loadDeviceLevelEntryPoints()) {
         return false;
     }
-    if (!GetDeviceQueue()) {
+    if (!getDeviceQueue()) {
         return false;
     }
     return true;
 }
 
-bool Tutorial01::LoadVulkanLibrary() {
-#if defined(VK_USE_PLATFORM_WIN32_KHR)
-    VulkanLibrary = LoadLibrary("vulkan-1.dll");
-#elif defined(VK_USE_PLATFORM_XCB_KHR) || defined(VK_USE_PLATFORM_XLIB_KHR)
-    VulkanLibrary = dlopen("libvulkan.so.1", RTLD_NOW);
-#endif
+bool Tutorial01::loadVulkanLibrary() {
+    m_vk_library_handle = dlopen("libvulkan.so.1", RTLD_NOW);
 
-    if (VulkanLibrary == nullptr) {
+    if (m_vk_library_handle == nullptr) {
         std::cout << "Could not load Vulkan library!" << std::endl;
         return false;
     }
     return true;
 }
 
-bool Tutorial01::LoadExportedEntryPoints() {
-#if defined(VK_USE_PLATFORM_WIN32_KHR)
-#define LoadProcAddress GetProcAddress
-#elif defined(VK_USE_PLATFORM_XCB_KHR) || defined(VK_USE_PLATFORM_XLIB_KHR)
+bool Tutorial01::loadExportedEntryPoints() {
 #define LoadProcAddress dlsym
-#endif
 
-#define VK_EXPORTED_FUNCTION(fun)                                        \
-    if (!(fun = (PFN_##fun)LoadProcAddress(VulkanLibrary, #fun))) {      \
-        std::cout << "Could not load exported function: " << #fun << "!" \
-                  << std::endl;                                          \
-        return false;                                                    \
+#define VK_EXPORTED_FUNCTION(fun)                                         \
+    if (!(fun = (PFN_##fun)LoadProcAddress(m_vk_library_handle, #fun))) { \
+        std::cout << "Could not load exported function: " << #fun << "!"  \
+                  << std::endl;                                           \
+        return false;                                                     \
     }
 
 #include "intel_vulkan/ListOfFunctions.inl"
@@ -91,7 +99,7 @@ bool Tutorial01::LoadExportedEntryPoints() {
     return true;
 }
 
-bool Tutorial01::LoadGlobalLevelEntryPoints() {
+bool Tutorial01::loadGlobalLevelEntryPoints() {
 #define VK_GLOBAL_LEVEL_FUNCTION(fun)                                        \
     if (!(fun = (PFN_##fun)vkGetInstanceProcAddr(nullptr, #fun))) {          \
         std::cout << "Could not load global level function: " << #fun << "!" \
@@ -104,7 +112,7 @@ bool Tutorial01::LoadGlobalLevelEntryPoints() {
     return true;
 }
 
-bool Tutorial01::CreateInstance() {
+bool Tutorial01::createInstance() {
     VkApplicationInfo application_info = {
             VK_STRUCTURE_TYPE_APPLICATION_INFO,  // VkStructureType sType
             nullptr,  // const void                *pNext
@@ -127,20 +135,22 @@ bool Tutorial01::CreateInstance() {
             nullptr   // const char * const        *ppEnabledExtensionNames
     };
 
-    if (vkCreateInstance(&instance_create_info, nullptr, &Vulkan.Instance) !=
-        VK_SUCCESS) {
+    if (vkCreateInstance(&instance_create_info,
+                         nullptr,
+                         &m_vk_tutorial01_parameters.Instance) != VK_SUCCESS) {
         std::cout << "Could not create Vulkan instance!" << std::endl;
         return false;
     }
     return true;
 }
 
-bool Tutorial01::LoadInstanceLevelEntryPoints() {
-#define VK_INSTANCE_LEVEL_FUNCTION(fun)                                     \
-    if (!(fun = (PFN_##fun)vkGetInstanceProcAddr(Vulkan.Instance, #fun))) { \
-        std::cout << "Could not load instance level function: " << #fun     \
-                  << "!" << std::endl;                                      \
-        return false;                                                       \
+bool Tutorial01::loadInstanceLevelEntryPoints() {
+#define VK_INSTANCE_LEVEL_FUNCTION(fun)                                 \
+    if (!(fun = (PFN_##fun)vkGetInstanceProcAddr(                       \
+                  m_vk_tutorial01_parameters.Instance, #fun))) {        \
+        std::cout << "Could not load instance level function: " << #fun \
+                  << "!" << std::endl;                                  \
+        return false;                                                   \
     }
 
 #include "intel_vulkan/ListOfFunctions.inl"
@@ -148,10 +158,11 @@ bool Tutorial01::LoadInstanceLevelEntryPoints() {
     return true;
 }
 
-bool Tutorial01::CreateDevice() {
+bool Tutorial01::createDevice() {
     uint32_t num_devices = 0;
-    if ((vkEnumeratePhysicalDevices(Vulkan.Instance, &num_devices, nullptr) !=
-         VK_SUCCESS) ||
+    if ((vkEnumeratePhysicalDevices(m_vk_tutorial01_parameters.Instance,
+                                    &num_devices,
+                                    nullptr) != VK_SUCCESS) ||
         (num_devices == 0)) {
         std::cout << "Error occurred during physical devices enumeration!"
                   << std::endl;
@@ -159,7 +170,7 @@ bool Tutorial01::CreateDevice() {
     }
 
     std::vector<VkPhysicalDevice> physical_devices(num_devices);
-    if (vkEnumeratePhysicalDevices(Vulkan.Instance,
+    if (vkEnumeratePhysicalDevices(m_vk_tutorial01_parameters.Instance,
                                    &num_devices,
                                    physical_devices.data()) != VK_SUCCESS) {
         std::cout << "Error occurred during physical devices enumeration!"
@@ -170,7 +181,7 @@ bool Tutorial01::CreateDevice() {
     VkPhysicalDevice selected_physical_device = VK_NULL_HANDLE;
     uint32_t selected_queue_family_index = UINT32_MAX;
     for (uint32_t i = 0; i < num_devices; ++i) {
-        if (CheckPhysicalDeviceProperties(physical_devices[i],
+        if (checkPhysicalDeviceProperties(physical_devices[i],
                                           selected_queue_family_index)) {
             selected_physical_device = physical_devices[i];
             break;
@@ -188,8 +199,8 @@ bool Tutorial01::CreateDevice() {
     VkDeviceQueueCreateInfo queue_create_info = {
             VK_STRUCTURE_TYPE_DEVICE_QUEUE_CREATE_INFO,  // VkStructureType
                                                          // sType
-            nullptr,                      // const void                  *pNext
-            0,                            // VkDeviceQueueCreateFlags     flags
+            nullptr,                                     // const void* pNext
+            0,                            // VkDeviceQueueCreateFlags flags
             selected_queue_family_index,  // uint32_t queueFamilyIndex
             static_cast<uint32_t>(
                     queue_priorities.size()),  // uint32_t queueCount
@@ -213,16 +224,16 @@ bool Tutorial01::CreateDevice() {
     if (vkCreateDevice(selected_physical_device,
                        &device_create_info,
                        nullptr,
-                       &Vulkan.Device) != VK_SUCCESS) {
+                       &m_vk_tutorial01_parameters.Device) != VK_SUCCESS) {
         std::cout << "Could not create Vulkan device!" << std::endl;
         return false;
     }
 
-    Vulkan.QueueFamilyIndex = selected_queue_family_index;
+    m_vk_tutorial01_parameters.QueueFamilyIndex = selected_queue_family_index;
     return true;
 }
 
-bool Tutorial01::CheckPhysicalDeviceProperties(
+bool Tutorial01::checkPhysicalDeviceProperties(
         VkPhysicalDevice physical_device, uint32_t& queue_family_index) {
     VkPhysicalDeviceProperties device_properties;
     VkPhysicalDeviceFeatures device_features;
@@ -270,9 +281,10 @@ bool Tutorial01::CheckPhysicalDeviceProperties(
     return false;
 }
 
-bool Tutorial01::LoadDeviceLevelEntryPoints() {
+bool Tutorial01::loadDeviceLevelEntryPoints() {
 #define VK_DEVICE_LEVEL_FUNCTION(fun)                                        \
-    if (!(fun = (PFN_##fun)vkGetDeviceProcAddr(Vulkan.Device, #fun))) {      \
+    if (!(fun = (PFN_##fun)vkGetDeviceProcAddr(                              \
+                  m_vk_tutorial01_parameters.Device, #fun))) {               \
         std::cout << "Could not load device level function: " << #fun << "!" \
                   << std::endl;                                              \
         return false;                                                        \
@@ -283,28 +295,12 @@ bool Tutorial01::LoadDeviceLevelEntryPoints() {
     return true;
 }
 
-bool Tutorial01::GetDeviceQueue() {
-    vkGetDeviceQueue(Vulkan.Device, Vulkan.QueueFamilyIndex, 0, &Vulkan.Queue);
+bool Tutorial01::getDeviceQueue() {
+    vkGetDeviceQueue(m_vk_tutorial01_parameters.Device,
+                     m_vk_tutorial01_parameters.QueueFamilyIndex,
+                     0,
+                     &m_vk_tutorial01_parameters.Queue);
     return true;
-}
-
-Tutorial01::~Tutorial01() {
-    if (Vulkan.Device != VK_NULL_HANDLE) {
-        vkDeviceWaitIdle(Vulkan.Device);
-        vkDestroyDevice(Vulkan.Device, nullptr);
-    }
-
-    if (Vulkan.Instance != VK_NULL_HANDLE) {
-        vkDestroyInstance(Vulkan.Instance, nullptr);
-    }
-
-    if (VulkanLibrary) {
-#if defined(VK_USE_PLATFORM_WIN32_KHR)
-        FreeLibrary(VulkanLibrary);
-#elif defined(VK_USE_PLATFORM_XCB_KHR) || defined(VK_USE_PLATFORM_XLIB_KHR)
-        dlclose(VulkanLibrary);
-#endif
-    }
 }
 
 }  // namespace ApiWithoutSecrets

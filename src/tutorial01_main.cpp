@@ -26,7 +26,7 @@ int main(int argc, char** argv) {
     }
 
     // Vulkan preparations and initialization
-    if (!tutorial01.PrepareVulkan()) {
+    if (!tutorial01.prepareVulkan()) {
         return -1;
     }
 

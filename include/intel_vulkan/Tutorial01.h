@@ -1,4 +1,4 @@
-////////////////////////////////////////////////////////////////////////////////
+///////////////////////////////////////////////////////////////////////////////
 // Copyright 2017 Intel Corporation
 //
 // Licensed under the Apache License, Version 2.0 (the "License"); you may not
@@ -12,7 +12,7 @@
 // WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.  See the
 // License for the specific language governing permissions and limitations
 // under the License.
-////////////////////////////////////////////////////////////////////////////////
+///////////////////////////////////////////////////////////////////////////////
 
 #if !defined(TUTORIAL_01_HEADER)
 #define TUTORIAL_01_HEADER
@@ -53,22 +53,22 @@ public:
     bool onWindowSizeChanged() override;
     bool draw() override;
 
-    bool PrepareVulkan();
+    bool prepareVulkan();
 
 private:
-    OS::LibraryHandle VulkanLibrary;
-    VulkanTutorial01Parameters Vulkan;
+    OS::LibraryHandle m_vk_library_handle;
+    VulkanTutorial01Parameters m_vk_tutorial01_parameters;
 
-    bool LoadVulkanLibrary();
-    bool LoadExportedEntryPoints();
-    bool LoadGlobalLevelEntryPoints();
-    bool CreateInstance();
-    bool LoadInstanceLevelEntryPoints();
-    bool CreateDevice();
-    bool CheckPhysicalDeviceProperties(VkPhysicalDevice physical_device,
+    bool loadVulkanLibrary();
+    bool loadExportedEntryPoints();
+    bool loadGlobalLevelEntryPoints();
+    bool createInstance();
+    bool loadInstanceLevelEntryPoints();
+    bool createDevice();
+    bool checkPhysicalDeviceProperties(VkPhysicalDevice physical_device,
                                        uint32_t& queue_family_index);
-    bool LoadDeviceLevelEntryPoints();
-    bool GetDeviceQueue();
+    bool loadDeviceLevelEntryPoints();
+    bool getDeviceQueue();
 };
 
 }  // namespace ApiWithoutSecrets

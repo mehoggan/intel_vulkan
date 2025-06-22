@@ -1,4 +1,4 @@
-////////////////////////////////////////////////////////////////////////////////
+///////////////////////////////////////////////////////////////////////////////
 // Copyright 2017 Intel Corporation
 //
 // Licensed under the Apache License, Version 2.0 (the "License"); you may not
@@ -12,7 +12,7 @@
 // WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.  See the
 // License for the specific language governing permissions and limitations
 // under the License.
-////////////////////////////////////////////////////////////////////////////////
+///////////////////////////////////////////////////////////////////////////////
 
 #if !defined(TOOLS_HEADER)
 #define TOOLS_HEADER
@@ -23,9 +23,7 @@
 
 #include <vulkan/vulkan.h>
 
-namespace ApiWithoutSecrets {
-
-namespace Tools {
+namespace ApiWithoutSecrets::Tools {
 
 // ************************************************************ //
 // AutoDeleter                                                  //
@@ -115,8 +113,6 @@ std::array<float, 16> GetOrthographicProjectionMatrix(float const left_plane,
                                                       float const near_plane,
                                                       float const far_plane);
 
-}  // namespace Tools
+}  // namespace ApiWithoutSecrets::Tools
 
-}  // namespace ApiWithoutSecrets
-
-#endif  // TOOLS_HEADER
+#endif

@@ -19,9 +19,7 @@
 #include <chrono>
 #include <thread>
 
-namespace ApiWithoutSecrets {
-
-namespace OS {
+namespace ApiWithoutSecrets::OS {
 
 Window::Window() : Parameters() {}
 
@@ -133,14 +131,14 @@ bool Window::RenderingLoop(ProjectBase& project) const {
             // Resize
             if (resize) {
                 resize = false;
-                if (!project.OnWindowSizeChanged()) {
+                if (!project.onWindowSizeChanged()) {
                     result = false;
                     break;
                 }
             }
             // Draw
-            if (project.ReadyToDraw()) {
-                if (!project.Draw()) {
+            if (project.readyToDraw()) {
+                if (!project.draw()) {
                     result = false;
                     break;
                 }
@@ -281,13 +279,13 @@ bool Window::RenderingLoop(ProjectBase& project) const {
             // Draw
             if (resize) {
                 resize = false;
-                if (!project.OnWindowSizeChanged()) {
+                if (!project.onWindowSizeChanged()) {
                     result = false;
                     break;
                 }
             }
-            if (project.ReadyToDraw()) {
-                if (!project.Draw()) {
+            if (project.readyToDraw()) {
+                if (!project.draw()) {
                     result = false;
                     break;
                 }
@@ -395,13 +393,13 @@ bool Window::RenderingLoop(ProjectBase& project) const {
             // Draw
             if (resize) {
                 resize = false;
-                if (!project.OnWindowSizeChanged()) {
+                if (!project.onWindowSizeChanged()) {
                     result = false;
                     break;
                 }
             }
-            if (project.ReadyToDraw()) {
-                if (!project.Draw()) {
+            if (project.readyToDraw()) {
+                if (!project.draw()) {
                     result = false;
                     break;
                 }
@@ -416,6 +414,4 @@ bool Window::RenderingLoop(ProjectBase& project) const {
 
 #endif
 
-}  // namespace OS
-
-}  // namespace ApiWithoutSecrets
+}  // namespace ApiWithoutSecrets::OS

@@ -17,6 +17,7 @@
 #include "intel_vulkan/Tutorial01.h"
 
 #include <cstdint>
+#include <iostream>
 #include <vector>
 
 #include "intel_vulkan/VulkanFunctions.h"
@@ -25,9 +26,9 @@ namespace ApiWithoutSecrets {
 
 Tutorial01::Tutorial01() : VulkanLibrary(), Vulkan() {}
 
-bool Tutorial01::OnWindowSizeChanged() { return true; }
+bool Tutorial01::onWindowSizeChanged() { return true; }
 
-bool Tutorial01::Draw() { return true; }
+bool Tutorial01::draw() { return true; }
 
 bool Tutorial01::PrepareVulkan() {
     if (!LoadVulkanLibrary()) {

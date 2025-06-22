@@ -1,17 +1,3 @@
 # New Words
-aabb
-glslang
-LUNARG
-mehoggan
-MSAA
-Multisample
-multisampling
-QLCD
-qgui
-SPIR
-subpasses
-swapchain
-swapchains
-TRIANGLERENDERER
-VKAPI
-VULKANWINDOW
+SWAPCHAIN
+Xlib

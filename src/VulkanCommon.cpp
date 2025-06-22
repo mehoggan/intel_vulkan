@@ -17,6 +17,7 @@
 #include "intel_vulkan/VulkanCommon.h"
 
 #include <cstdint>
+#include <iostream>
 
 #include "intel_vulkan/VulkanFunctions.h"
 
@@ -60,7 +61,7 @@ bool VulkanCommon::PrepareVulkan(OS::WindowParameters parameters) {
     return true;
 }
 
-bool VulkanCommon::OnWindowSizeChanged() {
+bool VulkanCommon::onWindowSizeChanged() {
     if (Vulkan.Device != VK_NULL_HANDLE) {
         vkDeviceWaitIdle(Vulkan.Device);
     }
@@ -68,7 +69,7 @@ bool VulkanCommon::OnWindowSizeChanged() {
     ChildClear();
 
     if (CreateSwapChain()) {
-        if (CanRender) {
+        if (m_can_render) {
             return ChildOnWindowSizeChanged();
         }
         return true;
@@ -527,7 +528,7 @@ bool VulkanCommon::GetDeviceQueue() {
 }
 
 bool VulkanCommon::CreateSwapChain() {
-    CanRender = false;
+    m_can_render = false;
 
     if (Vulkan.Device != VK_NULL_HANDLE) {
         vkDeviceWaitIdle(Vulkan.Device);
@@ -730,7 +731,7 @@ bool VulkanCommon::CreateSwapChainImageViews() {
         }
     }
 
-    CanRender = true;
+    m_can_render = true;
 
     return true;
 }

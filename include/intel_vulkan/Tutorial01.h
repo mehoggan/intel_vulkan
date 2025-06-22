@@ -48,10 +48,10 @@ struct VulkanTutorial01Parameters {
 class Tutorial01 : public OS::ProjectBase {
 public:
     Tutorial01();
-    ~Tutorial01();
+    ~Tutorial01() override;
 
-    bool OnWindowSizeChanged() override;
-    bool Draw() override;
+    bool onWindowSizeChanged() override;
+    bool draw() override;
 
     bool PrepareVulkan();
 

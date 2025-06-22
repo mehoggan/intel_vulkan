@@ -134,10 +134,10 @@ struct VulkanCommonParameters {
 class VulkanCommon : public OS::ProjectBase {
 public:
     VulkanCommon();
-    virtual ~VulkanCommon();
+    ~VulkanCommon() override;
 
     bool PrepareVulkan(OS::WindowParameters parameters);
-    virtual bool OnWindowSizeChanged() final override;
+    bool onWindowSizeChanged() final override;
 
     VkPhysicalDevice GetPhysicalDevice() const;
     VkDevice GetDevice() const;

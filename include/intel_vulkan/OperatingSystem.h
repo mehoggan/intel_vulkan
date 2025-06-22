@@ -36,11 +36,8 @@
 #endif
 
 #include <cstring>
-#include <iostream>
 
-namespace ApiWithoutSecrets {
-
-namespace OS {
+namespace ApiWithoutSecrets::OS {
 
 // ************************************************************ //
 // LibraryHandle                                                //
@@ -52,7 +49,7 @@ namespace OS {
 typedef HMODULE LibraryHandle;
 
 #elif defined(VK_USE_PLATFORM_XCB_KHR) || defined(VK_USE_PLATFORM_XLIB_KHR)
-typedef void *LibraryHandle;
+typedef void* LibraryHandle;
 
 #endif
 
@@ -62,18 +59,18 @@ typedef void *LibraryHandle;
 // Base class for handling window size changes and drawing      //
 // ************************************************************ //
 class ProjectBase {
- public:
-  virtual bool OnWindowSizeChanged() = 0;
-  virtual bool Draw() = 0;
+public:
+    virtual bool onWindowSizeChanged() = 0;
+    virtual bool draw() = 0;
 
-  virtual bool ReadyToDraw() const final { return CanRender; }
+    virtual bool readyToDraw() const { return m_can_render; }
 
-  ProjectBase() : CanRender(false) {}
+    ProjectBase() : m_can_render(false) {}
 
-  virtual ~ProjectBase() {}
+    virtual ~ProjectBase() {}
 
- protected:
-  bool CanRender;
+protected:
+    bool m_can_render;
 };
 
 // ************************************************************ //
@@ -83,22 +80,22 @@ class ProjectBase {
 // ************************************************************ //
 struct WindowParameters {
 #if defined(VK_USE_PLATFORM_WIN32_KHR)
-  HINSTANCE Instance;
-  HWND Handle;
+    HINSTANCE Instance;
+    HWND Handle;
 
-  WindowParameters() : Instance(), Handle() {}
+    WindowParameters() : Instance(), Handle() {}
 
 #elif defined(VK_USE_PLATFORM_XCB_KHR)
-  xcb_connection_t *Connection;
-  xcb_window_t Handle;
+    xcb_connection_t* Connection;
+    xcb_window_t Handle;
 
-  WindowParameters() : Connection(), Handle() {}
+    WindowParameters() : Connection(), Handle() {}
 
 #elif defined(VK_USE_PLATFORM_XLIB_KHR)
-  Display *DisplayPtr;
-  Window Handle;
+    Display* DisplayPtr;
+    Window Handle;
 
-  WindowParameters() : DisplayPtr(), Handle() {}
+    WindowParameters() : DisplayPtr(), Handle() {}
 
 #endif
 };
@@ -109,20 +106,18 @@ struct WindowParameters {
 // OS dependent window creation and destruction class           //
 // ************************************************************ //
 class Window {
- public:
-  Window();
-  ~Window();
+public:
+    Window();
+    ~Window();
 
-  bool Create(const char *title);
-  bool RenderingLoop(ProjectBase &project) const;
-  WindowParameters GetParameters() const;
+    bool Create(const char* title);
+    bool RenderingLoop(ProjectBase& project) const;
+    WindowParameters GetParameters() const;
 
- private:
-  WindowParameters Parameters;
+private:
+    WindowParameters Parameters;
 };
 
-}  // namespace OS
-
-}  // namespace ApiWithoutSecrets
+}  // namespace ApiWithoutSecrets::OS
 
 #endif  // OPERATING_SYSTEM_HEADER

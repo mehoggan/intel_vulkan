@@ -17,6 +17,7 @@
 #if !defined(VULKAN_COMMON_HEADER)
 #define VULKAN_COMMON_HEADER
 
+#include <cstdint>
 #include <vector>
 
 #include <vulkan/vulkan.h>
@@ -29,11 +30,21 @@ namespace ApiWithoutSecrets {
 //                                                              //
 // Vulkan Queue's parameters container class                    //
 // ************************************************************ //
-struct QueueParameters {
-    VkQueue Handle;
-    uint32_t FamilyIndex;
+class QueueParameters {
+public:
+    QueueParameters();
 
-    QueueParameters() : Handle(VK_NULL_HANDLE), FamilyIndex(0) {}
+    VkQueue& getVkQueue();
+
+    void setVkQueue(VkQueue& vk_queue);
+
+    std::uint32_t getFamilyIndex() const;
+
+    void setFamilyIndex(const std::uint32_t family_index);
+
+private:
+    VkQueue m_vk_queue;
+    std::uint32_t m_family_index;
 };
 
 // ************************************************************ //

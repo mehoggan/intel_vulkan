@@ -23,6 +23,21 @@
 
 namespace ApiWithoutSecrets {
 
+QueueParameters::QueueParameters()
+        : m_vk_queue(VK_NULL_HANDLE), m_family_index(0) {}
+
+VkQueue& QueueParameters::getVkQueue() { return m_vk_queue; }
+
+void QueueParameters::setVkQueue(VkQueue& vk_queue) { m_vk_queue = vk_queue; }
+
+std::uint32_t QueueParameters::getFamilyIndex() const {
+    return m_family_index;
+}
+
+void QueueParameters::setFamilyIndex(const std::uint32_t family_index) {
+    m_family_index = family_index;
+}
+
 VulkanCommon::VulkanCommon() : VulkanLibrary(), Window(), Vulkan() {}
 
 bool VulkanCommon::PrepareVulkan(OS::WindowParameters parameters) {
@@ -374,8 +389,8 @@ bool VulkanCommon::CreateDevice() {
         return false;
     }
 
-    Vulkan.GraphicsQueue.FamilyIndex = selected_graphics_queue_family_index;
-    Vulkan.PresentQueue.FamilyIndex = selected_present_queue_family_index;
+    Vulkan.GraphicsQueue.setFamilyIndex(selected_graphics_queue_family_index);
+    Vulkan.PresentQueue.setFamilyIndex(selected_present_queue_family_index);
     return true;
 }
 
@@ -517,13 +532,13 @@ bool VulkanCommon::LoadDeviceLevelEntryPoints() {
 
 bool VulkanCommon::GetDeviceQueue() {
     vkGetDeviceQueue(Vulkan.Device,
-                     Vulkan.GraphicsQueue.FamilyIndex,
+                     Vulkan.GraphicsQueue.getFamilyIndex(),
                      0,
-                     &Vulkan.GraphicsQueue.Handle);
+                     &Vulkan.GraphicsQueue.getVkQueue());
     vkGetDeviceQueue(Vulkan.Device,
-                     Vulkan.PresentQueue.FamilyIndex,
+                     Vulkan.PresentQueue.getFamilyIndex(),
                      0,
-                     &Vulkan.PresentQueue.Handle);
+                     &Vulkan.PresentQueue.getVkQueue());
     return true;
 }
 

@@ -88,6 +88,7 @@ bool Tutorial01::loadExportedEntryPoints() {
 #define LoadProcAddress dlsym
 
 #define VK_EXPORTED_FUNCTION(fun)                                         \
+    std::cout << "Loading entry point " << #fun << "..." << std::endl;    \
     if (!(fun = (PFN_##fun)LoadProcAddress(m_vk_library_handle, #fun))) { \
         std::cout << "Could not load exported function: " << #fun << "!"  \
                   << std::endl;                                           \
@@ -101,6 +102,7 @@ bool Tutorial01::loadExportedEntryPoints() {
 
 bool Tutorial01::loadGlobalLevelEntryPoints() {
 #define VK_GLOBAL_LEVEL_FUNCTION(fun)                                        \
+    std::cout << "Loading global " << #fun << "..." << std::endl;            \
     if (!(fun = (PFN_##fun)vkGetInstanceProcAddr(nullptr, #fun))) {          \
         std::cout << "Could not load global level function: " << #fun << "!" \
                   << std::endl;                                              \
@@ -146,6 +148,7 @@ bool Tutorial01::createInstance() {
 
 bool Tutorial01::loadInstanceLevelEntryPoints() {
 #define VK_INSTANCE_LEVEL_FUNCTION(fun)                                 \
+    std::cout << "Loading instance " << #fun << "..." << std::endl;     \
     if (!(fun = (PFN_##fun)vkGetInstanceProcAddr(                       \
                   m_vk_tutorial01_parameters.Instance, #fun))) {        \
         std::cout << "Could not load instance level function: " << #fun \
@@ -283,6 +286,7 @@ bool Tutorial01::checkPhysicalDeviceProperties(
 
 bool Tutorial01::loadDeviceLevelEntryPoints() {
 #define VK_DEVICE_LEVEL_FUNCTION(fun)                                        \
+    std::cout << "Loading device " << #fun << "..." << std::endl;            \
     if (!(fun = (PFN_##fun)vkGetDeviceProcAddr(                              \
                   m_vk_tutorial01_parameters.Device, #fun))) {               \
         std::cout << "Could not load device level function: " << #fun << "!" \

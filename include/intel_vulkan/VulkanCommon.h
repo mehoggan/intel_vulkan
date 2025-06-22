@@ -34,8 +34,9 @@ class QueueParameters {
 public:
     QueueParameters();
 
+    const VkQueue& getVkQueue() const;
     VkQueue& getVkQueue();
-    void setVkQueue(VkQueue& vk_queue);
+    void setVkQueue(const VkQueue& vk_queue);
 
     std::uint32_t getFamilyIndex() const;
     void setFamilyIndex(const std::uint32_t family_index);
@@ -54,17 +55,18 @@ class ImageParameters {
 public:
     ImageParameters();
 
-    VkImage& getVkImage();
-    void setVkImage(VkImage& other);
+    const VkImage& getVkImage() const;
+    void setVkImage(const VkImage& other);
 
+    const VkImageView& getVkImageView() const;
     VkImageView& getVkImageView();
-    void setVkImageView(VkImageView& other);
+    void setVkImageView(const VkImageView& other);
 
-    VkSampler& getVkSampler();
-    void setVkSampler(VkSampler& other);
+    const VkSampler& getVkSampler() const;
+    void setVkSampler(const VkSampler& other);
 
-    VkDeviceMemory& getVkDeviceMemory();
-    void setVkDeviceMemory(VkDeviceMemory& other);
+    const VkDeviceMemory& getVkDeviceMemory() const;
+    void setVkDeviceMemory(const VkDeviceMemory& other);
 
 private:
     VkImage m_vk_image;
@@ -78,13 +80,23 @@ private:
 //                                                              //
 // Vulkan Buffer's parameters container class                   //
 // ************************************************************ //
-struct BufferParameters {
-    VkBuffer Handle;
-    VkDeviceMemory Memory;
-    uint32_t Size;
+class BufferParameters {
+public:
+    BufferParameters();
 
-    BufferParameters()
-            : Handle(VK_NULL_HANDLE), Memory(VK_NULL_HANDLE), Size(0) {}
+    const VkBuffer& getVkBuffer() const;
+    void setVkBuffer(const VkBuffer& other);
+
+    const VkDeviceMemory& getVkDeviceMemory() const;
+    void setVkDeviceMemory(const VkDeviceMemory& other);
+
+    std::uint32_t getSize() const;
+    void setSize(const std::uint32_t size);
+
+private:
+    VkBuffer m_vk_buffer;
+    VkDeviceMemory m_vk_device_memory;
+    std::uint32_t m_size;
 };
 
 // ************************************************************ //
@@ -92,15 +104,23 @@ struct BufferParameters {
 //                                                              //
 // Container class for descriptor related resources             //
 // ************************************************************ //
-struct DescriptorSetParameters {
-    VkDescriptorPool Pool;
-    VkDescriptorSetLayout Layout;
-    VkDescriptorSet Handle;
+class DescriptorSetParameters {
+public:
+    DescriptorSetParameters();
 
-    DescriptorSetParameters()
-            : Pool(VK_NULL_HANDLE)
-            , Layout(VK_NULL_HANDLE)
-            , Handle(VK_NULL_HANDLE) {}
+    const VkDescriptorPool& getVkDescriptorPool() const;
+    void setVkDescriptorPool(const VkDescriptorPool& other);
+
+    const VkDescriptorSetLayout& getVkDescriptorSetLayout() const;
+    void setVkDescriptorSetLayout(const VkDescriptorSetLayout& other);
+
+    const VkDescriptorSet& getVkDescriptorSet() const;
+    void setVkDescriptorSet(const VkDescriptorSet& other);
+
+private:
+    VkDescriptorPool m_vk_descriptor_pool;
+    VkDescriptorSetLayout m_vk_descriptor_set_layout;
+    VkDescriptorSet m_vk_descriptor_set;
 };
 
 // ************************************************************ //
@@ -108,17 +128,29 @@ struct DescriptorSetParameters {
 //                                                              //
 // Vulkan SwapChain's parameters container class                //
 // ************************************************************ //
-struct SwapChainParameters {
-    VkSwapchainKHR Handle;
-    VkFormat Format;
-    std::vector<ImageParameters> Images;
-    VkExtent2D Extent;
+class SwapChainParameters {
+public:
+    SwapChainParameters();
 
-    SwapChainParameters()
-            : Handle(VK_NULL_HANDLE)
-            , Format(VK_FORMAT_UNDEFINED)
-            , Images()
-            , Extent() {}
+    const VkSwapchainKHR& getVkSwapchainKhr() const;
+    VkSwapchainKHR& getVkSwapchainKhr();
+    void setVkSwapchainKhr(const VkSwapchainKHR& other);
+
+    const VkFormat& getVkFormat() const;
+    void setVkFormat(VkFormat& other);
+
+    const std::vector<ImageParameters>& getImageParameters() const;
+    std::vector<ImageParameters>& getImageParameters();
+    void setImageParameters(const std::vector<ImageParameters>& other);
+
+    const VkExtent2D& getVkExtent2d() const;
+    void setVkExtent2d(VkExtent2D& other);
+
+private:
+    VkSwapchainKHR m_vk_swapchain_khr;
+    VkFormat m_vk_format;
+    std::vector<ImageParameters> m_image_parameters;
+    VkExtent2D m_vk_extent_2d;
 };
 
 // ************************************************************ //

@@ -29,9 +29,13 @@ namespace ApiWithoutSecrets {
 QueueParameters::QueueParameters()
         : m_vk_queue(VK_NULL_HANDLE), m_family_index(0) {}
 
+const VkQueue& QueueParameters::getVkQueue() const { return m_vk_queue; }
+
 VkQueue& QueueParameters::getVkQueue() { return m_vk_queue; }
 
-void QueueParameters::setVkQueue(VkQueue& vk_queue) { m_vk_queue = vk_queue; }
+void QueueParameters::setVkQueue(const VkQueue& vk_queue) {
+    m_vk_queue = vk_queue;
+}
 
 std::uint32_t QueueParameters::getFamilyIndex() const {
     return m_family_index;
@@ -50,26 +54,143 @@ ImageParameters::ImageParameters()
         , m_vk_sampler(VK_NULL_HANDLE)
         , m_vk_device_memory(VK_NULL_HANDLE) {}
 
-VkImage& ImageParameters::getVkImage() { return m_vk_image; }
+const VkImage& ImageParameters::getVkImage() const { return m_vk_image; }
 
-void ImageParameters::setVkImage(VkImage& other) { m_vk_image = other; }
+void ImageParameters::setVkImage(const VkImage& other) { m_vk_image = other; }
+
+const VkImageView& ImageParameters::getVkImageView() const {
+    return m_vk_image_view;
+}
 
 VkImageView& ImageParameters::getVkImageView() { return m_vk_image_view; }
 
-void ImageParameters::setVkImageView(VkImageView& other) {
+void ImageParameters::setVkImageView(const VkImageView& other) {
     m_vk_image_view = other;
 }
 
-VkSampler& ImageParameters::getVkSampler() { return m_vk_sampler; }
+const VkSampler& ImageParameters::getVkSampler() const { return m_vk_sampler; }
 
-void ImageParameters::setVkSampler(VkSampler& other) { m_vk_sampler = other; }
+void ImageParameters::setVkSampler(const VkSampler& other) {
+    m_vk_sampler = other;
+}
 
-VkDeviceMemory& ImageParameters::getVkDeviceMemory() {
+const VkDeviceMemory& ImageParameters::getVkDeviceMemory() const {
     return m_vk_device_memory;
 }
 
-void ImageParameters::setVkDeviceMemory(VkDeviceMemory& other) {
+void ImageParameters::setVkDeviceMemory(const VkDeviceMemory& other) {
     m_vk_device_memory = other;
+}
+
+/*
+ * BufferParameters
+ */
+BufferParameters::BufferParameters()
+        : m_vk_buffer(VK_NULL_HANDLE)
+        , m_vk_device_memory(VK_NULL_HANDLE)
+        , m_size(0) {}
+
+const VkBuffer& BufferParameters::getVkBuffer() const { return m_vk_buffer; }
+
+void BufferParameters::setVkBuffer(const VkBuffer& other) {
+    m_vk_buffer = other;
+}
+
+const VkDeviceMemory& BufferParameters::getVkDeviceMemory() const {
+    return m_vk_device_memory;
+}
+
+void BufferParameters::setVkDeviceMemory(const VkDeviceMemory& other) {
+    m_vk_device_memory = other;
+}
+
+std::uint32_t BufferParameters::getSize() const { return m_size; }
+
+void BufferParameters::setSize(const std::uint32_t size) { m_size = size; }
+
+/*
+ * DescriptorParameters
+ */
+DescriptorSetParameters::DescriptorSetParameters()
+        : m_vk_descriptor_pool(VK_NULL_HANDLE)
+        , m_vk_descriptor_set_layout(VK_NULL_HANDLE)
+        , m_vk_descriptor_set(VK_NULL_HANDLE) {}
+
+const VkDescriptorPool& DescriptorSetParameters::getVkDescriptorPool() const {
+    return m_vk_descriptor_pool;
+}
+
+void DescriptorSetParameters::setVkDescriptorPool(
+        const VkDescriptorPool& other) {
+    m_vk_descriptor_pool = other;
+}
+
+const VkDescriptorSetLayout&
+DescriptorSetParameters::getVkDescriptorSetLayout() const {
+    return m_vk_descriptor_set_layout;
+}
+
+void DescriptorSetParameters::setVkDescriptorSetLayout(
+        const VkDescriptorSetLayout& other) {
+    m_vk_descriptor_set_layout = other;
+}
+
+const VkDescriptorSet& DescriptorSetParameters::getVkDescriptorSet() const {
+    return m_vk_descriptor_set;
+}
+
+void DescriptorSetParameters::setVkDescriptorSet(
+        const VkDescriptorSet& other) {
+    m_vk_descriptor_set = other;
+}
+
+/*
+ * SwapChainParameters
+ */
+SwapChainParameters::SwapChainParameters()
+        : m_vk_swapchain_khr(VK_NULL_HANDLE)
+        , m_vk_format(VK_FORMAT_UNDEFINED)
+        , m_image_parameters{}
+        , m_vk_extent_2d() {}
+
+const VkSwapchainKHR& SwapChainParameters::getVkSwapchainKhr() const {
+    return m_vk_swapchain_khr;
+}
+
+VkSwapchainKHR& SwapChainParameters::getVkSwapchainKhr() {
+    return m_vk_swapchain_khr;
+}
+
+void SwapChainParameters::setVkSwapchainKhr(const VkSwapchainKHR& other) {
+    m_vk_swapchain_khr = other;
+}
+
+const VkFormat& SwapChainParameters::getVkFormat() const {
+    return m_vk_format;
+}
+
+void SwapChainParameters::setVkFormat(VkFormat& other) { m_vk_format = other; }
+
+const std::vector<ImageParameters>& SwapChainParameters::getImageParameters()
+        const {
+    return m_image_parameters;
+}
+
+std::vector<ImageParameters>& SwapChainParameters::getImageParameters() {
+    return m_image_parameters;
+}
+
+void SwapChainParameters::setImageParameters(
+        const std::vector<ImageParameters>& other) {
+    m_image_parameters = other;
+}
+
+const VkExtent2D& SwapChainParameters::getVkExtent2d() const {
+    return m_vk_extent_2d;
+}
+
+void SwapChainParameters::setVkExtent2d(VkExtent2D& other) {
+    m_vk_extent_2d = other;
 }
 
 VulkanCommon::VulkanCommon() : VulkanLibrary(), Window(), Vulkan() {}
@@ -146,11 +267,7 @@ const SwapChainParameters& VulkanCommon::GetSwapChain() const {
 }
 
 bool VulkanCommon::LoadVulkanLibrary() {
-#if defined(VK_USE_PLATFORM_WIN32_KHR)
-    VulkanLibrary = LoadLibrary("vulkan-1.dll");
-#elif defined(VK_USE_PLATFORM_XCB_KHR) || defined(VK_USE_PLATFORM_XLIB_KHR)
     VulkanLibrary = dlopen("libvulkan.so.1", RTLD_NOW);
-#endif
 
     if (VulkanLibrary == nullptr) {
         std::cout << "Could not load Vulkan library!" << std::endl;
@@ -211,14 +328,7 @@ bool VulkanCommon::CreateInstance() {
     }
 
     std::vector<const char*> extensions = {VK_KHR_SURFACE_EXTENSION_NAME,
-#if defined(VK_USE_PLATFORM_WIN32_KHR)
-                                           VK_KHR_WIN32_SURFACE_EXTENSION_NAME
-#elif defined(VK_USE_PLATFORM_XCB_KHR)
-                                           VK_KHR_XCB_SURFACE_EXTENSION_NAME
-#elif defined(VK_USE_PLATFORM_XLIB_KHR)
-                                           VK_KHR_XLIB_SURFACE_EXTENSION_NAME
-#endif
-    };
+                                           VK_KHR_XLIB_SURFACE_EXTENSION_NAME};
 
     for (size_t i = 0; i < extensions.size(); ++i) {
         if (!CheckExtensionAvailability(extensions[i], available_extensions)) {
@@ -583,15 +693,18 @@ bool VulkanCommon::CreateSwapChain() {
         vkDeviceWaitIdle(Vulkan.Device);
     }
 
-    for (size_t i = 0; i < Vulkan.SwapChain.Images.size(); ++i) {
-        if (Vulkan.SwapChain.Images[i].getVkImageView() != VK_NULL_HANDLE) {
-            vkDestroyImageView(GetDevice(),
-                               Vulkan.SwapChain.Images[i].getVkImageView(),
-                               nullptr);
-            Vulkan.SwapChain.Images[i].getVkImageView() = VK_NULL_HANDLE;
+    for (size_t i = 0; i < Vulkan.SwapChain.getImageParameters().size(); ++i) {
+        if (Vulkan.SwapChain.getImageParameters()[i].getVkImageView() !=
+            VK_NULL_HANDLE) {
+            vkDestroyImageView(
+                    GetDevice(),
+                    Vulkan.SwapChain.getImageParameters()[i].getVkImageView(),
+                    nullptr);
+            Vulkan.SwapChain.getImageParameters()[i].setVkImageView(
+                    VK_NULL_HANDLE);
         }
     }
-    Vulkan.SwapChain.Images.clear();
+    Vulkan.SwapChain.getImageParameters().clear();
 
     VkSurfaceCapabilitiesKHR surface_capabilities;
     if (vkGetPhysicalDeviceSurfaceCapabilitiesKHR(Vulkan.PhysicalDevice,
@@ -663,7 +776,8 @@ bool VulkanCommon::CreateSwapChain() {
             GetSwapChainTransform(surface_capabilities);
     VkPresentModeKHR desired_present_mode =
             GetSwapChainPresentMode(present_modes);
-    VkSwapchainKHR old_swap_chain = Vulkan.SwapChain.Handle;
+    const VkSwapchainKHR& old_swap_chain =
+            Vulkan.SwapChain.getVkSwapchainKhr();
 
     if (static_cast<int>(desired_usage) == -1) {
         return false;
@@ -705,7 +819,8 @@ bool VulkanCommon::CreateSwapChain() {
     if (vkCreateSwapchainKHR(Vulkan.Device,
                              &swap_chain_create_info,
                              nullptr,
-                             &Vulkan.SwapChain.Handle) != VK_SUCCESS) {
+                             &Vulkan.SwapChain.getVkSwapchainKhr()) !=
+        VK_SUCCESS) {
         std::cout << "Could not create swap chain!" << std::endl;
         return false;
     }
@@ -713,46 +828,47 @@ bool VulkanCommon::CreateSwapChain() {
         vkDestroySwapchainKHR(Vulkan.Device, old_swap_chain, nullptr);
     }
 
-    Vulkan.SwapChain.Format = desired_format.format;
+    Vulkan.SwapChain.setVkFormat(desired_format.format);
 
     uint32_t image_count = 0;
     if ((vkGetSwapchainImagesKHR(Vulkan.Device,
-                                 Vulkan.SwapChain.Handle,
+                                 Vulkan.SwapChain.getVkSwapchainKhr(),
                                  &image_count,
                                  nullptr) != VK_SUCCESS) ||
         (image_count == 0)) {
         std::cout << "Could not get swap chain images!" << std::endl;
         return false;
     }
-    Vulkan.SwapChain.Images.resize(image_count);
+    Vulkan.SwapChain.getImageParameters().resize(image_count);
 
     std::vector<VkImage> images(image_count);
     if (vkGetSwapchainImagesKHR(Vulkan.Device,
-                                Vulkan.SwapChain.Handle,
+                                Vulkan.SwapChain.getVkSwapchainKhr(),
                                 &image_count,
                                 images.data()) != VK_SUCCESS) {
         std::cout << "Could not get swap chain images!" << std::endl;
         return false;
     }
 
-    for (size_t i = 0; i < Vulkan.SwapChain.Images.size(); ++i) {
-        Vulkan.SwapChain.Images[i].getVkImage() = images[i];
+    for (size_t i = 0; i < Vulkan.SwapChain.getImageParameters().size(); ++i) {
+        Vulkan.SwapChain.getImageParameters()[i].setVkImage(images[i]);
     }
-    Vulkan.SwapChain.Extent = desired_extent;
+    Vulkan.SwapChain.setVkExtent2d(desired_extent);
 
     return CreateSwapChainImageViews();
 }
 
 bool VulkanCommon::CreateSwapChainImageViews() {
-    for (size_t i = 0; i < Vulkan.SwapChain.Images.size(); ++i) {
+    for (size_t i = 0; i < Vulkan.SwapChain.getImageParameters().size(); ++i) {
         VkImageViewCreateInfo image_view_create_info = {
                 VK_STRUCTURE_TYPE_IMAGE_VIEW_CREATE_INFO,  // VkStructureType
                                                            // sType
                 nullptr,  // const void                    *pNext
                 0,        // VkImageViewCreateFlags         flags
-                Vulkan.SwapChain.Images[i].getVkImage(),  // VkImage image
-                VK_IMAGE_VIEW_TYPE_2D,  // VkImageViewType viewType
-                GetSwapChain().Format,  // VkFormat format
+                Vulkan.SwapChain.getImageParameters()[i]
+                        .getVkImage(),         // VkImage image
+                VK_IMAGE_VIEW_TYPE_2D,         // VkImageViewType viewType
+                GetSwapChain().getVkFormat(),  // VkFormat format
                 {
                         // VkComponentMapping             components
                         VK_COMPONENT_SWIZZLE_IDENTITY,  // VkComponentSwizzle r
@@ -773,8 +889,8 @@ bool VulkanCommon::CreateSwapChainImageViews() {
         if (vkCreateImageView(GetDevice(),
                               &image_view_create_info,
                               nullptr,
-                              &Vulkan.SwapChain.Images[i].getVkImageView()) !=
-            VK_SUCCESS) {
+                              &Vulkan.SwapChain.getImageParameters()[i]
+                                       .getVkImageView()) != VK_SUCCESS) {
             std::cout << "Could not create image view for framebuffer!"
                       << std::endl;
             return false;
@@ -922,7 +1038,7 @@ VkImageUsageFlags VulkanCommon::GetSwapChainUsageFlags(
 VkSurfaceTransformFlagBitsKHR VulkanCommon::GetSwapChainTransform(
         VkSurfaceCapabilitiesKHR& surface_capabilities) {
     // Sometimes images must be transformed before they are presented (i.e. due
-    // to device's orienation being other than default orientation) If the
+    // to device's orientation being other than default orientation) If the
     // specified transform is other than current transform, presentation engine
     // will transform image during presentation operation; this operation may
     // hit performance on some platforms Here we don't want any transformations
@@ -968,18 +1084,21 @@ VulkanCommon::~VulkanCommon() {
     if (Vulkan.Device != VK_NULL_HANDLE) {
         vkDeviceWaitIdle(Vulkan.Device);
 
-        for (size_t i = 0; i < Vulkan.SwapChain.Images.size(); ++i) {
-            if (Vulkan.SwapChain.Images[i].getVkImageView() !=
+        for (size_t i = 0; i < Vulkan.SwapChain.getImageParameters().size();
+             ++i) {
+            if (Vulkan.SwapChain.getImageParameters()[i].getVkImageView() !=
                 VK_NULL_HANDLE) {
                 vkDestroyImageView(GetDevice(),
-                                   Vulkan.SwapChain.Images[i].getVkImageView(),
+                                   Vulkan.SwapChain.getImageParameters()[i]
+                                           .getVkImageView(),
                                    nullptr);
             }
         }
 
-        if (Vulkan.SwapChain.Handle != VK_NULL_HANDLE) {
-            vkDestroySwapchainKHR(
-                    Vulkan.Device, Vulkan.SwapChain.Handle, nullptr);
+        if (Vulkan.SwapChain.getVkSwapchainKhr() != VK_NULL_HANDLE) {
+            vkDestroySwapchainKHR(Vulkan.Device,
+                                  Vulkan.SwapChain.getVkSwapchainKhr(),
+                                  nullptr);
         }
         vkDestroyDevice(Vulkan.Device, nullptr);
     }

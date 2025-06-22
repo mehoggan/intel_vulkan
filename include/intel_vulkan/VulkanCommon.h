@@ -210,54 +210,55 @@ public:
     VulkanCommon();
     ~VulkanCommon() override;
 
-    bool PrepareVulkan(OS::WindowParameters parameters);
-    bool onWindowSizeChanged() final override;
+    bool prepareVulkan(OS::WindowParameters parameters);
+    bool onWindowSizeChanged() override;
 
-    VkPhysicalDevice GetPhysicalDevice() const;
-    VkDevice GetDevice() const;
+    VkPhysicalDevice getVkPhysicalDevice() const;
+    VkDevice getVkDevice() const;
 
-    const QueueParameters& GetGraphicsQueue() const;
-    const QueueParameters& GetPresentQueue() const;
+    const QueueParameters& getGraphicsQueueParameters() const;
+    const QueueParameters& getPresentQueueParameters() const;
 
-    const SwapChainParameters& GetSwapChain() const;
+    const SwapChainParameters& getSwapchainParameters() const;
 
 private:
-    OS::LibraryHandle VulkanLibrary;
-    OS::WindowParameters Window;
-    VulkanCommonParameters Vulkan;
+    OS::LibraryHandle m_vk_library_handle;
+    OS::WindowParameters m_window_parameters;
+    VulkanCommonParameters m_vulkan_parameters;
 
-    bool LoadVulkanLibrary();
-    bool LoadExportedEntryPoints();
-    bool LoadGlobalLevelEntryPoints();
-    bool CreateInstance();
-    bool LoadInstanceLevelEntryPoints();
-    bool CreatePresentationSurface();
-    bool CreateDevice();
-    bool CheckPhysicalDeviceProperties(VkPhysicalDevice physical_device,
+    bool loadVulkanLibrary();
+    bool loadExportedEntryPoints();
+    bool loadGlobalLevelEntryPoints();
+    bool createInstance();
+    bool loadInstanceLevelEntryPoints();
+    bool createPresentationSurface();
+    bool createDevice();
+    bool checkPhysicalDeviceProperties(VkPhysicalDevice physical_device,
                                        uint32_t& graphics_queue_family_index,
                                        uint32_t& present_queue_family_index);
-    bool LoadDeviceLevelEntryPoints();
-    bool GetDeviceQueue();
-    bool CreateSwapChain();
-    bool CreateSwapChainImageViews();
-    virtual bool ChildOnWindowSizeChanged() = 0;
-    virtual void ChildClear() = 0;
+    bool loadDeviceLevelEntryPoints();
+    bool getDeviceQueue();
+    bool createSwapChain();
+    bool createSwapChainImageViews();
 
-    bool CheckExtensionAvailability(
+    bool checkExtensionAvailability(
             const char* extension_name,
             const std::vector<VkExtensionProperties>& available_extensions);
-    uint32_t GetSwapChainNumImages(
+    uint32_t getSwapChainNumImages(
             VkSurfaceCapabilitiesKHR& surface_capabilities);
-    VkSurfaceFormatKHR GetSwapChainFormat(
+    VkSurfaceFormatKHR getSwapChainFormat(
             std::vector<VkSurfaceFormatKHR>& surface_formats);
-    VkExtent2D GetSwapChainExtent(
+    VkExtent2D getSwapChainExtent(
             VkSurfaceCapabilitiesKHR& surface_capabilities);
-    VkImageUsageFlags GetSwapChainUsageFlags(
+    VkImageUsageFlags getSwapChainUsageFlags(
             VkSurfaceCapabilitiesKHR& surface_capabilities);
-    VkSurfaceTransformFlagBitsKHR GetSwapChainTransform(
+    VkSurfaceTransformFlagBitsKHR getSwapChainTransform(
             VkSurfaceCapabilitiesKHR& surface_capabilities);
-    VkPresentModeKHR GetSwapChainPresentMode(
+    VkPresentModeKHR getSwapChainPresentMode(
             std::vector<VkPresentModeKHR>& present_modes);
+
+    virtual bool childOnWindowSizeChanged() = 0;
+    virtual void childClear() = 0;
 };
 
 }  // namespace ApiWithoutSecrets

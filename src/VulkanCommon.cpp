@@ -292,54 +292,57 @@ void VulkanCommonParameters::setSwapchainParameters(
     m_swapchain_parameters = other;
 }
 
-VulkanCommon::VulkanCommon() : VulkanLibrary(), Window(), Vulkan() {}
+VulkanCommon::VulkanCommon()
+        : m_vk_library_handle()
+        , m_window_parameters()
+        , m_vulkan_parameters() {}
 
-bool VulkanCommon::PrepareVulkan(OS::WindowParameters parameters) {
-    Window = parameters;
+bool VulkanCommon::prepareVulkan(OS::WindowParameters parameters) {
+    m_window_parameters = parameters;
 
-    if (!LoadVulkanLibrary()) {
+    if (!loadVulkanLibrary()) {
         return false;
     }
-    if (!LoadExportedEntryPoints()) {
+    if (!loadExportedEntryPoints()) {
         return false;
     }
-    if (!LoadGlobalLevelEntryPoints()) {
+    if (!loadGlobalLevelEntryPoints()) {
         return false;
     }
-    if (!CreateInstance()) {
+    if (!createInstance()) {
         return false;
     }
-    if (!LoadInstanceLevelEntryPoints()) {
+    if (!loadInstanceLevelEntryPoints()) {
         return false;
     }
-    if (!CreatePresentationSurface()) {
+    if (!createPresentationSurface()) {
         return false;
     }
-    if (!CreateDevice()) {
+    if (!createDevice()) {
         return false;
     }
-    if (!LoadDeviceLevelEntryPoints()) {
+    if (!loadDeviceLevelEntryPoints()) {
         return false;
     }
-    if (!GetDeviceQueue()) {
+    if (!getDeviceQueue()) {
         return false;
     }
-    if (!CreateSwapChain()) {
+    if (!createSwapChain()) {
         return false;
     }
     return true;
 }
 
 bool VulkanCommon::onWindowSizeChanged() {
-    if (Vulkan.getVkDevice() != VK_NULL_HANDLE) {
-        vkDeviceWaitIdle(Vulkan.getVkDevice());
+    if (m_vulkan_parameters.getVkDevice() != VK_NULL_HANDLE) {
+        vkDeviceWaitIdle(m_vulkan_parameters.getVkDevice());
     }
 
-    ChildClear();
+    childClear();
 
-    if (CreateSwapChain()) {
+    if (createSwapChain()) {
         if (m_can_render) {
-            return ChildOnWindowSizeChanged();
+            return childOnWindowSizeChanged();
         }
         return true;
     }
@@ -347,46 +350,44 @@ bool VulkanCommon::onWindowSizeChanged() {
     return false;
 }
 
-VkPhysicalDevice VulkanCommon::GetPhysicalDevice() const {
-    return Vulkan.getVkPhysicalDevice();
+VkPhysicalDevice VulkanCommon::getVkPhysicalDevice() const {
+    return m_vulkan_parameters.getVkPhysicalDevice();
 }
 
-VkDevice VulkanCommon::GetDevice() const { return Vulkan.getVkDevice(); }
-
-const QueueParameters& VulkanCommon::GetGraphicsQueue() const {
-    return Vulkan.getGraphicsQueueParameters();
+VkDevice VulkanCommon::getVkDevice() const {
+    return m_vulkan_parameters.getVkDevice();
 }
 
-const QueueParameters& VulkanCommon::GetPresentQueue() const {
-    return Vulkan.getPresentQueueParameters();
+const QueueParameters& VulkanCommon::getGraphicsQueueParameters() const {
+    return m_vulkan_parameters.getGraphicsQueueParameters();
 }
 
-const SwapChainParameters& VulkanCommon::GetSwapChain() const {
-    return Vulkan.getSwapchainParameters();
+const QueueParameters& VulkanCommon::getPresentQueueParameters() const {
+    return m_vulkan_parameters.getPresentQueueParameters();
 }
 
-bool VulkanCommon::LoadVulkanLibrary() {
-    VulkanLibrary = dlopen("libvulkan.so.1", RTLD_NOW);
+const SwapChainParameters& VulkanCommon::getSwapchainParameters() const {
+    return m_vulkan_parameters.getSwapchainParameters();
+}
 
-    if (VulkanLibrary == nullptr) {
+bool VulkanCommon::loadVulkanLibrary() {
+    m_vk_library_handle = dlopen("libvulkan.so.1", RTLD_NOW);
+
+    if (m_vk_library_handle == nullptr) {
         std::cout << "Could not load Vulkan library!" << std::endl;
         return false;
     }
     return true;
 }
 
-bool VulkanCommon::LoadExportedEntryPoints() {
-#if defined(VK_USE_PLATFORM_WIN32_KHR)
-#define LoadProcAddress GetProcAddress
-#elif defined(VK_USE_PLATFORM_XCB_KHR) || defined(VK_USE_PLATFORM_XLIB_KHR)
+bool VulkanCommon::loadExportedEntryPoints() {
 #define LoadProcAddress dlsym
-#endif
 
-#define VK_EXPORTED_FUNCTION(fun)                                        \
-    if (!(fun = (PFN_##fun)LoadProcAddress(VulkanLibrary, #fun))) {      \
-        std::cout << "Could not load exported function: " << #fun << "!" \
-                  << std::endl;                                          \
-        return false;                                                    \
+#define VK_EXPORTED_FUNCTION(fun)                                         \
+    if (!(fun = (PFN_##fun)LoadProcAddress(m_vk_library_handle, #fun))) { \
+        std::cout << "Could not load exported function: " << #fun << "!"  \
+                  << std::endl;                                           \
+        return false;                                                     \
     }
 
 #include "intel_vulkan/ListOfFunctions.inl"
@@ -394,7 +395,7 @@ bool VulkanCommon::LoadExportedEntryPoints() {
     return true;
 }
 
-bool VulkanCommon::LoadGlobalLevelEntryPoints() {
+bool VulkanCommon::loadGlobalLevelEntryPoints() {
 #define VK_GLOBAL_LEVEL_FUNCTION(fun)                                        \
     if (!(fun = (PFN_##fun)vkGetInstanceProcAddr(nullptr, #fun))) {          \
         std::cout << "Could not load global level function: " << #fun << "!" \
@@ -407,7 +408,7 @@ bool VulkanCommon::LoadGlobalLevelEntryPoints() {
     return true;
 }
 
-bool VulkanCommon::CreateInstance() {
+bool VulkanCommon::createInstance() {
     uint32_t extensions_count = 0;
     if ((vkEnumerateInstanceExtensionProperties(
                  nullptr, &extensions_count, nullptr) != VK_SUCCESS) ||
@@ -430,7 +431,7 @@ bool VulkanCommon::CreateInstance() {
                                            VK_KHR_XLIB_SURFACE_EXTENSION_NAME};
 
     for (size_t i = 0; i < extensions.size(); ++i) {
-        if (!CheckExtensionAvailability(extensions[i], available_extensions)) {
+        if (!checkExtensionAvailability(extensions[i], available_extensions)) {
             std::cout << "Could not find instance extension named \""
                       << extensions[i] << "\"!" << std::endl;
             return false;
@@ -462,20 +463,20 @@ bool VulkanCommon::CreateInstance() {
 
     if (vkCreateInstance(&instance_create_info,
                          nullptr,
-                         &Vulkan.getVkInstance()) != VK_SUCCESS) {
+                         &m_vulkan_parameters.getVkInstance()) != VK_SUCCESS) {
         std::cout << "Could not create Vulkan instance!" << std::endl;
         return false;
     }
     return true;
 }
 
-bool VulkanCommon::LoadInstanceLevelEntryPoints() {
-#define VK_INSTANCE_LEVEL_FUNCTION(fun)                                  \
-    if (!(fun = (PFN_##fun)vkGetInstanceProcAddr(Vulkan.getVkInstance(), \
-                                                 #fun))) {               \
-        std::cout << "Could not load instance level function: " << #fun  \
-                  << "!" << std::endl;                                   \
-        return false;                                                    \
+bool VulkanCommon::loadInstanceLevelEntryPoints() {
+#define VK_INSTANCE_LEVEL_FUNCTION(fun)                                 \
+    if (!(fun = (PFN_##fun)vkGetInstanceProcAddr(                       \
+                  m_vulkan_parameters.getVkInstance(), #fun))) {        \
+        std::cout << "Could not load instance level function: " << #fun \
+                  << "!" << std::endl;                                  \
+        return false;                                                   \
     }
 
 #include "intel_vulkan/ListOfFunctions.inl"
@@ -483,19 +484,20 @@ bool VulkanCommon::LoadInstanceLevelEntryPoints() {
     return true;
 }
 
-bool VulkanCommon::CreatePresentationSurface() {
+bool VulkanCommon::createPresentationSurface() {
     VkXlibSurfaceCreateInfoKHR surface_create_info = {
             VK_STRUCTURE_TYPE_XLIB_SURFACE_CREATE_INFO_KHR,  // VkStructureType
                                                              // sType
-            nullptr,                  // const void                    *pNext
-            0,                        // VkXlibSurfaceCreateFlagsKHR    flags
-            Window.getDisplayPtr(),   // Display                       *dpy
-            Window.getWindowHandle()  // Window                         window
+            nullptr,  // const void                    *pNext
+            0,        // VkXlibSurfaceCreateFlagsKHR    flags
+            m_window_parameters.getDisplayPtr(),   // Display *dpy
+            m_window_parameters.getWindowHandle()  // Window window
     };
-    if (vkCreateXlibSurfaceKHR(Vulkan.getVkInstance(),
+    if (vkCreateXlibSurfaceKHR(m_vulkan_parameters.getVkInstance(),
                                &surface_create_info,
                                nullptr,
-                               &Vulkan.getVkSurfaceKhr()) == VK_SUCCESS) {
+                               &m_vulkan_parameters.getVkSurfaceKhr()) ==
+        VK_SUCCESS) {
         return true;
     }
 
@@ -503,9 +505,9 @@ bool VulkanCommon::CreatePresentationSurface() {
     return false;
 }
 
-bool VulkanCommon::CreateDevice() {
+bool VulkanCommon::createDevice() {
     uint32_t num_devices = 0;
-    if ((vkEnumeratePhysicalDevices(Vulkan.getVkInstance(),
+    if ((vkEnumeratePhysicalDevices(m_vulkan_parameters.getVkInstance(),
                                     &num_devices,
                                     nullptr) != VK_SUCCESS) ||
         (num_devices == 0)) {
@@ -515,7 +517,7 @@ bool VulkanCommon::CreateDevice() {
     }
 
     std::vector<VkPhysicalDevice> physical_devices(num_devices);
-    if (vkEnumeratePhysicalDevices(Vulkan.getVkInstance(),
+    if (vkEnumeratePhysicalDevices(m_vulkan_parameters.getVkInstance(),
                                    &num_devices,
                                    physical_devices.data()) != VK_SUCCESS) {
         std::cout << "Error occurred during physical devices enumeration!"
@@ -527,15 +529,15 @@ bool VulkanCommon::CreateDevice() {
     uint32_t selected_present_queue_family_index = UINT32_MAX;
 
     for (uint32_t i = 0; i < num_devices; ++i) {
-        if (CheckPhysicalDeviceProperties(
+        if (checkPhysicalDeviceProperties(
                     physical_devices[i],
                     selected_graphics_queue_family_index,
                     selected_present_queue_family_index)) {
-            Vulkan.setVkPhysicalDevice(physical_devices[i]);
+            m_vulkan_parameters.setVkPhysicalDevice(physical_devices[i]);
             break;
         }
     }
-    if (Vulkan.getVkPhysicalDevice() == VK_NULL_HANDLE) {
+    if (m_vulkan_parameters.getVkPhysicalDevice() == VK_NULL_HANDLE) {
         std::cout << "Could not select physical device based on the chosen "
                      "properties!"
                   << std::endl;
@@ -590,22 +592,22 @@ bool VulkanCommon::CreateDevice() {
             nullptr  // const VkPhysicalDeviceFeatures    *pEnabledFeatures
     };
 
-    if (vkCreateDevice(Vulkan.getVkPhysicalDevice(),
+    if (vkCreateDevice(m_vulkan_parameters.getVkPhysicalDevice(),
                        &device_create_info,
                        nullptr,
-                       &Vulkan.getVkDevice()) != VK_SUCCESS) {
+                       &m_vulkan_parameters.getVkDevice()) != VK_SUCCESS) {
         std::cout << "Could not create Vulkan device!" << std::endl;
         return false;
     }
 
-    Vulkan.getGraphicsQueueParameters().setFamilyIndex(
+    m_vulkan_parameters.getGraphicsQueueParameters().setFamilyIndex(
             selected_graphics_queue_family_index);
-    Vulkan.getPresentQueueParameters().setFamilyIndex(
+    m_vulkan_parameters.getPresentQueueParameters().setFamilyIndex(
             selected_present_queue_family_index);
     return true;
 }
 
-bool VulkanCommon::CheckPhysicalDeviceProperties(
+bool VulkanCommon::checkPhysicalDeviceProperties(
         VkPhysicalDevice physical_device,
         uint32_t& selected_graphics_queue_family_index,
         uint32_t& selected_present_queue_family_index) {
@@ -636,7 +638,7 @@ bool VulkanCommon::CheckPhysicalDeviceProperties(
             VK_KHR_SWAPCHAIN_EXTENSION_NAME};
 
     for (size_t i = 0; i < device_extensions.size(); ++i) {
-        if (!CheckExtensionAvailability(device_extensions[i],
+        if (!checkExtensionAvailability(device_extensions[i],
                                         available_extensions)) {
             std::cout << "Physical device " << physical_device
                       << " doesn't support extension named \""
@@ -681,10 +683,11 @@ bool VulkanCommon::CheckPhysicalDeviceProperties(
     uint32_t present_queue_family_index = UINT32_MAX;
 
     for (uint32_t i = 0; i < queue_families_count; ++i) {
-        vkGetPhysicalDeviceSurfaceSupportKHR(physical_device,
-                                             i,
-                                             Vulkan.getVkSurfaceKhr(),
-                                             &queue_present_support[i]);
+        vkGetPhysicalDeviceSurfaceSupportKHR(
+                physical_device,
+                i,
+                m_vulkan_parameters.getVkSurfaceKhr(),
+                &queue_present_support[i]);
 
         if ((queue_family_properties[i].queueCount > 0) &&
             (queue_family_properties[i].queueFlags & VK_QUEUE_GRAPHICS_BIT)) {
@@ -728,10 +731,10 @@ bool VulkanCommon::CheckPhysicalDeviceProperties(
     return true;
 }
 
-bool VulkanCommon::LoadDeviceLevelEntryPoints() {
+bool VulkanCommon::loadDeviceLevelEntryPoints() {
 #define VK_DEVICE_LEVEL_FUNCTION(fun)                                        \
-    if (!(fun = (PFN_##fun)vkGetDeviceProcAddr(Vulkan.getVkDevice(),         \
-                                               #fun))) {                     \
+    if (!(fun = (PFN_##fun)vkGetDeviceProcAddr(                              \
+                  m_vulkan_parameters.getVkDevice(), #fun))) {               \
         std::cout << "Could not load device level function: " << #fun << "!" \
                   << std::endl;                                              \
         return false;                                                        \
@@ -742,58 +745,62 @@ bool VulkanCommon::LoadDeviceLevelEntryPoints() {
     return true;
 }
 
-bool VulkanCommon::GetDeviceQueue() {
-    vkGetDeviceQueue(Vulkan.getVkDevice(),
-                     Vulkan.getGraphicsQueueParameters().getFamilyIndex(),
-                     0,
-                     &Vulkan.getGraphicsQueueParameters().getVkQueue());
-    vkGetDeviceQueue(Vulkan.getVkDevice(),
-                     Vulkan.getPresentQueueParameters().getFamilyIndex(),
-                     0,
-                     &Vulkan.getPresentQueueParameters().getVkQueue());
+bool VulkanCommon::getDeviceQueue() {
+    vkGetDeviceQueue(
+            m_vulkan_parameters.getVkDevice(),
+            m_vulkan_parameters.getGraphicsQueueParameters().getFamilyIndex(),
+            0,
+            &m_vulkan_parameters.getGraphicsQueueParameters().getVkQueue());
+    vkGetDeviceQueue(
+            m_vulkan_parameters.getVkDevice(),
+            m_vulkan_parameters.getPresentQueueParameters().getFamilyIndex(),
+            0,
+            &m_vulkan_parameters.getPresentQueueParameters().getVkQueue());
     return true;
 }
 
-bool VulkanCommon::CreateSwapChain() {
+bool VulkanCommon::createSwapChain() {
     m_can_render = false;
 
-    if (Vulkan.getVkDevice() != VK_NULL_HANDLE) {
-        vkDeviceWaitIdle(Vulkan.getVkDevice());
+    if (m_vulkan_parameters.getVkDevice() != VK_NULL_HANDLE) {
+        vkDeviceWaitIdle(m_vulkan_parameters.getVkDevice());
     }
 
-    for (size_t i = 0;
-         i < Vulkan.getSwapchainParameters().getImageParameters().size();
+    for (size_t i = 0; i < m_vulkan_parameters.getSwapchainParameters()
+                                   .getImageParameters()
+                                   .size();
          ++i) {
-        if (Vulkan.getSwapchainParameters()
+        if (m_vulkan_parameters.getSwapchainParameters()
                     .getImageParameters()[i]
                     .getVkImageView() != VK_NULL_HANDLE) {
-            vkDestroyImageView(GetDevice(),
-                               Vulkan.getSwapchainParameters()
+            vkDestroyImageView(getVkDevice(),
+                               m_vulkan_parameters.getSwapchainParameters()
                                        .getImageParameters()[i]
                                        .getVkImageView(),
                                nullptr);
-            Vulkan.getSwapchainParameters()
+            m_vulkan_parameters.getSwapchainParameters()
                     .getImageParameters()[i]
                     .setVkImageView(VK_NULL_HANDLE);
         }
     }
-    Vulkan.getSwapchainParameters().getImageParameters().clear();
+    m_vulkan_parameters.getSwapchainParameters().getImageParameters().clear();
 
     VkSurfaceCapabilitiesKHR surface_capabilities;
-    if (vkGetPhysicalDeviceSurfaceCapabilitiesKHR(Vulkan.getVkPhysicalDevice(),
-                                                  Vulkan.getVkSurfaceKhr(),
-                                                  &surface_capabilities) !=
-        VK_SUCCESS) {
+    if (vkGetPhysicalDeviceSurfaceCapabilitiesKHR(
+                m_vulkan_parameters.getVkPhysicalDevice(),
+                m_vulkan_parameters.getVkSurfaceKhr(),
+                &surface_capabilities) != VK_SUCCESS) {
         std::cout << "Could not check presentation surface capabilities!"
                   << std::endl;
         return false;
     }
 
     uint32_t formats_count;
-    if ((vkGetPhysicalDeviceSurfaceFormatsKHR(Vulkan.getVkPhysicalDevice(),
-                                              Vulkan.getVkSurfaceKhr(),
-                                              &formats_count,
-                                              nullptr) != VK_SUCCESS) ||
+    if ((vkGetPhysicalDeviceSurfaceFormatsKHR(
+                 m_vulkan_parameters.getVkPhysicalDevice(),
+                 m_vulkan_parameters.getVkSurfaceKhr(),
+                 &formats_count,
+                 nullptr) != VK_SUCCESS) ||
         (formats_count == 0)) {
         std::cout << "Error occurred during presentation surface formats "
                      "enumeration!"
@@ -802,11 +809,11 @@ bool VulkanCommon::CreateSwapChain() {
     }
 
     std::vector<VkSurfaceFormatKHR> surface_formats(formats_count);
-    if (vkGetPhysicalDeviceSurfaceFormatsKHR(Vulkan.getVkPhysicalDevice(),
-                                             Vulkan.getVkSurfaceKhr(),
-                                             &formats_count,
-                                             surface_formats.data()) !=
-        VK_SUCCESS) {
+    if (vkGetPhysicalDeviceSurfaceFormatsKHR(
+                m_vulkan_parameters.getVkPhysicalDevice(),
+                m_vulkan_parameters.getVkSurfaceKhr(),
+                &formats_count,
+                surface_formats.data()) != VK_SUCCESS) {
         std::cout << "Error occurred during presentation surface formats "
                      "enumeration!"
                   << std::endl;
@@ -815,8 +822,8 @@ bool VulkanCommon::CreateSwapChain() {
 
     uint32_t present_modes_count;
     if ((vkGetPhysicalDeviceSurfacePresentModesKHR(
-                 Vulkan.getVkPhysicalDevice(),
-                 Vulkan.getVkSurfaceKhr(),
+                 m_vulkan_parameters.getVkPhysicalDevice(),
+                 m_vulkan_parameters.getVkSurfaceKhr(),
                  &present_modes_count,
                  nullptr) != VK_SUCCESS) ||
         (present_modes_count == 0)) {
@@ -828,11 +835,11 @@ bool VulkanCommon::CreateSwapChain() {
     }
 
     std::vector<VkPresentModeKHR> present_modes(present_modes_count);
-    if (vkGetPhysicalDeviceSurfacePresentModesKHR(Vulkan.getVkPhysicalDevice(),
-                                                  Vulkan.getVkSurfaceKhr(),
-                                                  &present_modes_count,
-                                                  present_modes.data()) !=
-        VK_SUCCESS) {
+    if (vkGetPhysicalDeviceSurfacePresentModesKHR(
+                m_vulkan_parameters.getVkPhysicalDevice(),
+                m_vulkan_parameters.getVkSurfaceKhr(),
+                &present_modes_count,
+                present_modes.data()) != VK_SUCCESS) {
         std::cout
                 << "Error occurred during presentation surface present modes "
                    "enumeration!"
@@ -841,17 +848,17 @@ bool VulkanCommon::CreateSwapChain() {
     }
 
     uint32_t desired_number_of_images =
-            GetSwapChainNumImages(surface_capabilities);
-    VkSurfaceFormatKHR desired_format = GetSwapChainFormat(surface_formats);
-    VkExtent2D desired_extent = GetSwapChainExtent(surface_capabilities);
+            getSwapChainNumImages(surface_capabilities);
+    VkSurfaceFormatKHR desired_format = getSwapChainFormat(surface_formats);
+    VkExtent2D desired_extent = getSwapChainExtent(surface_capabilities);
     VkImageUsageFlags desired_usage =
-            GetSwapChainUsageFlags(surface_capabilities);
+            getSwapChainUsageFlags(surface_capabilities);
     VkSurfaceTransformFlagBitsKHR desired_transform =
-            GetSwapChainTransform(surface_capabilities);
+            getSwapChainTransform(surface_capabilities);
     VkPresentModeKHR desired_present_mode =
-            GetSwapChainPresentMode(present_modes);
+            getSwapChainPresentMode(present_modes);
     const VkSwapchainKHR& old_swap_chain =
-            Vulkan.getSwapchainParameters().getVkSwapchainKhr();
+            m_vulkan_parameters.getSwapchainParameters().getVkSwapchainKhr();
 
     if (static_cast<int>(desired_usage) == -1) {
         return false;
@@ -870,11 +877,11 @@ bool VulkanCommon::CreateSwapChain() {
     VkSwapchainCreateInfoKHR swap_chain_create_info = {
             VK_STRUCTURE_TYPE_SWAPCHAIN_CREATE_INFO_KHR,  // VkStructureType
                                                           // sType
-            nullptr,                    // const void                    *pNext
-            0,                          // VkSwapchainCreateFlagsKHR      flags
-            Vulkan.getVkSurfaceKhr(),   // VkSurfaceKHR surface
-            desired_number_of_images,   // uint32_t minImageCount
-            desired_format.format,      // VkFormat imageFormat
+            nullptr,  // const void                    *pNext
+            0,        // VkSwapchainCreateFlagsKHR      flags
+            m_vulkan_parameters.getVkSurfaceKhr(),  // VkSurfaceKHR surface
+            desired_number_of_images,               // uint32_t minImageCount
+            desired_format.format,                  // VkFormat imageFormat
             desired_format.colorSpace,  // VkColorSpaceKHR imageColorSpace
             desired_extent,  // VkExtent2D                     imageExtent
             1,               // uint32_t                       imageArrayLayers
@@ -890,69 +897,74 @@ bool VulkanCommon::CreateSwapChain() {
             old_swap_chain  // VkSwapchainKHR                 oldSwapchain
     };
 
-    if (vkCreateSwapchainKHR(
-                Vulkan.getVkDevice(),
-                &swap_chain_create_info,
-                nullptr,
-                &Vulkan.getSwapchainParameters().getVkSwapchainKhr()) !=
-        VK_SUCCESS) {
+    if (vkCreateSwapchainKHR(m_vulkan_parameters.getVkDevice(),
+                             &swap_chain_create_info,
+                             nullptr,
+                             &m_vulkan_parameters.getSwapchainParameters()
+                                      .getVkSwapchainKhr()) != VK_SUCCESS) {
         std::cout << "Could not create swap chain!" << std::endl;
         return false;
     }
     if (old_swap_chain != VK_NULL_HANDLE) {
-        vkDestroySwapchainKHR(Vulkan.getVkDevice(), old_swap_chain, nullptr);
+        vkDestroySwapchainKHR(
+                m_vulkan_parameters.getVkDevice(), old_swap_chain, nullptr);
     }
 
-    Vulkan.getSwapchainParameters().setVkFormat(desired_format.format);
+    m_vulkan_parameters.getSwapchainParameters().setVkFormat(
+            desired_format.format);
 
     uint32_t image_count = 0;
-    if ((vkGetSwapchainImagesKHR(
-                 Vulkan.getVkDevice(),
-                 Vulkan.getSwapchainParameters().getVkSwapchainKhr(),
-                 &image_count,
-                 nullptr) != VK_SUCCESS) ||
+    if ((vkGetSwapchainImagesKHR(m_vulkan_parameters.getVkDevice(),
+                                 m_vulkan_parameters.getSwapchainParameters()
+                                         .getVkSwapchainKhr(),
+                                 &image_count,
+                                 nullptr) != VK_SUCCESS) ||
         (image_count == 0)) {
         std::cout << "Could not get swap chain images!" << std::endl;
         return false;
     }
 
-    Vulkan.getSwapchainParameters().getImageParameters().resize(image_count);
+    m_vulkan_parameters.getSwapchainParameters().getImageParameters().resize(
+            image_count);
 
     std::vector<VkImage> images(image_count);
-    if (vkGetSwapchainImagesKHR(
-                Vulkan.getVkDevice(),
-                Vulkan.getSwapchainParameters().getVkSwapchainKhr(),
-                &image_count,
-                images.data()) != VK_SUCCESS) {
+    if (vkGetSwapchainImagesKHR(m_vulkan_parameters.getVkDevice(),
+                                m_vulkan_parameters.getSwapchainParameters()
+                                        .getVkSwapchainKhr(),
+                                &image_count,
+                                images.data()) != VK_SUCCESS) {
         std::cout << "Could not get swap chain images!" << std::endl;
         return false;
     }
 
-    for (size_t i = 0;
-         i < Vulkan.getSwapchainParameters().getImageParameters().size();
+    for (size_t i = 0; i < m_vulkan_parameters.getSwapchainParameters()
+                                   .getImageParameters()
+                                   .size();
          ++i) {
-        Vulkan.getSwapchainParameters().getImageParameters()[i].setVkImage(
-                images[i]);
+        m_vulkan_parameters.getSwapchainParameters()
+                .getImageParameters()[i]
+                .setVkImage(images[i]);
     }
-    Vulkan.getSwapchainParameters().setVkExtent2d(desired_extent);
+    m_vulkan_parameters.getSwapchainParameters().setVkExtent2d(desired_extent);
 
-    return CreateSwapChainImageViews();
+    return createSwapChainImageViews();
 }
 
-bool VulkanCommon::CreateSwapChainImageViews() {
-    for (size_t i = 0;
-         i < Vulkan.getSwapchainParameters().getImageParameters().size();
+bool VulkanCommon::createSwapChainImageViews() {
+    for (size_t i = 0; i < m_vulkan_parameters.getSwapchainParameters()
+                                   .getImageParameters()
+                                   .size();
          ++i) {
         VkImageViewCreateInfo image_view_create_info = {
                 VK_STRUCTURE_TYPE_IMAGE_VIEW_CREATE_INFO,  // VkStructureType
                                                            // sType
                 nullptr,  // const void                    *pNext
                 0,        // VkImageViewCreateFlags         flags
-                Vulkan.getSwapchainParameters()
+                m_vulkan_parameters.getSwapchainParameters()
                         .getImageParameters()[i]
-                        .getVkImage(),         // VkImage image
-                VK_IMAGE_VIEW_TYPE_2D,         // VkImageViewType viewType
-                GetSwapChain().getVkFormat(),  // VkFormat format
+                        .getVkImage(),  // VkImage image
+                VK_IMAGE_VIEW_TYPE_2D,  // VkImageViewType viewType
+                getSwapchainParameters().getVkFormat(),  // VkFormat format
                 {
                         // VkComponentMapping             components
                         VK_COMPONENT_SWIZZLE_IDENTITY,  // VkComponentSwizzle r
@@ -970,10 +982,10 @@ bool VulkanCommon::CreateSwapChainImageViews() {
                         1   // uint32_t                       layerCount
                 }};
 
-        if (vkCreateImageView(GetDevice(),
+        if (vkCreateImageView(getVkDevice(),
                               &image_view_create_info,
                               nullptr,
-                              &Vulkan.getSwapchainParameters()
+                              &m_vulkan_parameters.getSwapchainParameters()
                                        .getImageParameters()[i]
                                        .getVkImageView()) != VK_SUCCESS) {
             std::cout << "Could not create image view for framebuffer!"
@@ -987,7 +999,7 @@ bool VulkanCommon::CreateSwapChainImageViews() {
     return true;
 }
 
-bool VulkanCommon::CheckExtensionAvailability(
+bool VulkanCommon::checkExtensionAvailability(
         const char* extension_name,
         const std::vector<VkExtensionProperties>& available_extensions) {
     for (size_t i = 0; i < available_extensions.size(); ++i) {
@@ -999,7 +1011,7 @@ bool VulkanCommon::CheckExtensionAvailability(
     return false;
 }
 
-uint32_t VulkanCommon::GetSwapChainNumImages(
+uint32_t VulkanCommon::getSwapChainNumImages(
         VkSurfaceCapabilitiesKHR& surface_capabilities) {
     // Set of images defined in a swap chain may not always be available for
     // application to render to: One may be displayed and one may wait in a
@@ -1013,7 +1025,7 @@ uint32_t VulkanCommon::GetSwapChainNumImages(
     return image_count;
 }
 
-VkSurfaceFormatKHR VulkanCommon::GetSwapChainFormat(
+VkSurfaceFormatKHR VulkanCommon::getSwapChainFormat(
         std::vector<VkSurfaceFormatKHR>& surface_formats) {
     // If the list contains only one entry with undefined format
     // it means that there are no preferred surface formats and any can be
@@ -1035,7 +1047,7 @@ VkSurfaceFormatKHR VulkanCommon::GetSwapChainFormat(
     return surface_formats[0];
 }
 
-VkExtent2D VulkanCommon::GetSwapChainExtent(
+VkExtent2D VulkanCommon::getSwapChainExtent(
         VkSurfaceCapabilitiesKHR& surface_capabilities) {
     // Special value of surface extent is width == height == -1
     // If this is so we define the size by ourselves but it must fit within
@@ -1071,7 +1083,7 @@ VkExtent2D VulkanCommon::GetSwapChainExtent(
     return surface_capabilities.currentExtent;
 }
 
-VkImageUsageFlags VulkanCommon::GetSwapChainUsageFlags(
+VkImageUsageFlags VulkanCommon::getSwapChainUsageFlags(
         VkSurfaceCapabilitiesKHR& surface_capabilities) {
     // Color attachment flag must always be supported
     // We can define other usage flags but we always need to check if they are
@@ -1120,7 +1132,7 @@ VkImageUsageFlags VulkanCommon::GetSwapChainUsageFlags(
     return static_cast<VkImageUsageFlags>(-1);
 }
 
-VkSurfaceTransformFlagBitsKHR VulkanCommon::GetSwapChainTransform(
+VkSurfaceTransformFlagBitsKHR VulkanCommon::getSwapChainTransform(
         VkSurfaceCapabilitiesKHR& surface_capabilities) {
     // Sometimes images must be transformed before they are presented (i.e. due
     // to device's orientation being other than default orientation) If the
@@ -1137,7 +1149,7 @@ VkSurfaceTransformFlagBitsKHR VulkanCommon::GetSwapChainTransform(
     }
 }
 
-VkPresentModeKHR VulkanCommon::GetSwapChainPresentMode(
+VkPresentModeKHR VulkanCommon::getSwapChainPresentMode(
         std::vector<VkPresentModeKHR>& present_modes) {
     // MAILBOX is the lowest latency V-Sync enabled mode (something like
     // triple-buffering) so use it if available
@@ -1166,44 +1178,46 @@ VkPresentModeKHR VulkanCommon::GetSwapChainPresentMode(
 }
 
 VulkanCommon::~VulkanCommon() {
-    if (Vulkan.getVkDevice() != VK_NULL_HANDLE) {
-        vkDeviceWaitIdle(Vulkan.getVkDevice());
+    if (m_vulkan_parameters.getVkDevice() != VK_NULL_HANDLE) {
+        vkDeviceWaitIdle(m_vulkan_parameters.getVkDevice());
 
-        for (size_t i = 0;
-             i < Vulkan.getSwapchainParameters().getImageParameters().size();
+        for (size_t i = 0; i < m_vulkan_parameters.getSwapchainParameters()
+                                       .getImageParameters()
+                                       .size();
              ++i) {
-            if (Vulkan.getSwapchainParameters()
+            if (m_vulkan_parameters.getSwapchainParameters()
                         .getImageParameters()[i]
                         .getVkImageView() != VK_NULL_HANDLE) {
-                vkDestroyImageView(GetDevice(),
-                                   Vulkan.getSwapchainParameters()
+                vkDestroyImageView(getVkDevice(),
+                                   m_vulkan_parameters.getSwapchainParameters()
                                            .getImageParameters()[i]
                                            .getVkImageView(),
                                    nullptr);
             }
         }
 
-        if (Vulkan.getSwapchainParameters().getVkSwapchainKhr() !=
+        if (m_vulkan_parameters.getSwapchainParameters().getVkSwapchainKhr() !=
             VK_NULL_HANDLE) {
-            vkDestroySwapchainKHR(
-                    Vulkan.getVkDevice(),
-                    Vulkan.getSwapchainParameters().getVkSwapchainKhr(),
-                    nullptr);
+            vkDestroySwapchainKHR(m_vulkan_parameters.getVkDevice(),
+                                  m_vulkan_parameters.getSwapchainParameters()
+                                          .getVkSwapchainKhr(),
+                                  nullptr);
         }
-        vkDestroyDevice(Vulkan.getVkDevice(), nullptr);
+        vkDestroyDevice(m_vulkan_parameters.getVkDevice(), nullptr);
     }
 
-    if (Vulkan.getVkSurfaceKhr() != VK_NULL_HANDLE) {
-        vkDestroySurfaceKHR(
-                Vulkan.getVkInstance(), Vulkan.getVkSurfaceKhr(), nullptr);
+    if (m_vulkan_parameters.getVkSurfaceKhr() != VK_NULL_HANDLE) {
+        vkDestroySurfaceKHR(m_vulkan_parameters.getVkInstance(),
+                            m_vulkan_parameters.getVkSurfaceKhr(),
+                            nullptr);
     }
 
-    if (Vulkan.getVkInstance() != VK_NULL_HANDLE) {
-        vkDestroyInstance(Vulkan.getVkInstance(), nullptr);
+    if (m_vulkan_parameters.getVkInstance() != VK_NULL_HANDLE) {
+        vkDestroyInstance(m_vulkan_parameters.getVkInstance(), nullptr);
     }
 
-    if (VulkanLibrary) {
-        dlclose(VulkanLibrary);
+    if (m_vk_library_handle) {
+        dlclose(m_vk_library_handle);
     }
 }
 

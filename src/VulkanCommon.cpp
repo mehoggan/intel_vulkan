@@ -23,6 +23,9 @@
 
 namespace ApiWithoutSecrets {
 
+/*
+ * QueueParameters
+ */
 QueueParameters::QueueParameters()
         : m_vk_queue(VK_NULL_HANDLE), m_family_index(0) {}
 
@@ -36,6 +39,37 @@ std::uint32_t QueueParameters::getFamilyIndex() const {
 
 void QueueParameters::setFamilyIndex(const std::uint32_t family_index) {
     m_family_index = family_index;
+}
+
+/*
+ * ImageParameters
+ */
+ImageParameters::ImageParameters()
+        : m_vk_image(VK_NULL_HANDLE)
+        , m_vk_image_view(VK_NULL_HANDLE)
+        , m_vk_sampler(VK_NULL_HANDLE)
+        , m_vk_device_memory(VK_NULL_HANDLE) {}
+
+VkImage& ImageParameters::getVkImage() { return m_vk_image; }
+
+void ImageParameters::setVkImage(VkImage& other) { m_vk_image = other; }
+
+VkImageView& ImageParameters::getVkImageView() { return m_vk_image_view; }
+
+void ImageParameters::setVkImageView(VkImageView& other) {
+    m_vk_image_view = other;
+}
+
+VkSampler& ImageParameters::getVkSampler() { return m_vk_sampler; }
+
+void ImageParameters::setVkSampler(VkSampler& other) { m_vk_sampler = other; }
+
+VkDeviceMemory& ImageParameters::getVkDeviceMemory() {
+    return m_vk_device_memory;
+}
+
+void ImageParameters::setVkDeviceMemory(VkDeviceMemory& other) {
+    m_vk_device_memory = other;
 }
 
 VulkanCommon::VulkanCommon() : VulkanLibrary(), Window(), Vulkan() {}
@@ -550,10 +584,11 @@ bool VulkanCommon::CreateSwapChain() {
     }
 
     for (size_t i = 0; i < Vulkan.SwapChain.Images.size(); ++i) {
-        if (Vulkan.SwapChain.Images[i].View != VK_NULL_HANDLE) {
-            vkDestroyImageView(
-                    GetDevice(), Vulkan.SwapChain.Images[i].View, nullptr);
-            Vulkan.SwapChain.Images[i].View = VK_NULL_HANDLE;
+        if (Vulkan.SwapChain.Images[i].getVkImageView() != VK_NULL_HANDLE) {
+            vkDestroyImageView(GetDevice(),
+                               Vulkan.SwapChain.Images[i].getVkImageView(),
+                               nullptr);
+            Vulkan.SwapChain.Images[i].getVkImageView() = VK_NULL_HANDLE;
         }
     }
     Vulkan.SwapChain.Images.clear();
@@ -701,7 +736,7 @@ bool VulkanCommon::CreateSwapChain() {
     }
 
     for (size_t i = 0; i < Vulkan.SwapChain.Images.size(); ++i) {
-        Vulkan.SwapChain.Images[i].Handle = images[i];
+        Vulkan.SwapChain.Images[i].getVkImage() = images[i];
     }
     Vulkan.SwapChain.Extent = desired_extent;
 
@@ -715,9 +750,9 @@ bool VulkanCommon::CreateSwapChainImageViews() {
                                                            // sType
                 nullptr,  // const void                    *pNext
                 0,        // VkImageViewCreateFlags         flags
-                Vulkan.SwapChain.Images[i].Handle,  // VkImage image
-                VK_IMAGE_VIEW_TYPE_2D,              // VkImageViewType viewType
-                GetSwapChain().Format,              // VkFormat format
+                Vulkan.SwapChain.Images[i].getVkImage(),  // VkImage image
+                VK_IMAGE_VIEW_TYPE_2D,  // VkImageViewType viewType
+                GetSwapChain().Format,  // VkFormat format
                 {
                         // VkComponentMapping             components
                         VK_COMPONENT_SWIZZLE_IDENTITY,  // VkComponentSwizzle r
@@ -738,7 +773,7 @@ bool VulkanCommon::CreateSwapChainImageViews() {
         if (vkCreateImageView(GetDevice(),
                               &image_view_create_info,
                               nullptr,
-                              &Vulkan.SwapChain.Images[i].View) !=
+                              &Vulkan.SwapChain.Images[i].getVkImageView()) !=
             VK_SUCCESS) {
             std::cout << "Could not create image view for framebuffer!"
                       << std::endl;
@@ -934,9 +969,11 @@ VulkanCommon::~VulkanCommon() {
         vkDeviceWaitIdle(Vulkan.Device);
 
         for (size_t i = 0; i < Vulkan.SwapChain.Images.size(); ++i) {
-            if (Vulkan.SwapChain.Images[i].View != VK_NULL_HANDLE) {
-                vkDestroyImageView(
-                        GetDevice(), Vulkan.SwapChain.Images[i].View, nullptr);
+            if (Vulkan.SwapChain.Images[i].getVkImageView() !=
+                VK_NULL_HANDLE) {
+                vkDestroyImageView(GetDevice(),
+                                   Vulkan.SwapChain.Images[i].getVkImageView(),
+                                   nullptr);
             }
         }
 

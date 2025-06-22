@@ -35,11 +35,9 @@ public:
     QueueParameters();
 
     VkQueue& getVkQueue();
-
     void setVkQueue(VkQueue& vk_queue);
 
     std::uint32_t getFamilyIndex() const;
-
     void setFamilyIndex(const std::uint32_t family_index);
 
 private:
@@ -52,17 +50,27 @@ private:
 //                                                              //
 // Vulkan Image's parameters container class                    //
 // ************************************************************ //
-struct ImageParameters {
-    VkImage Handle;
-    VkImageView View;
-    VkSampler Sampler;
-    VkDeviceMemory Memory;
+class ImageParameters {
+public:
+    ImageParameters();
 
-    ImageParameters()
-            : Handle(VK_NULL_HANDLE)
-            , View(VK_NULL_HANDLE)
-            , Sampler(VK_NULL_HANDLE)
-            , Memory(VK_NULL_HANDLE) {}
+    VkImage& getVkImage();
+    void setVkImage(VkImage& other);
+
+    VkImageView& getVkImageView();
+    void setVkImageView(VkImageView& other);
+
+    VkSampler& getVkSampler();
+    void setVkSampler(VkSampler& other);
+
+    VkDeviceMemory& getVkDeviceMemory();
+    void setVkDeviceMemory(VkDeviceMemory& other);
+
+private:
+    VkImage m_vk_image;
+    VkImageView m_vk_image_view;
+    VkSampler m_vk_sampler;
+    VkDeviceMemory m_vk_device_memory;
 };
 
 // ************************************************************ //

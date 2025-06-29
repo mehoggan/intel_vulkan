@@ -18,7 +18,7 @@
 
 int main(int argc, char** argv) {
     ApiWithoutSecrets::OS::Window window;
-    ApiWithoutSecrets::Tutorial01 tutorial01;
+    ApiWithoutSecrets::Tutorial01 tutorial01(false);
 
     // Window creation
     if (!window.create("01 - The Beginning")) {

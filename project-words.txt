@@ -1,5 +1,7 @@
 # New Words
 libvulkan
 SWAPCHAIN
+VKAPI
 Xlib
 xconfigure
+vect

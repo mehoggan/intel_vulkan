@@ -17,7 +17,11 @@
 #if !defined(TUTORIAL_01_HEADER)
 #define TUTORIAL_01_HEADER
 
+#include <atomic>
+#include <cstdint>
+
 #include <vulkan/vulkan.h>
+
 #include "intel_vulkan/OperatingSystem.h"
 
 namespace ApiWithoutSecrets {
@@ -27,17 +31,36 @@ namespace ApiWithoutSecrets {
 //                                                              //
 // Vulkan specific parameters                                   //
 // ************************************************************ //
-struct VulkanTutorial01Parameters {
-    VkInstance Instance;
-    VkDevice Device;
-    uint32_t QueueFamilyIndex;
-    VkQueue Queue;
+class VulkanTutorial01Parameters {
+public:
+    VulkanTutorial01Parameters();
 
-    VulkanTutorial01Parameters()
-            : Instance(VK_NULL_HANDLE)
-            , Device(VK_NULL_HANDLE)
-            , QueueFamilyIndex(0)
-            , Queue(VK_NULL_HANDLE) {}
+    const VkInstance& getVkInstance() const;
+    VkInstance& getVkInstance();
+    void setVkInstance(const VkInstance& vk_instance);
+
+    const VkDevice& getVkDevice() const;
+    VkDevice& getVkDevice();
+    void setVkDevice(const VkDevice& vk_device);
+
+    std::uint32_t getQueueFamilyIndex() const;
+    void setQueueFamilyIndex(const std::uint32_t queue_family_index);
+
+    const VkQueue& getVkQueue() const;
+    VkQueue& getVkQueue();
+    void setVkQueue(const VkQueue& vk_queue);
+
+    const VkDebugUtilsMessengerEXT& getVkDebugUtilsMessenger() const;
+    VkDebugUtilsMessengerEXT& getVkDebugUtilsMessenger();
+    void setVkDebugUtilsMessenger(
+            const VkDebugUtilsMessengerEXT& vk_debug_messenger);
+
+private:
+    VkInstance m_vk_instance;
+    VkDevice m_vk_device;
+    std::uint32_t m_queue_family_index;
+    VkQueue m_vk_queue;
+    VkDebugUtilsMessengerEXT m_vk_debug_utils_messenger;
 };
 
 // ************************************************************ //
@@ -47,7 +70,7 @@ struct VulkanTutorial01Parameters {
 // ************************************************************ //
 class Tutorial01 : public OS::ProjectBase {
 public:
-    Tutorial01();
+    explicit Tutorial01(bool enable_vk_debug = false);
     ~Tutorial01() override;
 
     bool onWindowSizeChanged() override;
@@ -56,9 +79,6 @@ public:
     bool prepareVulkan();
 
 private:
-    OS::LibraryHandle m_vk_library_handle;
-    VulkanTutorial01Parameters m_vk_tutorial01_parameters;
-
     bool loadVulkanLibrary();
     bool loadExportedEntryPoints();
     bool loadGlobalLevelEntryPoints();
@@ -69,8 +89,16 @@ private:
                                        uint32_t& queue_family_index);
     bool loadDeviceLevelEntryPoints();
     bool getDeviceQueue();
+
+    bool checkValidationLayerSupport() const;
+    bool setupDebugMessenger();
+    bool destroyDebugMessenger();
+
+    OS::LibraryHandle m_vk_library_handle;
+    VulkanTutorial01Parameters m_vk_tutorial01_parameters;
+    std::atomic<bool> m_enable_vk_debug;
 };
 
 }  // namespace ApiWithoutSecrets
 
-#endif  // TUTORIAL_01_HEADER
+#endif

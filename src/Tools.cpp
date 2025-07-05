@@ -22,7 +22,7 @@
 #define STB_IMAGE_IMPLEMENTATION
 #include "intel_vulkan/stb_image.h"
 
-namespace ApiWithoutSecrets {
+namespace intel_vulkan {
 
 namespace Tools {
 
@@ -172,4 +172,4 @@ std::array<float, 16> GetOrthographicProjectionMatrix(float const left_plane,
 
 }  // namespace Tools
 
-}  // namespace ApiWithoutSecrets
+}  // namespace intel_vulkan

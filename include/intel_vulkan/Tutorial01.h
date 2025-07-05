@@ -24,7 +24,7 @@
 
 #include "intel_vulkan/OperatingSystem.h"
 
-namespace ApiWithoutSecrets {
+namespace intel_vulkan {
 
 // ************************************************************ //
 // VulkanTutorial01Parameters                                   //
@@ -68,7 +68,7 @@ private:
 //                                                              //
 // Class for presenting Vulkan usage topics                     //
 // ************************************************************ //
-class Tutorial01 : public OS::ProjectBase {
+class Tutorial01 : public os::ProjectBase {
 public:
     explicit Tutorial01(bool enable_vk_debug = false);
     ~Tutorial01() override;
@@ -94,11 +94,11 @@ private:
     bool setupDebugMessenger();
     bool destroyDebugMessenger();
 
-    OS::LibraryHandle m_vk_library_handle;
+    os::LibraryHandle m_vk_library_handle;
     VulkanTutorial01Parameters m_vk_tutorial01_parameters;
     std::atomic<bool> m_enable_vk_debug;
 };
 
-}  // namespace ApiWithoutSecrets
+}  // namespace intel_vulkan
 
 #endif

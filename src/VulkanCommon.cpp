@@ -21,7 +21,7 @@
 
 #include "intel_vulkan/VulkanFunctions.h"
 
-namespace ApiWithoutSecrets {
+namespace intel_vulkan {
 
 /*
  * QueueParameters
@@ -297,7 +297,7 @@ VulkanCommon::VulkanCommon()
         , m_window_parameters()
         , m_vulkan_parameters() {}
 
-bool VulkanCommon::prepareVulkan(OS::WindowParameters parameters) {
+bool VulkanCommon::prepareVulkan(os::WindowParameters parameters) {
     m_window_parameters = parameters;
 
     if (!loadVulkanLibrary()) {
@@ -1221,4 +1221,4 @@ VulkanCommon::~VulkanCommon() {
     }
 }
 
-}  // namespace ApiWithoutSecrets
+}  // namespace intel_vulkan

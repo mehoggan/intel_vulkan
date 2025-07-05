@@ -17,8 +17,8 @@
 #include "intel_vulkan/Tutorial01.h"
 
 int main(int argc, char** argv) {
-    ApiWithoutSecrets::OS::Window window;
-    ApiWithoutSecrets::Tutorial01 tutorial01(false);
+    intel_vulkan::os::Window window;
+    intel_vulkan::Tutorial01 tutorial01(false);
 
     // Window creation
     if (!window.create("01 - The Beginning")) {

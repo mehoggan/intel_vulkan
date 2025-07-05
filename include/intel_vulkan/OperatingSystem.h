@@ -25,7 +25,7 @@
 #include <cstring>
 #include <string>
 
-namespace ApiWithoutSecrets::OS {
+namespace intel_vulkan::os {
 
 // ************************************************************ //
 // LibraryHandle                                                //
@@ -100,6 +100,6 @@ private:
     WindowParameters m_parameters;
 };
 
-}  // namespace ApiWithoutSecrets::OS
+}  // namespace intel_vulkan::os
 
-#endif  // OPERATING_SYSTEM_HEADER
+#endif

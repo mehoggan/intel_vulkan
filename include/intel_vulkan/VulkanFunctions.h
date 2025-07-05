@@ -19,7 +19,7 @@
 
 #include <vulkan/vulkan.h>
 
-namespace ApiWithoutSecrets {
+namespace intel_vulkan {
 
 #define VK_EXPORTED_FUNCTION(fun) extern PFN_##fun fun;
 #define VK_GLOBAL_LEVEL_FUNCTION(fun) extern PFN_##fun fun;
@@ -28,6 +28,6 @@ namespace ApiWithoutSecrets {
 
 #include "ListOfFunctions.inl"
 
-}  // namespace ApiWithoutSecrets
+}  // namespace intel_vulkan
 
 #endif

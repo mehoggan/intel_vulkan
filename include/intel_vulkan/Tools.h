@@ -23,7 +23,7 @@
 
 #include <vulkan/vulkan.h>
 
-namespace ApiWithoutSecrets::Tools {
+namespace intel_vulkan::Tools {
 
 // ************************************************************ //
 // AutoDeleter                                                  //
@@ -113,6 +113,6 @@ std::array<float, 16> GetOrthographicProjectionMatrix(float const left_plane,
                                                       float const near_plane,
                                                       float const far_plane);
 
-}  // namespace ApiWithoutSecrets::Tools
+}  // namespace intel_vulkan::Tools
 
 #endif

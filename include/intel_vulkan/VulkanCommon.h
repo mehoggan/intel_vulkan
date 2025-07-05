@@ -23,7 +23,7 @@
 #include <vulkan/vulkan.h>
 #include "OperatingSystem.h"
 
-namespace ApiWithoutSecrets {
+namespace intel_vulkan {
 
 // ************************************************************ //
 // QueueParameters                                              //
@@ -205,12 +205,12 @@ private:
 //                                                              //
 // Base class for Vulkan more advanced tutorial classes         //
 // ************************************************************ //
-class VulkanCommon : public OS::ProjectBase {
+class VulkanCommon : public os::ProjectBase {
 public:
     VulkanCommon();
     ~VulkanCommon() override;
 
-    bool prepareVulkan(OS::WindowParameters parameters);
+    bool prepareVulkan(os::WindowParameters parameters);
     bool onWindowSizeChanged() override;
 
     VkPhysicalDevice getVkPhysicalDevice() const;
@@ -222,8 +222,8 @@ public:
     const SwapChainParameters& getSwapchainParameters() const;
 
 private:
-    OS::LibraryHandle m_vk_library_handle;
-    OS::WindowParameters m_window_parameters;
+    os::LibraryHandle m_vk_library_handle;
+    os::WindowParameters m_window_parameters;
     VulkanCommonParameters m_vulkan_parameters;
 
     bool loadVulkanLibrary();
@@ -261,6 +261,6 @@ private:
     virtual void childClear() = 0;
 };
 
-}  // namespace ApiWithoutSecrets
+}  // namespace intel_vulkan
 
 #endif  // VULKAN_COMMON_HEADER

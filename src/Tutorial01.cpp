@@ -53,7 +53,7 @@ std::ostream& operator<<(std::ostream& out,
     return out;
 }
 
-namespace ApiWithoutSecrets {
+namespace intel_vulkan {
 
 VulkanTutorial01Parameters::VulkanTutorial01Parameters()
         : m_vk_instance(VK_NULL_HANDLE)
@@ -551,4 +551,4 @@ bool Tutorial01::destroyDebugMessenger() {
 
     return response;
 }
-}  // namespace ApiWithoutSecrets
+}  // namespace intel_vulkan

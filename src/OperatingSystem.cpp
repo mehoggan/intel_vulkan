@@ -18,7 +18,7 @@
 
 #include <thread>
 
-namespace ApiWithoutSecrets::OS {
+namespace intel_vulkan::os {
 
 ProjectBase::ProjectBase() : m_can_render(false) {}
 
@@ -168,4 +168,4 @@ bool Window::renderingLoop(ProjectBase& project) {
 
     return result;
 }
-}  // namespace ApiWithoutSecrets::OS
+}  // namespace intel_vulkan::os

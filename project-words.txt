@@ -1,5 +1,7 @@
 # New Words
 libvulkan
+LOGGEDCLASS
+LOGGERHELPERS
 SWAPCHAIN
 VKAPI
 Xlib

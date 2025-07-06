@@ -21,37 +21,8 @@
 #include <iostream>
 #include <vector>
 
+#include "intel_vulkan/Logging.h"
 #include "intel_vulkan/VulkanFunctions.h"
-
-std::ostream& operator<<(std::ostream& out,
-                         const std::vector<const char*>& vect) {
-    out << "[";
-    std::for_each(vect.begin(), vect.end(), [&out](const char* value) {
-        out << value << ", ";
-    });
-    out << "]";
-    return out;
-}
-
-std::ostream& operator<<(std::ostream& out,
-                         const VkLayerProperties& vk_layer_properties) {
-    out << vk_layer_properties.layerName;
-    return out;
-}
-
-std::ostream& operator<<(std::ostream& out,
-                         const std::vector<VkLayerProperties>& vect) {
-    for (std::vector<VkLayerProperties>::const_iterator vector_const_it =
-                 vect.cbegin();
-         vector_const_it != vect.cend();
-         ++vector_const_it) {
-        std::cout << (*vector_const_it);
-        if (vector_const_it != vect.cend() - 1) {
-            std::cout << "\n\t";
-        }
-    }
-    return out;
-}
 
 namespace intel_vulkan {
 
@@ -119,7 +90,8 @@ void VulkanTutorial01Parameters::setVkDebugUtilsMessenger(
 }
 
 Tutorial01::Tutorial01(bool enable_debug)
-        : m_vk_library_handle()
+        : LoggedClass<Tutorial01>(*this)
+        , m_vk_library_handle()
         , m_vk_tutorial01_parameters()
         , m_enable_vk_debug(enable_debug) {}
 
@@ -132,8 +104,8 @@ Tutorial01::~Tutorial01() {
     if (m_vk_tutorial01_parameters.getVkDebugUtilsMessenger() !=
         VK_NULL_HANDLE) {
         if (!destroyDebugMessenger()) {
-            std::cerr << "Failed to destroy VkDebugUtilsMessengerExt!!!"
-                      << std::endl;
+            Logging::error(LOG_TAG,
+                           "Failed to destroy VkDebugUtilsMessengerExt!!!");
         }
     }
 
@@ -182,7 +154,7 @@ bool Tutorial01::loadVulkanLibrary() {
     m_vk_library_handle = dlopen("libvulkan.so.1", RTLD_NOW);
 
     if (m_vk_library_handle == nullptr) {
-        std::cerr << "Could not load Vulkan library!" << std::endl;
+        Logging::error(LOG_TAG, "Could not load Vulkan library!");
         return false;
     }
     return true;
@@ -191,14 +163,14 @@ bool Tutorial01::loadVulkanLibrary() {
 bool Tutorial01::loadExportedEntryPoints() {
 #define LoadProcAddress dlsym
 
-#define VK_EXPORTED_FUNCTION(fun)                                          \
-    if (m_enable_vk_debug) {                                               \
-        std::cout << "Loading entry point " << #fun << "..." << std::endl; \
-    }                                                                      \
-    if (!(fun = (PFN_##fun)LoadProcAddress(m_vk_library_handle, #fun))) {  \
-        std::cerr << "Could not load exported function: " << #fun << "!"   \
-                  << std::endl;                                            \
-        return false;                                                      \
+#define VK_EXPORTED_FUNCTION(fun)                                         \
+    if (m_enable_vk_debug) {                                              \
+        Logging::info(LOG_TAG, "Loading entry point", #fun, "...");       \
+    }                                                                     \
+    if (!(fun = (PFN_##fun)LoadProcAddress(m_vk_library_handle, #fun))) { \
+        Logging::error(                                                   \
+                LOG_TAG, "Could not load exported function:", #fun, "!"); \
+        return false;                                                     \
     }
 
 #include "intel_vulkan/ListOfFunctions.inl"
@@ -207,14 +179,14 @@ bool Tutorial01::loadExportedEntryPoints() {
 }
 
 bool Tutorial01::loadGlobalLevelEntryPoints() {
-#define VK_GLOBAL_LEVEL_FUNCTION(fun)                                        \
-    if (m_enable_vk_debug) {                                                 \
-        std::cout << "Loading global " << #fun << "..." << std::endl;        \
-    }                                                                        \
-    if (!(fun = (PFN_##fun)vkGetInstanceProcAddr(nullptr, #fun))) {          \
-        std::cerr << "Could not load global level function: " << #fun << "!" \
-                  << std::endl;                                              \
-        return false;                                                        \
+#define VK_GLOBAL_LEVEL_FUNCTION(fun)                                         \
+    if (m_enable_vk_debug) {                                                  \
+        Logging::info(LOG_TAG, "Loading global", #fun, "...");                \
+    }                                                                         \
+    if (!(fun = (PFN_##fun)vkGetInstanceProcAddr(nullptr, #fun))) {           \
+        Logging::error(                                                       \
+                LOG_TAG, "Could not load global level function:", #fun, "!"); \
+        return false;                                                         \
     }
 
 #include "intel_vulkan/ListOfFunctions.inl"
@@ -224,8 +196,9 @@ bool Tutorial01::loadGlobalLevelEntryPoints() {
 
 bool Tutorial01::createInstance() {
     if (!checkValidationLayerSupport()) {
-        std::cerr << "Failed to create an instance that does not support "
-                  << "validation layers." << std::endl;
+        Logging::error(LOG_TAG,
+                       "Failed to create an instance that does not support",
+                       "validation layers.");
         return false;
     }
 
@@ -234,21 +207,25 @@ bool Tutorial01::createInstance() {
         return {VK_EXT_DEBUG_UTILS_EXTENSION_NAME};
     };
 
+    std::uint32_t vk_version = VK_MAKE_VERSION(1, 3, 0);
+    std::uint32_t engine_version = VK_MAKE_VERSION(1, 0, 0);
+
     VkApplicationInfo application_info{};
     application_info.sType = VK_STRUCTURE_TYPE_APPLICATION_INFO;
     application_info.pNext = nullptr;
     application_info.pApplicationName =
             "API without Secrets: Introduction to Vulkan";
-    application_info.applicationVersion = VK_MAKE_VERSION(1, 0, 0);
+    application_info.applicationVersion = vk_version;
     application_info.pEngineName = "Vulkan Tutorial by Intel";
-    application_info.engineVersion = VK_MAKE_VERSION(1, 0, 0);
-    application_info.apiVersion = VK_MAKE_VERSION(1, 0, 0);
+    application_info.engineVersion = engine_version;
+    application_info.apiVersion = vk_version;
 
     std::vector<const char*> vk_extensions =
             (m_enable_vk_debug ? get_required_extensions()
                                : std::vector<const char*>{});
-    std::cout << "Creating an instance with the following extensions "
-              << vk_extensions << std::endl;
+    Logging::info(LOG_TAG,
+                  "Creating an instance with the following extensions",
+                  vk_extensions);
 
     VkInstanceCreateInfo instance_create_info{};
     instance_create_info.sType = VK_STRUCTURE_TYPE_INSTANCE_CREATE_INFO;
@@ -270,12 +247,12 @@ bool Tutorial01::createInstance() {
                          nullptr,
                          &m_vk_tutorial01_parameters.getVkInstance()) !=
         VK_SUCCESS) {
-        std::cerr << "Could not create Vulkan instance!" << std::endl;
+        Logging::error(LOG_TAG, "Could not create Vulkan instance!");
         return false;
     }
 
     if (!setupDebugMessenger()) {
-        std::cerr << "Failed to setup debug messenger!!!" << std::endl;
+        Logging::error(LOG_TAG, "Failed to setup debug messenger!!!");
     }
 
     return true;
@@ -284,12 +261,14 @@ bool Tutorial01::createInstance() {
 bool Tutorial01::loadInstanceLevelEntryPoints() {
 #define VK_INSTANCE_LEVEL_FUNCTION(fun)                                 \
     if (m_enable_vk_debug) {                                            \
-        std::cout << "Loading instance " << #fun << "..." << std::endl; \
+        Logging::info(LOG_TAG, "Loading instance", #fun, "...");        \
     }                                                                   \
     if (!(fun = (PFN_##fun)vkGetInstanceProcAddr(                       \
                   m_vk_tutorial01_parameters.getVkInstance(), #fun))) { \
-        std::cerr << "Could not load instance level function: " << #fun \
-                  << "!" << std::endl;                                  \
+        Logging::error(LOG_TAG,                                         \
+                       "Could not load instance level function:",       \
+                       #fun,                                            \
+                       "!");                                            \
         return false;                                                   \
     }
 
@@ -304,8 +283,8 @@ bool Tutorial01::createDevice() {
                                     &num_devices,
                                     nullptr) != VK_SUCCESS) ||
         (num_devices == 0)) {
-        std::cerr << "Error occurred during physical devices enumeration!"
-                  << std::endl;
+        Logging::error(LOG_TAG,
+                       "Error occurred during physical devices enumeration!");
         return false;
     }
 
@@ -313,8 +292,8 @@ bool Tutorial01::createDevice() {
     if (vkEnumeratePhysicalDevices(m_vk_tutorial01_parameters.getVkInstance(),
                                    &num_devices,
                                    physical_devices.data()) != VK_SUCCESS) {
-        std::cerr << "Error occurred during physical devices enumeration!"
-                  << std::endl;
+        Logging::error(LOG_TAG,
+                       "Error occurred during physical devices enumeration!");
         return false;
     }
 
@@ -328,9 +307,9 @@ bool Tutorial01::createDevice() {
         }
     }
     if (selected_physical_device == VK_NULL_HANDLE) {
-        std::cerr << "Could not select physical device based on the chosen "
-                     "properties!"
-                  << std::endl;
+        Logging::error(LOG_TAG,
+                       "Could not select physical device based on the chosen "
+                       "properties!");
         return false;
     }
 
@@ -366,7 +345,7 @@ bool Tutorial01::createDevice() {
                        nullptr,
                        &m_vk_tutorial01_parameters.getVkDevice()) !=
         VK_SUCCESS) {
-        std::cerr << "Could not create Vulkan device!" << std::endl;
+        Logging::error(LOG_TAG, "Could not create Vulkan device!");
         return false;
     }
 
@@ -388,8 +367,10 @@ bool Tutorial01::checkPhysicalDeviceProperties(
 
     if ((major_version < 1) ||
         (device_properties.limits.maxImageDimension2D < 4096)) {
-        std::cerr << "Physical device " << physical_device
-                  << " doesn't support required parameters!" << std::endl;
+        Logging::error(LOG_TAG,
+                       "Physical device",
+                       physical_device,
+                       "doesn't support required parameters!");
         return false;
     }
 
@@ -397,8 +378,10 @@ bool Tutorial01::checkPhysicalDeviceProperties(
     vkGetPhysicalDeviceQueueFamilyProperties(
             physical_device, &queue_families_count, nullptr);
     if (queue_families_count == 0) {
-        std::cerr << "Physical device " << physical_device
-                  << " doesn't have any queue families!" << std::endl;
+        Logging::error(LOG_TAG,
+                       "Physical device",
+                       physical_device,
+                       "doesn't have any queue families!");
         return false;
     }
 
@@ -411,28 +394,30 @@ bool Tutorial01::checkPhysicalDeviceProperties(
         if ((queue_family_properties[i].queueCount > 0) &&
             (queue_family_properties[i].queueFlags & VK_QUEUE_GRAPHICS_BIT)) {
             queue_family_index = i;
-            std::cerr << "Selected device: " << device_properties.deviceName
-                      << std::endl;
+            Logging::info(
+                    LOG_TAG, "Selected device:", device_properties.deviceName);
             return true;
         }
     }
 
-    std::cerr << "Could not find queue family with required properties on "
-                 "physical device "
-              << physical_device << "!" << std::endl;
+    Logging::error(LOG_TAG,
+                   "Could not find queue family with required properties on",
+                   "physical device",
+                   physical_device,
+                   "!");
     return false;
 }
 
 bool Tutorial01::loadDeviceLevelEntryPoints() {
-#define VK_DEVICE_LEVEL_FUNCTION(fun)                                        \
-    if (m_enable_vk_debug) {                                                 \
-        std::cout << "Loading device " << #fun << "..." << std::endl;        \
-    }                                                                        \
-    if (!(fun = (PFN_##fun)vkGetDeviceProcAddr(                              \
-                  m_vk_tutorial01_parameters.getVkDevice(), #fun))) {        \
-        std::cerr << "Could not load device level function: " << #fun << "!" \
-                  << std::endl;                                              \
-        return false;                                                        \
+#define VK_DEVICE_LEVEL_FUNCTION(fun)                                         \
+    if (m_enable_vk_debug) {                                                  \
+        Logging::info(LOG_TAG, "Loading device", #fun, "...");                \
+    }                                                                         \
+    if (!(fun = (PFN_##fun)vkGetDeviceProcAddr(                               \
+                  m_vk_tutorial01_parameters.getVkDevice(), #fun))) {         \
+        Logging::error(                                                       \
+                LOG_TAG, "Could not load device level function:", #fun, "!"); \
+        return false;                                                         \
     }
 
 #include "intel_vulkan/ListOfFunctions.inl"
@@ -458,8 +443,8 @@ bool Tutorial01::checkValidationLayerSupport() const {
     std::vector<VkLayerProperties> vk_layer_properties(layer_count);
     vkEnumerateInstanceLayerProperties(&layer_count,
                                        vk_layer_properties.data());
-    std::cout << "The vk_instance has the following properties: " << std::endl;
-    std::cout << "\t" << vk_layer_properties << std::endl;
+    Logging::info(LOG_TAG, "The vk_instance has the following properties:");
+    Logging::info(LOG_TAG, vk_layer_properties);
 
     bool response = true;
     for (const char* layer_name : validation_layers) {
@@ -471,8 +456,11 @@ bool Tutorial01::checkValidationLayerSupport() const {
                            0;
                 });
         if (layer_it == vk_layer_properties.end()) {
-            std::cerr << "The following layer \"" << layer_name << "\""
-                      << " could not be loaded!!!" << std::endl;
+            Logging::error(LOG_TAG,
+                           "The following layer \"",
+                           layer_name,
+                           "\""
+                           "could not be loaded!!!");
             response = false;
             break;
         }
@@ -487,9 +475,16 @@ debugCallback(VkDebugUtilsMessageSeverityFlagBitsEXT message_severity,
               const VkDebugUtilsMessengerCallbackDataEXT*
                       vk_debug_utils_messenger_callback_data_ext,
               void* p_user_data) {
-    std::cerr << "validation layer: "
-              << vk_debug_utils_messenger_callback_data_ext->pMessage
-              << std::endl;
+    static LogTag debug_log_tag("DebugCallback");
+    static std::atomic<bool> log_tag_created(false);
+    if (!log_tag_created.load()) {
+        Logging::addStdCerrLogger(debug_log_tag);
+        log_tag_created.store(true);
+    }
+
+    Logging::error(debug_log_tag,
+                   "validation layer:",
+                   vk_debug_utils_messenger_callback_data_ext->pMessage);
 
     return VK_FALSE;
 }
@@ -499,7 +494,7 @@ bool Tutorial01::setupDebugMessenger() {
     if (!m_enable_vk_debug.load()) {
         response = true;
     } else {
-        std::cout << "Setting up Vulkan debugger..." << std::endl;
+        Logging::info(LOG_TAG, "Setting up Vulkan debugger...");
         VkDebugUtilsMessengerCreateInfoEXT
                 vk_debug_utils_messenger_create_info_ext{};
         vk_debug_utils_messenger_create_info_ext.sType =

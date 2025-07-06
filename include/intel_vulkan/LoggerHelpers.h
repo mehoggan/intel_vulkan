@@ -14,15 +14,22 @@
 // under the License.
 ///////////////////////////////////////////////////////////////////////////////
 
+#ifndef INTEL_VULKAN_LOGGERHELPERS_H
+#define INTEL_VULKAN_LOGGERHELPERS_H
+
+#include <sstream>
+#include <vector>
+
 #include <vulkan/vulkan.h>
 
-namespace intel_vulkan {
+std::stringstream& operator<<(std::stringstream& out,
+                              const std::vector<const char*>& vect);
 
-#define VK_EXPORTED_FUNCTION(fun) PFN_##fun fun;
-#define VK_GLOBAL_LEVEL_FUNCTION(fun) PFN_##fun fun;
-#define VK_INSTANCE_LEVEL_FUNCTION(fun) PFN_##fun fun;
-#define VK_DEVICE_LEVEL_FUNCTION(fun) PFN_##fun fun;
+std::stringstream& operator<<(std::stringstream& out,
+                              const VkLayerProperties& vk_layer_properties);
 
-#include "intel_vulkan/ListOfFunctions.inl"
+std::stringstream& operator<<(std::stringstream& out,
+                              const std::vector<VkLayerProperties>& vect);
 
-}  // namespace intel_vulkan
+#endif
+

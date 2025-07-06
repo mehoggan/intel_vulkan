@@ -22,6 +22,7 @@
 
 #include <vulkan/vulkan.h>
 
+#include "intel_vulkan/LoggedClass.hpp"
 #include "intel_vulkan/OperatingSystem.h"
 
 namespace intel_vulkan {
@@ -68,7 +69,7 @@ private:
 //                                                              //
 // Class for presenting Vulkan usage topics                     //
 // ************************************************************ //
-class Tutorial01 : public os::ProjectBase {
+class Tutorial01 : public os::ProjectBase, public LoggedClass<Tutorial01> {
 public:
     explicit Tutorial01(bool enable_vk_debug = false);
     ~Tutorial01() override;
@@ -93,6 +94,9 @@ private:
     bool checkValidationLayerSupport() const;
     bool setupDebugMessenger();
     bool destroyDebugMessenger();
+
+    friend std::ostream& operator<<(
+            std::ostream& out, const std::vector<VkLayerProperties>& vect);
 
     os::LibraryHandle m_vk_library_handle;
     VulkanTutorial01Parameters m_vk_tutorial01_parameters;

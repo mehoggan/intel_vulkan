@@ -16,9 +16,9 @@
 
 #include "intel_vulkan/Tutorial01.h"
 
+#include <climits>
 #include <cstdint>
 #include <functional>
-#include <iostream>
 #include <vector>
 
 #include "intel_vulkan/Logging.h"
@@ -278,7 +278,7 @@ bool Tutorial01::loadInstanceLevelEntryPoints() {
 }
 
 bool Tutorial01::createDevice() {
-    uint32_t num_devices = 0;
+    std::uint32_t num_devices = 0;
     if ((vkEnumeratePhysicalDevices(m_vk_tutorial01_parameters.getVkInstance(),
                                     &num_devices,
                                     nullptr) != VK_SUCCESS) ||
@@ -288,25 +288,26 @@ bool Tutorial01::createDevice() {
         return false;
     }
 
-    std::vector<VkPhysicalDevice> physical_devices(num_devices);
+    std::vector<VkPhysicalDevice> vk_physical_devices(num_devices);
     if (vkEnumeratePhysicalDevices(m_vk_tutorial01_parameters.getVkInstance(),
                                    &num_devices,
-                                   physical_devices.data()) != VK_SUCCESS) {
+                                   vk_physical_devices.data()) != VK_SUCCESS) {
         Logging::error(LOG_TAG,
                        "Error occurred during physical devices enumeration!");
         return false;
     }
 
-    VkPhysicalDevice selected_physical_device = VK_NULL_HANDLE;
-    uint32_t selected_queue_family_index = UINT32_MAX;
-    for (uint32_t i = 0; i < num_devices; ++i) {
-        if (checkPhysicalDeviceProperties(physical_devices[i],
+    VkPhysicalDevice vk_physical_device = VK_NULL_HANDLE;
+    std::uint32_t selected_queue_family_index =
+            std::numeric_limits<std::uint32_t>::max();
+    for (std::uint32_t i = 0; i < num_devices; ++i) {
+        if (checkPhysicalDeviceProperties(vk_physical_devices[i],
                                           selected_queue_family_index)) {
-            selected_physical_device = physical_devices[i];
+            vk_physical_device = vk_physical_devices[i];
             break;
         }
     }
-    if (selected_physical_device == VK_NULL_HANDLE) {
+    if (vk_physical_device == VK_NULL_HANDLE) {
         Logging::error(LOG_TAG,
                        "Could not select physical device based on the chosen "
                        "properties!");
@@ -315,33 +316,29 @@ bool Tutorial01::createDevice() {
 
     std::vector<float> queue_priorities = {1.0f};
 
-    VkDeviceQueueCreateInfo queue_create_info = {
-            VK_STRUCTURE_TYPE_DEVICE_QUEUE_CREATE_INFO,  // VkStructureType
-                                                         // sType
-            nullptr,                                     // const void* pNext
-            0,                            // VkDeviceQueueCreateFlags flags
-            selected_queue_family_index,  // uint32_t queueFamilyIndex
-            static_cast<uint32_t>(
-                    queue_priorities.size()),  // uint32_t queueCount
-            queue_priorities.data()            // const float *pQueuePriorities
-    };
+    VkDeviceQueueCreateInfo vk_queue_create_info{};
+    vk_queue_create_info.sType = VK_STRUCTURE_TYPE_DEVICE_QUEUE_CREATE_INFO;
+    vk_queue_create_info.pNext = nullptr;
+    vk_queue_create_info.flags = 0;
+    vk_queue_create_info.queueFamilyIndex = selected_queue_family_index;
+    vk_queue_create_info.queueCount =
+            static_cast<std::uint32_t>(queue_priorities.size());
+    vk_queue_create_info.pQueuePriorities = queue_priorities.data();
 
-    VkDeviceCreateInfo device_create_info = {
-            VK_STRUCTURE_TYPE_DEVICE_CREATE_INFO,  // VkStructureType sType
-            nullptr,  // const void                        *pNext
-            0,        // VkDeviceCreateFlags                flags
-            1,  // uint32_t                           queueCreateInfoCount
-            &queue_create_info,  // const VkDeviceQueueCreateInfo
-                                 // *pQueueCreateInfos
-            0,        // uint32_t                           enabledLayerCount
-            nullptr,  // const char * const *ppEnabledLayerNames
-            0,  // uint32_t                           enabledExtensionCount
-            nullptr,  // const char * const *ppEnabledExtensionNames
-            nullptr   // const VkPhysicalDeviceFeatures    *pEnabledFeatures
-    };
+    VkDeviceCreateInfo vk_device_create_info{};
+    vk_device_create_info.sType = VK_STRUCTURE_TYPE_DEVICE_CREATE_INFO;
+    vk_device_create_info.pNext = nullptr;
+    vk_device_create_info.flags = 0;
+    vk_device_create_info.queueCreateInfoCount = 1;
+    vk_device_create_info.pQueueCreateInfos = &vk_queue_create_info;
+    vk_device_create_info.enabledLayerCount = 0;
+    vk_device_create_info.ppEnabledLayerNames = nullptr;
+    vk_device_create_info.enabledExtensionCount = 0;
+    vk_device_create_info.ppEnabledExtensionNames = nullptr;
+    vk_device_create_info.pEnabledFeatures = nullptr;
 
-    if (vkCreateDevice(selected_physical_device,
-                       &device_create_info,
+    if (vkCreateDevice(vk_physical_device,
+                       &vk_device_create_info,
                        nullptr,
                        &m_vk_tutorial01_parameters.getVkDevice()) !=
         VK_SUCCESS) {
@@ -356,6 +353,7 @@ bool Tutorial01::createDevice() {
 
 bool Tutorial01::checkPhysicalDeviceProperties(
         VkPhysicalDevice physical_device, uint32_t& queue_family_index) {
+    // TODO(mehoggan@gmail.com): Rename variable and refactor starting here.
     VkPhysicalDeviceProperties device_properties;
     VkPhysicalDeviceFeatures device_features;
 
@@ -390,22 +388,28 @@ bool Tutorial01::checkPhysicalDeviceProperties(
     vkGetPhysicalDeviceQueueFamilyProperties(physical_device,
                                              &queue_families_count,
                                              queue_family_properties.data());
-    for (uint32_t i = 0; i < queue_families_count; ++i) {
+    bool found = false;
+    for (std::uint32_t i = 0; i < queue_families_count; ++i) {
         if ((queue_family_properties[i].queueCount > 0) &&
             (queue_family_properties[i].queueFlags & VK_QUEUE_GRAPHICS_BIT)) {
             queue_family_index = i;
             Logging::info(
                     LOG_TAG, "Selected device:", device_properties.deviceName);
-            return true;
+            found = true;
+            break;
         }
     }
 
-    Logging::error(LOG_TAG,
-                   "Could not find queue family with required properties on",
-                   "physical device",
-                   physical_device,
-                   "!");
-    return false;
+    if (!found) {
+        Logging::error(
+                LOG_TAG,
+                "Could not find queue family with required properties on",
+                "physical device",
+                physical_device,
+                "!");
+    }
+
+    return found;
 }
 
 bool Tutorial01::loadDeviceLevelEntryPoints() {

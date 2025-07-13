@@ -352,49 +352,53 @@ bool Tutorial01::createDevice() {
 }
 
 bool Tutorial01::checkPhysicalDeviceProperties(
-        VkPhysicalDevice physical_device, uint32_t& queue_family_index) {
-    // TODO(mehoggan@gmail.com): Rename variable and refactor starting here.
-    VkPhysicalDeviceProperties device_properties;
-    VkPhysicalDeviceFeatures device_features;
+        VkPhysicalDevice vk_physical_device, uint32_t& queue_family_index) {
+    VkPhysicalDeviceProperties vk_physical_device_properties;
+    VkPhysicalDeviceFeatures vk_physical_device_features;
 
-    vkGetPhysicalDeviceProperties(physical_device, &device_properties);
-    vkGetPhysicalDeviceFeatures(physical_device, &device_features);
+    vkGetPhysicalDeviceProperties(vk_physical_device,
+                                  &vk_physical_device_properties);
+    vkGetPhysicalDeviceFeatures(vk_physical_device,
+                                &vk_physical_device_features);
 
     std::int32_t major_version =
-            VK_VERSION_MAJOR(device_properties.apiVersion);
+            VK_VERSION_MAJOR(vk_physical_device_properties.apiVersion);
 
     if ((major_version < 1) ||
-        (device_properties.limits.maxImageDimension2D < 4096)) {
+        (vk_physical_device_properties.limits.maxImageDimension2D < 4096)) {
         Logging::error(LOG_TAG,
                        "Physical device",
-                       physical_device,
+                       vk_physical_device,
                        "doesn't support required parameters!");
         return false;
     }
 
     uint32_t queue_families_count = 0;
     vkGetPhysicalDeviceQueueFamilyProperties(
-            physical_device, &queue_families_count, nullptr);
+            vk_physical_device, &queue_families_count, nullptr);
     if (queue_families_count == 0) {
         Logging::error(LOG_TAG,
                        "Physical device",
-                       physical_device,
+                       vk_physical_device,
                        "doesn't have any queue families!");
         return false;
     }
 
-    std::vector<VkQueueFamilyProperties> queue_family_properties(
+    std::vector<VkQueueFamilyProperties> vk_queue_family_properties(
             queue_families_count);
-    vkGetPhysicalDeviceQueueFamilyProperties(physical_device,
-                                             &queue_families_count,
-                                             queue_family_properties.data());
+    vkGetPhysicalDeviceQueueFamilyProperties(
+            vk_physical_device,
+            &queue_families_count,
+            vk_queue_family_properties.data());
     bool found = false;
     for (std::uint32_t i = 0; i < queue_families_count; ++i) {
-        if ((queue_family_properties[i].queueCount > 0) &&
-            (queue_family_properties[i].queueFlags & VK_QUEUE_GRAPHICS_BIT)) {
+        if ((vk_queue_family_properties[i].queueCount > 0) &&
+            (vk_queue_family_properties[i].queueFlags &
+             VK_QUEUE_GRAPHICS_BIT)) {
             queue_family_index = i;
-            Logging::info(
-                    LOG_TAG, "Selected device:", device_properties.deviceName);
+            Logging::info(LOG_TAG,
+                          "Selected device:",
+                          vk_physical_device_properties.deviceName);
             found = true;
             break;
         }
@@ -405,7 +409,7 @@ bool Tutorial01::checkPhysicalDeviceProperties(
                 LOG_TAG,
                 "Could not find queue family with required properties on",
                 "physical device",
-                physical_device,
+                vk_physical_device,
                 "!");
     }
 

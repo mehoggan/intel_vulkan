@@ -14,8 +14,8 @@
 // under the License.
 ///////////////////////////////////////////////////////////////////////////////
 
-#if !defined(TUTORIAL_01_HEADER)
-#define TUTORIAL_01_HEADER
+#ifndef INTEL_VULKAN_TUTORIAL01_H
+#define INTEL_VULKAN_TUTORIAL01_H
 
 #include <atomic>
 #include <cstdint>

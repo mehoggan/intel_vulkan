@@ -1,4 +1,4 @@
-////////////////////////////////////////////////////////////////////////////////
+///////////////////////////////////////////////////////////////////////////////
 // Copyright 2017 Intel Corporation
 //
 // Licensed under the Apache License, Version 2.0 (the "License"); you may not
@@ -12,15 +12,16 @@
 // WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.  See the
 // License for the specific language governing permissions and limitations
 // under the License.
-////////////////////////////////////////////////////////////////////////////////
+///////////////////////////////////////////////////////////////////////////////
 
-#if !defined(TUTORIAL_02_HEADER)
-#define TUTORIAL_02_HEADER
+#ifndef INTEL_VULKAN_TUTORIAL02_H
+#define INTEL_VULKAN_TUTORIAL02_H
 
+#include <cstdint>
 #include <vector>
 
 #include <vulkan/vulkan.h>
-#include "OperatingSystem.h"
+#include "intel_vulkan/OperatingSystem.h"
 
 namespace intel_vulkan {
 
@@ -29,35 +30,82 @@ namespace intel_vulkan {
 //                                                              //
 // Vulkan specific parameters                                   //
 // ************************************************************ //
-struct VulkanTutorial02Parameters {
-    VkInstance Instance;
-    VkPhysicalDevice PhysicalDevice;
-    VkDevice Device;
-    VkQueue GraphicsQueue;
-    VkQueue PresentQueue;
-    uint32_t GraphicsQueueFamilyIndex;
-    uint32_t PresentQueueFamilyIndex;
-    VkSurfaceKHR PresentationSurface;
-    VkSwapchainKHR SwapChain;
-    std::vector<VkCommandBuffer> PresentQueueCmdBuffers;
-    VkCommandPool PresentQueueCmdPool;
-    VkSemaphore ImageAvailableSemaphore;
-    VkSemaphore RenderingFinishedSemaphore;
+class VulkanTutorial02Parameters {
+public:
+    VulkanTutorial02Parameters();
 
-    VulkanTutorial02Parameters()
-            : Instance(VK_NULL_HANDLE)
-            , PhysicalDevice(VK_NULL_HANDLE)
-            , Device(VK_NULL_HANDLE)
-            , GraphicsQueue(VK_NULL_HANDLE)
-            , PresentQueue(VK_NULL_HANDLE)
-            , GraphicsQueueFamilyIndex(0)
-            , PresentQueueFamilyIndex(0)
-            , PresentationSurface(VK_NULL_HANDLE)
-            , SwapChain(VK_NULL_HANDLE)
-            , PresentQueueCmdBuffers(0)
-            , PresentQueueCmdPool(VK_NULL_HANDLE)
-            , ImageAvailableSemaphore(VK_NULL_HANDLE)
-            , RenderingFinishedSemaphore(VK_NULL_HANDLE) {}
+    const VkInstance& getVkInstance() const;
+    VkInstance& getVkInstance();
+    void setVkInstance(const VkInstance& vk_instance);
+
+    const VkPhysicalDevice& getVkPhysicalDevice() const;
+    void setVkPhysicalDevice(const VkPhysicalDevice& vk_physical_device);
+
+    const VkDevice& getVkDevice() const;
+    VkDevice& getVkDevice();
+    void setVkDevice(const VkDevice& vk_device);
+
+    const VkQueue& getGraphicsVkQueue() const;
+    VkQueue& getGraphicsVkQueue();
+    void setGraphicsVkQueue(const VkQueue& graphics_vk_queue);
+
+    const VkQueue& getPresentVkQueue() const;
+    VkQueue& getPresentVkQueue();
+    void setPresentVkQueue(const VkQueue& present_vk_queue);
+
+    std::uint32_t getGraphicsQueueFamilyIndex() const;
+    void setGraphicsQueueFamilyIndex(
+            const std::uint32_t graphics_queue_family_index);
+
+    std::uint32_t getPresentQueueFamilyIndex() const;
+    void setPresentQueueFamilyIndex(
+            const std::uint32_t graphics_queue_family_index);
+
+    const VkSurfaceKHR& getPresentVkSurfaceKHR() const;
+    VkSurfaceKHR& getPresentVkSurfaceKHR();
+    void setPresentVkSurfaceKHR(
+            const VkSurfaceKHR& presentation_vk_surface_khr);
+
+    const VkSwapchainKHR& getVkSwapchainKHR() const;
+    VkSwapchainKHR& getVkSwapchainKHR();
+    void setVkSwapchainKHR(const VkSwapchainKHR& vk_swapchain_khr);
+
+    const std::vector<VkCommandBuffer>& getPresentQueueVkCommandBuffers()
+            const;
+    std::vector<VkCommandBuffer>& getPresentQueueVkCommandBuffers();
+    void setPresentQueueVkCommandBuffers(
+            const std::vector<VkCommandBuffer>&
+                    present_queue_vk_command_buffers);
+
+    const VkCommandPool& getPresentQueueVkCommandPool() const;
+    VkCommandPool& getPresentQueueVkCommandPool();
+    void setPresentQueueVkCommandPool(
+            const VkCommandPool& present_queue_vk_command_pool);
+
+    const VkSemaphore& getImageAvailableVkSemaphore() const;
+    VkSemaphore& getImageAvailableVkSemaphore();
+    void setImageAvailableVkSemaphore(
+            const VkSemaphore& image_available_vk_semaphore);
+
+    const VkSemaphore& getRenderingFinishedVkSemaphore() const;
+    VkSemaphore& getRenderingFinishedVkSemaphore();
+    void setRenderingFinishedVkSemaphore(
+            const VkSemaphore& rendering_finished_vk_semaphore);
+
+private:
+    VkInstance m_vk_instance;
+    VkPhysicalDevice m_vk_physical_device;
+    VkDevice m_vk_device;
+    VkQueue m_graphics_vk_queue;
+    VkQueue m_present_vk_queue;
+    std::uint32_t m_graphics_queue_family_index;
+    std::uint32_t m_present_queue_family_index;
+    VkSurfaceKHR m_presentation_vk_surface_khr;
+    VkSwapchainKHR m_vk_swapchain_khr;
+    std::vector<VkCommandBuffer> m_present_queue_vk_command_buffers;
+    VkCommandPool m_present_queue_vk_command_pool;
+    VkSemaphore m_image_available_vk_semaphore;
+    VkSemaphore m_rendering_finished_vk_semaphore;
 };
 
 // ************************************************************ //
@@ -65,55 +113,56 @@ struct VulkanTutorial02Parameters {
 //                                                              //
 // Class for presenting Vulkan usage topics                     //
 // ************************************************************ //
-class Tutorial02 : public OS::ProjectBase {
+class Tutorial02 : public os::ProjectBase {
 public:
     Tutorial02();
-    ~Tutorial02();
+    ~Tutorial02() override;
 
-    bool PrepareVulkan(OS::WindowParameters parameters);
-    bool CreateSwapChain();
-    bool OnWindowSizeChanged() override;
-    bool CreateCommandBuffers();
-    bool Draw() override;
+    bool prepareVulkan(os::WindowParameters parameters);
+    bool createSwapChain();
+    bool onWindowSizeChanged() override;
+    bool createCommandBuffers();
+    bool draw() override;
 
 private:
-    OS::LibraryHandle VulkanLibrary;
-    OS::WindowParameters Window;
-    VulkanTutorial02Parameters Vulkan;
+    bool loadVulkanLibrary();
+    bool loadExportedEntryPoints();
+    bool loadGlobalLevelEntryPoints();
+    bool createInstance();
+    bool loadInstanceLevelEntryPoints();
+    bool createPresentationSurface();
+    bool createDevice();
+    bool checkPhysicalDeviceProperties(
+            VkPhysicalDevice physical_device,
+            std::uint32_t& graphics_queue_family_index,
+            std::uint32_t& present_queue_family_index);
+    bool loadDeviceLevelEntryPoints();
+    bool getDeviceQueue();
+    bool createSemaphores();
+    bool recordCommandBuffers();
+    void clear();
 
-    bool LoadVulkanLibrary();
-    bool LoadExportedEntryPoints();
-    bool LoadGlobalLevelEntryPoints();
-    bool CreateInstance();
-    bool LoadInstanceLevelEntryPoints();
-    bool CreatePresentationSurface();
-    bool CreateDevice();
-    bool CheckPhysicalDeviceProperties(VkPhysicalDevice physical_device,
-                                       uint32_t& graphics_queue_family_index,
-                                       uint32_t& present_queue_family_index);
-    bool LoadDeviceLevelEntryPoints();
-    bool GetDeviceQueue();
-    bool CreateSemaphores();
-    bool RecordCommandBuffers();
-    void Clear();
-
-    bool CheckExtensionAvailability(
+    bool checkExtensionAvailability(
             const char* extension_name,
             const std::vector<VkExtensionProperties>& available_extensions);
-    uint32_t GetSwapChainNumImages(
+    std::uint32_t getSwapChainNumImages(
             VkSurfaceCapabilitiesKHR& surface_capabilities);
-    VkSurfaceFormatKHR GetSwapChainFormat(
+    VkSurfaceFormatKHR getSwapChainFormat(
             std::vector<VkSurfaceFormatKHR>& surface_formats);
-    VkExtent2D GetSwapChainExtent(
+    VkExtent2D getSwapChainExtent(
             VkSurfaceCapabilitiesKHR& surface_capabilities);
-    VkImageUsageFlags GetSwapChainUsageFlags(
+    VkImageUsageFlags getSwapChainUsageFlags(
             VkSurfaceCapabilitiesKHR& surface_capabilities);
-    VkSurfaceTransformFlagBitsKHR GetSwapChainTransform(
+    VkSurfaceTransformFlagBitsKHR getSwapChainTransform(
             VkSurfaceCapabilitiesKHR& surface_capabilities);
-    VkPresentModeKHR GetSwapChainPresentMode(
+    VkPresentModeKHR getSwapChainPresentMode(
             std::vector<VkPresentModeKHR>& present_modes);
+
+    os::LibraryHandle m_vulkan_library;
+    os::WindowParameters m_window_parameters;
+    VulkanTutorial02Parameters m_vulkan_tutorial_02_parameters;
 };
 
 }  // namespace intel_vulkan
 
-#endif  // TUTORIAL_02_HEADER
+#endif

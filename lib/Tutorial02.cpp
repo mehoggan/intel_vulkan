@@ -17,7 +17,6 @@
 #include "intel_vulkan/Tutorial02.h"
 
 #include <algorithm>
-#include <iostream>
 #include <limits>
 
 #include "intel_vulkan/VulkanFunctions.h"

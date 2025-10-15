@@ -17,6 +17,7 @@
 #if !defined(VULKAN_FUNCTIONS_HEADER)
 #define VULKAN_FUNCTIONS_HEADER
 
+#define VK_USE_PLATFORM_XLIB_KHR
 #include <vulkan/vulkan.h>
 
 namespace intel_vulkan {

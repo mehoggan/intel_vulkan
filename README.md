@@ -7,3 +7,8 @@ cd build
 bear -- ../configure
 bear -- make
 ```
+
+### Installing Ubuntu Dependencies
+```sh
+sudo apt install -y libvulkan-dev
+```

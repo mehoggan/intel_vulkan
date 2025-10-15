@@ -43,11 +43,12 @@ AM_CONDITIONAL([OSX], [test "$build_mac" = "yes"])
 LT_INIT()
 
 AX_CXX_COMPILE_STDCXX([20], [noext], [mandatory])
-AC_CONFIG_SRCDIR([src/tutorial01_main.cpp])
+AC_CONFIG_SRCDIR([bin/tutorial01_main.cpp])
 
 AC_CONFIG_FILES([
   Makefile
-  src/Makefile
+  lib/Makefile
+  bin/Makefile
 ])
 
 AC_OUTPUT

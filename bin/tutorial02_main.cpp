@@ -29,7 +29,7 @@ int main(int argc, char** argv) {
     if (!tutorial02.prepareVulkan(window.getParameters())) {
         return -1;
     }
-    if (!tutorial02.createSwapChain()) {
+    if (!tutorial02.createSwapchain()) {
         return -1;
     }
     if (!tutorial02.createCommandBuffers()) {

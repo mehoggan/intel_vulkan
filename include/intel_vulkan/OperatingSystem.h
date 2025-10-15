@@ -50,9 +50,14 @@ public:
 
     ProjectBase& operator=(const ProjectBase& other);
 
+    ProjectBase(ProjectBase&& other);
+
+    ProjectBase& operator=(ProjectBase&& other);
+
     virtual bool readyToDraw() const;
 
     virtual bool onWindowSizeChanged() = 0;
+
     virtual bool draw() = 0;
 
 protected:

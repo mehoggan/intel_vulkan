@@ -53,7 +53,6 @@ Window::Window() : m_parameters() {}
 Window::~Window() {
     XDestroyWindow(m_parameters.getDisplayPtr(),
                    m_parameters.getWindowHandle());
-    XCloseDisplay(m_parameters.getDisplayPtr());
 }
 
 WindowParameters Window::getParameters() const { return m_parameters; }

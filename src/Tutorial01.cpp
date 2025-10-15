@@ -40,7 +40,6 @@ const VkInstance& VulkanTutorial01Parameters::getVkInstance() const {
 VkInstance& VulkanTutorial01Parameters::getVkInstance() {
     return m_vk_instance;
 }
-
 void VulkanTutorial01Parameters::setVkInstance(const VkInstance& vk_instance) {
     m_vk_instance = vk_instance;
 }
@@ -48,9 +47,7 @@ void VulkanTutorial01Parameters::setVkInstance(const VkInstance& vk_instance) {
 const VkDevice& VulkanTutorial01Parameters::getVkDevice() const {
     return m_vk_device;
 }
-
 VkDevice& VulkanTutorial01Parameters::getVkDevice() { return m_vk_device; }
-
 void VulkanTutorial01Parameters::setVkDevice(const VkDevice& vk_device) {
     m_vk_device = vk_device;
 }
@@ -58,18 +55,15 @@ void VulkanTutorial01Parameters::setVkDevice(const VkDevice& vk_device) {
 std::uint32_t VulkanTutorial01Parameters::getQueueFamilyIndex() const {
     return m_queue_family_index;
 }
-
 void VulkanTutorial01Parameters::setQueueFamilyIndex(
         const std::uint32_t queue_family_index) {
     m_queue_family_index = queue_family_index;
 }
-
 const VkQueue& VulkanTutorial01Parameters::getVkQueue() const {
     return m_vk_queue;
 }
 
 VkQueue& VulkanTutorial01Parameters::getVkQueue() { return m_vk_queue; }
-
 void VulkanTutorial01Parameters::setVkQueue(const VkQueue& vk_queue) {
     m_vk_queue = vk_queue;
 }
@@ -78,12 +72,10 @@ const VkDebugUtilsMessengerEXT&
 VulkanTutorial01Parameters::getVkDebugUtilsMessenger() const {
     return m_vk_debug_utils_messenger;
 }
-
 VkDebugUtilsMessengerEXT&
 VulkanTutorial01Parameters::getVkDebugUtilsMessenger() {
     return m_vk_debug_utils_messenger;
 }
-
 void VulkanTutorial01Parameters::setVkDebugUtilsMessenger(
         const VkDebugUtilsMessengerEXT& vk_debug_utils_messenger) {
     m_vk_debug_utils_messenger = vk_debug_utils_messenger;

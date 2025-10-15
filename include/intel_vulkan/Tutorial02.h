@@ -21,6 +21,8 @@
 #include <vector>
 
 #include <vulkan/vulkan.h>
+
+#include "intel_vulkan/LoggedClass.hpp"
 #include "intel_vulkan/OperatingSystem.h"
 
 namespace intel_vulkan {
@@ -92,6 +94,11 @@ public:
     void setRenderingFinishedVkSemaphore(
             const VkSemaphore& rendering_finished_vk_semaphore);
 
+    const VkDebugUtilsMessengerEXT& getVkDebugUtilsMessenger() const;
+    VkDebugUtilsMessengerEXT& getVkDebugUtilsMessenger();
+    void setVkDebugUtilsMessenger(
+            const VkDebugUtilsMessengerEXT& vk_debug_messenger);
+
 private:
     VkInstance m_vk_instance;
     VkPhysicalDevice m_vk_physical_device;
@@ -106,6 +113,7 @@ private:
     VkCommandPool m_present_queue_vk_command_pool;
     VkSemaphore m_image_available_vk_semaphore;
     VkSemaphore m_rendering_finished_vk_semaphore;
+    VkDebugUtilsMessengerEXT m_vk_debug_utils_messenger;
 };
 
 // ************************************************************ //
@@ -113,7 +121,7 @@ private:
 //                                                              //
 // Class for presenting Vulkan usage topics                     //
 // ************************************************************ //
-class Tutorial02 : public os::ProjectBase {
+class Tutorial02 : public os::ProjectBase, public LoggedClass<Tutorial02> {
 public:
     Tutorial02();
     ~Tutorial02() override;
@@ -142,6 +150,10 @@ private:
     bool recordCommandBuffers();
     void clear();
 
+    bool checkValidationLayerSupport() const;
+    bool setupDebugMessenger();
+    bool destroyDebugMessenger();
+
     bool checkExtensionAvailability(
             const char* extension_name,
             const std::vector<VkExtensionProperties>& available_extensions);
@@ -158,9 +170,13 @@ private:
     VkPresentModeKHR getSwapChainPresentMode(
             std::vector<VkPresentModeKHR>& present_modes);
 
+    friend std::ostream& operator<<(
+            std::ostream& out, const std::vector<VkLayerProperties>& vect);
+
     os::LibraryHandle m_vulkan_library;
     os::WindowParameters m_window_parameters;
-    VulkanTutorial02Parameters m_vulkan_tutorial_02_parameters;
+    VulkanTutorial02Parameters m_vk_tutorial02_parameters;
+    std::atomic<bool> m_enable_vk_debug;
 };
 
 }  // namespace intel_vulkan

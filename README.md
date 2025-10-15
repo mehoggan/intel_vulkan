@@ -11,4 +11,5 @@ bear -- make
 ### Installing Ubuntu Dependencies
 ```sh
 sudo apt install -y libvulkan-dev
+sudo apt install -y vulkan-validationlayers spirv-tools
 ```

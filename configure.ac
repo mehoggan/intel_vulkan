@@ -10,6 +10,9 @@ if test -z "$PKG_CONFIG"; then
   AC_MSG_WARN([Cannot find pkg-config, make sure it is installed in your PATH])
 fi
 
+PKG_CHECK_MODULES([VULKAN], [vulkan])
+PKG_CHECK_MODULES([X11], [x11])
+
 # Conditionals
 AC_CANONICAL_HOST()
 

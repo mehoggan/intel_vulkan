@@ -5,7 +5,7 @@ tutorial01_runner_SOURCES = ./tutorial01_main.cpp
 tutorial01_runner_CPPFLAGS = -Werror -Wall -pedantic \
     -I$(abs_top_srcdir)/include
 tutorial01_runner_LDADD = \
-    $(abs_top_builddir)/lib/libintel_vulkan.la
+    $(abs_top_builddir)/lib/libintel_vulkan.la $(VULKAN_LIBS) $(X11_LIBS)
 tutorial01_runner_LDFLAGS = -pthread
 
 # Tutorial 02 Binary
@@ -13,7 +13,7 @@ tutorial02_runner_SOURCES = ./tutorial02_main.cpp
 tutorial02_runner_CPPFLAGS = -Werror -Wall -pedantic \
     -I$(abs_top_srcdir)/include
 tutorial02_runner_LDADD = \
-    $(abs_top_builddir)/lib/libintel_vulkan.la
+    $(abs_top_builddir)/lib/libintel_vulkan.la $(VULKAN_LIBS) $(X11_LIBS)
 tutorial02_runner_LDFLAGS = -pthread
 
 CLEANFILES = *.o

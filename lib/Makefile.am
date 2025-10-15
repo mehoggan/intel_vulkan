@@ -1,9 +1,9 @@
-lib_LTLIBRARIES = libautotools_mvp.la
+lib_LTLIBRARIES = libintel_vulkan.la
 
-libautotools_mvp_la_CPPFLAGS = -Werror -Wall -pedantic \
+libintel_vulkan_la_CPPFLAGS = -Werror -Wall -pedantic \
 		-I$(abs_top_srcdir)/include
 
-libautotools_mvp_la_SOURCES = ./LoggerHelpers.cpp \
+libintel_vulkan_la_SOURCES = ./LoggerHelpers.cpp \
 															./Logging.cpp \
 															./OperatingSystem.cpp \
 															./Tools.cpp \
@@ -12,6 +12,7 @@ libautotools_mvp_la_SOURCES = ./LoggerHelpers.cpp \
 															./VulkanCommon.cpp \
 															./VulkanFunctions.cpp
 
-libautotools_mvp_la_LIBADD = -lboost_log -lboost_system -lboost_thread
+libintel_vulkan_la_LIBADD = -lboost_log -lboost_system -lboost_thread \
+														$(VULKAN_LIBS) $(X11_LIBS)
 
-libautotools_mvp_la_LDFLAGS = -uuid -Wl,-ld_classic -pthread
+libintel_vulkan_la_LDFLAGS = -pthread

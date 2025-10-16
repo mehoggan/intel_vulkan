@@ -384,26 +384,24 @@ bool Tutorial02::createSwapChain() {
     }
 
     VkSwapchainCreateInfoKHR swap_chain_create_info = {
-            VK_STRUCTURE_TYPE_SWAPCHAIN_CREATE_INFO_KHR,  // VkStructureType
-            nullptr,  // const void                    *pNext
-            0,        // VkSwapchainCreateFlagsKHR      flags
-            m_vk_tutorial02_parameters.getPresentVkSurfaceKHR(),
-            desired_number_of_images,   // uint32_t minImageCount
-            desired_format.format,      // VkFormat imageFormat
-            desired_format.colorSpace,  // VkColorSpaceKHR imageColorSpace
-            desired_extent,  // VkExtent2D                     imageExtent
-            1,               // uint32_t                       imageArrayLayers
-            desired_usage,   // VkImageUsageFlags              imageUsage
-            VK_SHARING_MODE_EXCLUSIVE,  // VkSharingMode imageSharingMode
-            0,        // uint32_t                       queueFamilyIndexCount
-            nullptr,  // const uint32_t                *pQueueFamilyIndices
-            desired_transform,  // VkSurfaceTransformFlagBitsKHR  preTransform
-            VK_COMPOSITE_ALPHA_OPAQUE_BIT_KHR,  // VkCompositeAlphaFlagBitsKHR
-                                                // compositeAlpha
-            desired_present_mode,               // VkPresentModeKHR presentMode
-            VK_TRUE,        // VkBool32                       clipped
-            old_swap_chain  // VkSwapchainKHR                 oldSwapchain
-    };
+            .sType = VK_STRUCTURE_TYPE_SWAPCHAIN_CREATE_INFO_KHR,
+            .pNext = nullptr,
+            .flags = 0,
+            .surface = m_vk_tutorial02_parameters.getPresentVkSurfaceKHR(),
+            .minImageCount = desired_number_of_images,
+            .imageFormat = desired_format.format,
+            .imageColorSpace = desired_format.colorSpace,
+            .imageExtent = desired_extent,
+            .imageArrayLayers = 1,
+            .imageUsage = desired_usage,
+            .imageSharingMode = VK_SHARING_MODE_EXCLUSIVE,
+            .queueFamilyIndexCount = 0,
+            .pQueueFamilyIndices = nullptr,
+            .preTransform = desired_transform,
+            .compositeAlpha = VK_COMPOSITE_ALPHA_OPAQUE_BIT_KHR,
+            .presentMode = desired_present_mode,
+            .clipped = VK_TRUE,
+            .oldSwapchain = old_swap_chain};
 
     if (vkCreateSwapchainKHR(
                 m_vk_tutorial02_parameters.getVkDevice(),
@@ -439,10 +437,11 @@ bool Tutorial02::onWindowSizeChanged() {
 
 bool Tutorial02::createCommandBuffers() {
     VkCommandPoolCreateInfo cmd_pool_create_info = {
-            VK_STRUCTURE_TYPE_COMMAND_POOL_CREATE_INFO,
-            nullptr,
-            0,
-            m_vk_tutorial02_parameters.getPresentQueueFamilyIndex()};
+            .sType = VK_STRUCTURE_TYPE_COMMAND_POOL_CREATE_INFO,
+            .pNext = nullptr,
+            .flags = 0,
+            .queueFamilyIndex =
+                    m_vk_tutorial02_parameters.getPresentQueueFamilyIndex()};
 
     if (vkCreateCommandPool(
                 m_vk_tutorial02_parameters.getVkDevice(),
@@ -470,11 +469,12 @@ bool Tutorial02::createCommandBuffers() {
             image_count);
 
     VkCommandBufferAllocateInfo cmd_buffer_allocate_info = {
-            VK_STRUCTURE_TYPE_COMMAND_BUFFER_ALLOCATE_INFO,
-            nullptr,
-            m_vk_tutorial02_parameters.getPresentQueueVkCommandPool(),
-            VK_COMMAND_BUFFER_LEVEL_PRIMARY,
-            image_count};
+            .sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_ALLOCATE_INFO,
+            .pNext = nullptr,
+            .commandPool =
+                    m_vk_tutorial02_parameters.getPresentQueueVkCommandPool(),
+            .level = VK_COMMAND_BUFFER_LEVEL_PRIMARY,
+            .commandBufferCount = image_count};
     if (vkAllocateCommandBuffers(
                 m_vk_tutorial02_parameters.getVkDevice(),
                 &cmd_buffer_allocate_info,
@@ -515,16 +515,19 @@ bool Tutorial02::draw() {
 
     VkPipelineStageFlags wait_dst_stage_mask = VK_PIPELINE_STAGE_TRANSFER_BIT;
     VkSubmitInfo submit_info = {
-            VK_STRUCTURE_TYPE_SUBMIT_INFO,
-            nullptr,
-            1,
-            &m_vk_tutorial02_parameters.getImageAvailableVkSemaphore(),
-            &wait_dst_stage_mask,
-            1,
-            &m_vk_tutorial02_parameters
-                     .getPresentQueueVkCommandBuffers()[image_index],
-            1,
-            &m_vk_tutorial02_parameters.getRenderingFinishedVkSemaphore()};
+            .sType = VK_STRUCTURE_TYPE_SUBMIT_INFO,
+            .pNext = nullptr,
+            .waitSemaphoreCount = 1,
+            .pWaitSemaphores =
+                    &m_vk_tutorial02_parameters.getImageAvailableVkSemaphore(),
+            .pWaitDstStageMask = &wait_dst_stage_mask,
+            .commandBufferCount = 1,
+            .pCommandBuffers =
+                    &m_vk_tutorial02_parameters
+                             .getPresentQueueVkCommandBuffers()[image_index],
+            .signalSemaphoreCount = 1,
+            .pSignalSemaphores = &m_vk_tutorial02_parameters
+                                          .getRenderingFinishedVkSemaphore()};
 
     if (vkQueueSubmit(m_vk_tutorial02_parameters.getPresentVkQueue(),
                       1,
@@ -534,14 +537,15 @@ bool Tutorial02::draw() {
     }
 
     VkPresentInfoKHR present_info = {
-            VK_STRUCTURE_TYPE_PRESENT_INFO_KHR,
-            nullptr,
-            1,
-            &m_vk_tutorial02_parameters.getRenderingFinishedVkSemaphore(),
-            1,
-            &m_vk_tutorial02_parameters.getVkSwapchainKHR(),
-            &image_index,
-            nullptr};
+            .sType = VK_STRUCTURE_TYPE_PRESENT_INFO_KHR,
+            .pNext = nullptr,
+            .waitSemaphoreCount = 1,
+            .pWaitSemaphores = &m_vk_tutorial02_parameters
+                                        .getRenderingFinishedVkSemaphore(),
+            .swapchainCount = 1,
+            .pSwapchains = &m_vk_tutorial02_parameters.getVkSwapchainKHR(),
+            .pImageIndices = &image_index,
+            .pResults = nullptr};
     result = vkQueuePresentKHR(m_vk_tutorial02_parameters.getPresentVkQueue(),
                                &present_info);
 
@@ -640,28 +644,27 @@ bool Tutorial02::createInstance() {
         }
     }
 
+    std::uint32_t vk_version = VK_MAKE_VERSION(1, 3, 0);
+    std::uint32_t engine_version = VK_MAKE_VERSION(1, 0, 0);
+
     VkApplicationInfo application_info = {
-            VK_STRUCTURE_TYPE_APPLICATION_INFO,  // VkStructureType sType
-            nullptr,                             // const void *pNext
-            "Intel Vulkan tutorial",             // const char
-                                                 // *pApplicationName
-            VK_MAKE_VERSION(1, 0, 0),            // uint32_t applicationVersion
-            "Vulkan Tutorial by Intel",          // const char *pEngineName
-            VK_MAKE_VERSION(1, 0, 0),            // uint32_t engineVersion
-            VK_MAKE_VERSION(1, 0, 0)  // uint32_t                   apiVersion
-    };
+            .sType = VK_STRUCTURE_TYPE_APPLICATION_INFO,
+            .pNext = nullptr,
+            .pApplicationName = "Intel Vulkan tutorial",
+            .applicationVersion = vk_version,
+            .pEngineName = "Vulkan Tutorial by Intel",
+            .engineVersion = engine_version,
+            .apiVersion = engine_version};
 
     VkInstanceCreateInfo instance_create_info = {
-            VK_STRUCTURE_TYPE_INSTANCE_CREATE_INFO,  // VkStructureType sType
-            nullptr,            // const void                *pNext
-            0,                  // VkInstanceCreateFlags      flags
-            &application_info,  // const VkApplicationInfo   *pApplicationInfo
-            0,                  // uint32_t                   enabledLayerCount
-            nullptr,  // const char * const        *ppEnabledLayerNames
-            static_cast<uint32_t>(
-                    extensions.size()),  // uint32_t enabledExtensionCount
-            extensions.data()  // const char * const *ppEnabledExtensionNames
-    };
+            .sType = VK_STRUCTURE_TYPE_INSTANCE_CREATE_INFO,
+            .pNext = nullptr,
+            .flags = 0,
+            .pApplicationInfo = &application_info,
+            .enabledLayerCount = 0,
+            .ppEnabledLayerNames = nullptr,
+            .enabledExtensionCount = static_cast<uint32_t>(extensions.size()),
+            .ppEnabledExtensionNames = extensions.data()};
 
     if (vkCreateInstance(&instance_create_info,
                          nullptr,

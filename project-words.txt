@@ -1,10 +1,9 @@
 # New Words
+libvulkan
 LOGGEDCLASS
 LOGGERHELPERS
 SWAPCHAIN
 VKAPI
 Xlib
-libvulkan
-mehoggan
-vect
 xconfigure
+vect

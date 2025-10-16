@@ -15,7 +15,6 @@
 ///////////////////////////////////////////////////////////////////////////////
 
 #include "intel_vulkan/Tutorial02.h"
-#include <vulkan/vulkan_core.h>
 
 #include <algorithm>
 #include <limits>
@@ -288,7 +287,7 @@ bool Tutorial02::prepareVulkan(os::WindowParameters parameters) {
     return true;
 }
 
-bool Tutorial02::createSwapchain() {
+bool Tutorial02::createSwapChain() {
     ProjectBase::m_can_render = false;
 
     if (m_vk_tutorial02_parameters.getVkDevice() != VK_NULL_HANDLE) {
@@ -384,28 +383,27 @@ bool Tutorial02::createSwapchain() {
         return true;
     }
 
-    VkSwapchainCreateInfoKHR swap_chain_create_info;
-    swap_chain_create_info.sType = VK_STRUCTURE_TYPE_SWAPCHAIN_CREATE_INFO_KHR;
-    swap_chain_create_info.pNext = nullptr;
-    swap_chain_create_info.flags = 0;
-    swap_chain_create_info.surface =
-            m_vk_tutorial02_parameters.getPresentVkSurfaceKHR();
-    swap_chain_create_info.minImageCount = desired_number_of_images;
-    swap_chain_create_info.imageFormat = desired_format.format;
-    swap_chain_create_info.imageColorSpace = desired_format.colorSpace;
-    swap_chain_create_info.imageFormat = desired_format.format;
-    swap_chain_create_info.imageColorSpace = desired_format.colorSpace;
-    swap_chain_create_info.imageExtent = desired_extent;
-    swap_chain_create_info.imageArrayLayers = 1;
-    swap_chain_create_info.imageUsage = desired_usage;
-    swap_chain_create_info.imageSharingMode = VK_SHARING_MODE_EXCLUSIVE;
-    swap_chain_create_info.queueFamilyIndexCount = 0;
-    swap_chain_create_info.pQueueFamilyIndices = nullptr;
-    swap_chain_create_info.preTransform = desired_transform;
-    swap_chain_create_info.compositeAlpha = VK_COMPOSITE_ALPHA_OPAQUE_BIT_KHR;
-    swap_chain_create_info.presentMode = desired_present_mode;
-    swap_chain_create_info.clipped = VK_TRUE;
-    swap_chain_create_info.oldSwapchain = old_swap_chain;
+    VkSwapchainCreateInfoKHR swap_chain_create_info = {
+            VK_STRUCTURE_TYPE_SWAPCHAIN_CREATE_INFO_KHR,  // VkStructureType
+            nullptr,  // const void                    *pNext
+            0,        // VkSwapchainCreateFlagsKHR      flags
+            m_vk_tutorial02_parameters.getPresentVkSurfaceKHR(),
+            desired_number_of_images,   // uint32_t minImageCount
+            desired_format.format,      // VkFormat imageFormat
+            desired_format.colorSpace,  // VkColorSpaceKHR imageColorSpace
+            desired_extent,  // VkExtent2D                     imageExtent
+            1,               // uint32_t                       imageArrayLayers
+            desired_usage,   // VkImageUsageFlags              imageUsage
+            VK_SHARING_MODE_EXCLUSIVE,  // VkSharingMode imageSharingMode
+            0,        // uint32_t                       queueFamilyIndexCount
+            nullptr,  // const uint32_t                *pQueueFamilyIndices
+            desired_transform,  // VkSurfaceTransformFlagBitsKHR  preTransform
+            VK_COMPOSITE_ALPHA_OPAQUE_BIT_KHR,  // VkCompositeAlphaFlagBitsKHR
+                                                // compositeAlpha
+            desired_present_mode,               // VkPresentModeKHR presentMode
+            VK_TRUE,        // VkBool32                       clipped
+            old_swap_chain  // VkSwapchainKHR                 oldSwapchain
+    };
 
     if (vkCreateSwapchainKHR(
                 m_vk_tutorial02_parameters.getVkDevice(),
@@ -430,7 +428,7 @@ bool Tutorial02::createSwapchain() {
 bool Tutorial02::onWindowSizeChanged() {
     clear();
 
-    if (!createSwapchain()) {
+    if (!createSwapChain()) {
         return false;
     }
     if (!createCommandBuffers()) {
@@ -440,12 +438,11 @@ bool Tutorial02::onWindowSizeChanged() {
 }
 
 bool Tutorial02::createCommandBuffers() {
-    VkCommandPoolCreateInfo cmd_pool_create_info;
-    cmd_pool_create_info.sType = VK_STRUCTURE_TYPE_COMMAND_POOL_CREATE_INFO;
-    cmd_pool_create_info.pNext = nullptr;
-    cmd_pool_create_info.flags = 0;
-    cmd_pool_create_info.queueFamilyIndex =
-            m_vk_tutorial02_parameters.getPresentQueueFamilyIndex();
+    VkCommandPoolCreateInfo cmd_pool_create_info = {
+            VK_STRUCTURE_TYPE_COMMAND_POOL_CREATE_INFO,
+            nullptr,
+            0,
+            m_vk_tutorial02_parameters.getPresentQueueFamilyIndex()};
 
     if (vkCreateCommandPool(
                 m_vk_tutorial02_parameters.getVkDevice(),
@@ -472,14 +469,12 @@ bool Tutorial02::createCommandBuffers() {
     m_vk_tutorial02_parameters.getPresentQueueVkCommandBuffers().resize(
             image_count);
 
-    VkCommandBufferAllocateInfo cmd_buffer_allocate_info;
-    cmd_buffer_allocate_info.sType =
-            VK_STRUCTURE_TYPE_COMMAND_BUFFER_ALLOCATE_INFO;
-    cmd_buffer_allocate_info.pNext = nullptr;
-    cmd_buffer_allocate_info.commandPool =
-            m_vk_tutorial02_parameters.getPresentQueueVkCommandPool();
-    cmd_buffer_allocate_info.level = VK_COMMAND_BUFFER_LEVEL_PRIMARY;
-    cmd_buffer_allocate_info.commandBufferCount = image_count;
+    VkCommandBufferAllocateInfo cmd_buffer_allocate_info = {
+            VK_STRUCTURE_TYPE_COMMAND_BUFFER_ALLOCATE_INFO,
+            nullptr,
+            m_vk_tutorial02_parameters.getPresentQueueVkCommandPool(),
+            VK_COMMAND_BUFFER_LEVEL_PRIMARY,
+            image_count};
     if (vkAllocateCommandBuffers(
                 m_vk_tutorial02_parameters.getVkDevice(),
                 &cmd_buffer_allocate_info,
@@ -489,7 +484,6 @@ bool Tutorial02::createCommandBuffers() {
         return false;
     }
 
-    // TODO (mehoggan): Use Member-by-Member assignments here.
     if (!recordCommandBuffers()) {
         Logging::error(LOG_TAG, "Could not record command buffers!");
         return false;
@@ -651,10 +645,10 @@ bool Tutorial02::createInstance() {
             nullptr,                             // const void *pNext
             "Intel Vulkan tutorial",             // const char
                                                  // *pApplicationName
-            VK_MAKE_VERSION(1, 3, 0),            // uint32_t applicationVersion
+            VK_MAKE_VERSION(1, 0, 0),            // uint32_t applicationVersion
             "Vulkan Tutorial by Intel",          // const char *pEngineName
-            VK_MAKE_VERSION(1, 3, 0),            // uint32_t engineVersion
-            VK_MAKE_VERSION(1, 3, 0)  // uint32_t                   apiVersion
+            VK_MAKE_VERSION(1, 0, 0),            // uint32_t engineVersion
+            VK_MAKE_VERSION(1, 0, 0)  // uint32_t                   apiVersion
     };
 
     VkInstanceCreateInfo instance_create_info = {

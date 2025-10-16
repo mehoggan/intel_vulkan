@@ -32,14 +32,6 @@ ProjectBase& ProjectBase::operator=(const ProjectBase& other) {
     return (*this);
 }
 
-ProjectBase::ProjectBase(ProjectBase&& other)
-        : m_can_render(std::move(other.m_can_render)) {}
-
-ProjectBase& ProjectBase::operator=(ProjectBase&& other) {
-    m_can_render = std::move(other.m_can_render);
-    return (*this);
-}
-
 bool ProjectBase::readyToDraw() const { return m_can_render; }
 
 WindowParameters::WindowParameters() : m_display_ptr(nullptr), m_handle{} {}

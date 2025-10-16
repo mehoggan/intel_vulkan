@@ -127,7 +127,7 @@ public:
     ~Tutorial02() override;
 
     bool prepareVulkan(os::WindowParameters parameters);
-    bool createSwapchain();
+    bool createSwapChain();
     bool onWindowSizeChanged() override;
     bool createCommandBuffers();
     bool draw() override;

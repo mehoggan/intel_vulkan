@@ -698,11 +698,11 @@ bool Tutorial02::loadInstanceLevelEntryPoints() {
 
 bool Tutorial02::createPresentationSurface() {
     VkXlibSurfaceCreateInfoKHR surface_create_info = {
-            VK_STRUCTURE_TYPE_XLIB_SURFACE_CREATE_INFO_KHR,
-            nullptr,
-            0,
-            m_window_parameters.getDisplayPtr(),
-            m_window_parameters.getWindowHandle()};
+            .sType = VK_STRUCTURE_TYPE_XLIB_SURFACE_CREATE_INFO_KHR,
+            .pNext = nullptr,
+            .flags = 0,
+            .dpy = m_window_parameters.getDisplayPtr(),
+            .window = m_window_parameters.getWindowHandle()};
     if (vkCreateXlibSurfaceKHR(
                 m_vk_tutorial02_parameters.getVkInstance(),
                 &surface_create_info,
@@ -788,21 +788,17 @@ bool Tutorial02::createDevice() {
     std::vector<const char*> extensions = {VK_KHR_SWAPCHAIN_EXTENSION_NAME};
 
     VkDeviceCreateInfo device_create_info = {
-            VK_STRUCTURE_TYPE_DEVICE_CREATE_INFO,  // VkStructureType sType
-            nullptr,  // const void                        *pNext
-            0,        // VkDeviceCreateFlags                flags
-            static_cast<uint32_t>(
-                    queue_create_infos
-                            .size()),   // uint32_t queueCreateInfoCount
-            queue_create_infos.data(),  // const VkDeviceQueueCreateInfo
-                                        // *pQueueCreateInfos
-            0,        // uint32_t                           enabledLayerCount
-            nullptr,  // const char * const                *ppEnabledLayerNames
-            static_cast<uint32_t>(
-                    extensions.size()),  // uint32_t enabledExtensionCount
-            extensions.data(),  // const char * const *ppEnabledExtensionNames
-            nullptr  // const VkPhysicalDeviceFeatures    *pEnabledFeatures
-    };
+            .sType = VK_STRUCTURE_TYPE_DEVICE_CREATE_INFO,
+            .pNext = nullptr,
+            .flags = 0,
+            .queueCreateInfoCount =
+                    static_cast<uint32_t>(queue_create_infos.size()),
+            .pQueueCreateInfos = queue_create_infos.data(),
+            .enabledLayerCount = 0,
+            .ppEnabledLayerNames = nullptr,
+            .enabledExtensionCount = static_cast<uint32_t>(extensions.size()),
+            .ppEnabledExtensionNames = extensions.data(),
+            .pEnabledFeatures = nullptr};
 
     if (vkCreateDevice(m_vk_tutorial02_parameters.getVkPhysicalDevice(),
                        &device_create_info,
@@ -985,10 +981,9 @@ bool Tutorial02::getDeviceQueue() {
 
 bool Tutorial02::createSemaphores() {
     VkSemaphoreCreateInfo semaphore_create_info = {
-            VK_STRUCTURE_TYPE_SEMAPHORE_CREATE_INFO,  // VkStructureType sType
-            nullptr,  // const void*              pNext
-            0         // VkSemaphoreCreateFlags   flags
-    };
+            .sType = VK_STRUCTURE_TYPE_SEMAPHORE_CREATE_INFO,
+            .pNext = nullptr,
+            .flags = 0};
 
     if ((vkCreateSemaphore(
                  m_vk_tutorial02_parameters.getVkDevice(),
@@ -1024,53 +1019,44 @@ bool Tutorial02::recordCommandBuffers() {
     }
 
     VkCommandBufferBeginInfo cmd_buffer_begin_info = {
-            VK_STRUCTURE_TYPE_COMMAND_BUFFER_BEGIN_INFO,
-            nullptr,
-            VK_COMMAND_BUFFER_USAGE_SIMULTANEOUS_USE_BIT,
-            nullptr};
+            .sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_BEGIN_INFO,
+            .pNext = nullptr,
+            .flags = VK_COMMAND_BUFFER_USAGE_SIMULTANEOUS_USE_BIT,
+            .pInheritanceInfo = nullptr};
 
-    VkClearColorValue clear_color = {{1.0f, 0.8f, 0.4f, 0.0f}};
+    VkClearColorValue clear_color = {.float32 = {1.0f, 0.8f, 0.4f, 0.0f}};
 
     VkImageSubresourceRange image_subresource_range = {
-            VK_IMAGE_ASPECT_COLOR_BIT,  // VkImageAspectFlags aspectMask
-            0,  // uint32_t                               baseMipLevel
-            1,  // uint32_t                               levelCount
-            0,  // uint32_t                               baseArrayLayer
-            1   // uint32_t                               layerCount
-    };
+            .aspectMask = VK_IMAGE_ASPECT_COLOR_BIT,
+            .baseMipLevel = 0,
+            .levelCount = 1,
+            .baseArrayLayer = 0,
+            .layerCount = 1};
 
     for (uint32_t i = 0; i < image_count; ++i) {
         VkImageMemoryBarrier barrier_from_present_to_clear = {
-                VK_STRUCTURE_TYPE_IMAGE_MEMORY_BARRIER,  // VkStructureType
-                                                         // sType
-                nullptr,  // const void                            *pNext
-                VK_ACCESS_MEMORY_READ_BIT,     // VkAccessFlags srcAccessMask
-                VK_ACCESS_TRANSFER_WRITE_BIT,  // VkAccessFlags dstAccessMask
-                VK_IMAGE_LAYOUT_UNDEFINED,     // VkImageLayout oldLayout
-                VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL,  // VkImageLayout
-                                                       // newLayout
-                VK_QUEUE_FAMILY_IGNORED,  // uint32_t srcQueueFamilyIndex
-                VK_QUEUE_FAMILY_IGNORED,  // uint32_t dstQueueFamilyIndex
-                swap_chain_images[i],     // VkImage image
-                image_subresource_range   // VkImageSubresourceRange
-                                          // subresourceRange
-        };
+                .sType = VK_STRUCTURE_TYPE_IMAGE_MEMORY_BARRIER,
+                .pNext = nullptr,
+                .srcAccessMask = VK_ACCESS_MEMORY_READ_BIT,
+                .dstAccessMask = VK_ACCESS_TRANSFER_WRITE_BIT,
+                .oldLayout = VK_IMAGE_LAYOUT_UNDEFINED,
+                .newLayout = VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL,
+                .srcQueueFamilyIndex = VK_QUEUE_FAMILY_IGNORED,
+                .dstQueueFamilyIndex = VK_QUEUE_FAMILY_IGNORED,
+                .image = swap_chain_images[i],
+                .subresourceRange = image_subresource_range};
 
         VkImageMemoryBarrier barrier_from_clear_to_present = {
-                VK_STRUCTURE_TYPE_IMAGE_MEMORY_BARRIER,  // VkStructureType
-                                                         // sType
-                nullptr,  // const void                            *pNext
-                VK_ACCESS_TRANSFER_WRITE_BIT,  // VkAccessFlags srcAccessMask
-                VK_ACCESS_MEMORY_READ_BIT,     // VkAccessFlags dstAccessMask
-                VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL,  // VkImageLayout
-                                                       // oldLayout
-                VK_IMAGE_LAYOUT_PRESENT_SRC_KHR,  // VkImageLayout newLayout
-                VK_QUEUE_FAMILY_IGNORED,  // uint32_t srcQueueFamilyIndex
-                VK_QUEUE_FAMILY_IGNORED,  // uint32_t dstQueueFamilyIndex
-                swap_chain_images[i],     // VkImage image
-                image_subresource_range   // VkImageSubresourceRange
-                                          // subresourceRange
-        };
+                .sType = VK_STRUCTURE_TYPE_IMAGE_MEMORY_BARRIER,
+                .pNext = nullptr,
+                .srcAccessMask = VK_ACCESS_TRANSFER_WRITE_BIT,
+                .dstAccessMask = VK_ACCESS_MEMORY_READ_BIT,
+                .oldLayout = VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL,
+                .newLayout = VK_IMAGE_LAYOUT_PRESENT_SRC_KHR,
+                .srcQueueFamilyIndex = VK_QUEUE_FAMILY_IGNORED,
+                .dstQueueFamilyIndex = VK_QUEUE_FAMILY_IGNORED,
+                .image = swap_chain_images[i],
+                .subresourceRange = image_subresource_range};
 
         vkBeginCommandBuffer(m_vk_tutorial02_parameters
                                      .getPresentQueueVkCommandBuffers()[i],
@@ -1320,7 +1306,7 @@ VkExtent2D Tutorial02::getSwapChainExtent(
     // defined confines
     if (surface_capabilities.currentExtent.width ==
         std::numeric_limits<std::uint32_t>::max()) {
-        VkExtent2D swap_chain_extent = {640, 480};
+        VkExtent2D swap_chain_extent = {.width = 640u, .height = 480};
         if (swap_chain_extent.width <
             surface_capabilities.minImageExtent.width) {
             swap_chain_extent.width =

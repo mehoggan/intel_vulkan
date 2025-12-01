@@ -14,44 +14,44 @@
 // under the License.
 ////////////////////////////////////////////////////////////////////////////////
 
-#include "Tutorial03.h"
+#include "intel_vulkan/Tutorial03.h"
 
 int main(int argc, char** argv) {
-    ApiWithoutSecrets::OS::Window window;
-    ApiWithoutSecrets::Tutorial03 tutorial03;
+    intel_vulkan::os::Window window;
+    intel_vulkan::Tutorial03 tutorial03;
 
     // Window creation
-    if (!window.Create("03 - First Triangle")) {
+    if (!window.create("03 - First Triangle")) {
         return -1;
     }
 
     // Vulkan preparations and initialization
-    if (!tutorial03.PrepareVulkan(window.GetParameters())) {
+    if (!tutorial03.prepareVulkan(window.getParameters())) {
         return -1;
     }
 
     // Tutorial 03
-    if (!tutorial03.CreateRenderPass()) {
+    if (!tutorial03.createRenderPass()) {
         return -1;
     }
-    if (!tutorial03.CreateFramebuffers()) {
+    if (!tutorial03.createFramebuffers()) {
         return -1;
     }
-    if (!tutorial03.CreatePipeline()) {
+    if (!tutorial03.createPipeline()) {
         return -1;
     }
-    if (!tutorial03.CreateSemaphores()) {
+    if (!tutorial03.createSemaphores()) {
         return -1;
     }
-    if (!tutorial03.CreateCommandBuffers()) {
+    if (!tutorial03.createCommandBuffers()) {
         return -1;
     }
-    if (!tutorial03.RecordCommandBuffers()) {
+    if (!tutorial03.recordCommandBuffers()) {
         return -1;
     }
 
     // Rendering loop
-    if (!window.RenderingLoop(tutorial03)) {
+    if (!window.renderingLoop(tutorial03)) {
         return -1;
     }
 

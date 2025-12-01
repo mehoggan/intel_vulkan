@@ -1,4 +1,4 @@
-bin_PROGRAMS = tutorial01_runner tutorial02_runner
+bin_PROGRAMS = tutorial01_runner tutorial02_runner tutorial03_runner
 
 # Tutorial 01 Binary
 tutorial01_runner_SOURCES = ./tutorial01_main.cpp
@@ -15,6 +15,14 @@ tutorial02_runner_CPPFLAGS = -Werror -Wall -pedantic \
 tutorial02_runner_LDADD = \
     $(abs_top_builddir)/lib/libintel_vulkan.la $(VULKAN_LIBS) $(X11_LIBS)
 tutorial02_runner_LDFLAGS = -pthread
+
+# Tutorial 03 Binary
+tutorial03_runner_SOURCES = ./tutorial03_main.cpp
+tutorial03_runner_CPPFLAGS = -Werror -Wall -pedantic \
+    -I$(abs_top_srcdir)/include
+tutorial03_runner_LDADD = \
+    $(abs_top_builddir)/lib/libintel_vulkan.la $(VULKAN_LIBS) $(X11_LIBS)
+tutorial03_runner_LDFLAGS = -pthread
 
 CLEANFILES = *.o
 CLEANDIRS = .lib/

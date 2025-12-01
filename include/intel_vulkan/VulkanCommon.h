@@ -17,11 +17,14 @@
 #if !defined(VULKAN_COMMON_HEADER)
 #define VULKAN_COMMON_HEADER
 
+#include <atomic>
 #include <cstdint>
 #include <vector>
 
 #include <vulkan/vulkan.h>
-#include "OperatingSystem.h"
+
+#include "intel_vulkan/LoggedClass.hpp"
+#include "intel_vulkan/OperatingSystem.h"
 
 namespace intel_vulkan {
 
@@ -205,7 +208,7 @@ private:
 //                                                              //
 // Base class for Vulkan more advanced tutorial classes         //
 // ************************************************************ //
-class VulkanCommon : public os::ProjectBase {
+class VulkanCommon : public os::ProjectBase, public LoggedClass<VulkanCommon> {
 public:
     VulkanCommon();
     ~VulkanCommon() override;
@@ -213,8 +216,10 @@ public:
     bool prepareVulkan(os::WindowParameters parameters);
     bool onWindowSizeChanged() override;
 
-    VkPhysicalDevice getVkPhysicalDevice() const;
-    VkDevice getVkDevice() const;
+    const VkPhysicalDevice& getVkPhysicalDevice() const;
+    VkPhysicalDevice& getVkPhysicalDevice();
+    const VkDevice& getVkDevice() const;
+    VkDevice& getVkDevice();
 
     const QueueParameters& getGraphicsQueueParameters() const;
     const QueueParameters& getPresentQueueParameters() const;
@@ -222,10 +227,6 @@ public:
     const SwapChainParameters& getSwapchainParameters() const;
 
 private:
-    os::LibraryHandle m_vk_library_handle;
-    os::WindowParameters m_window_parameters;
-    VulkanCommonParameters m_vulkan_parameters;
-
     bool loadVulkanLibrary();
     bool loadExportedEntryPoints();
     bool loadGlobalLevelEntryPoints();
@@ -257,8 +258,17 @@ private:
     VkPresentModeKHR getSwapChainPresentMode(
             std::vector<VkPresentModeKHR>& present_modes);
 
+    bool checkValidationLayerSupport() const;
+    bool setupDebugMessenger();
+    bool destroyDebugMessenger();
+
     virtual bool childOnWindowSizeChanged() = 0;
     virtual void childClear() = 0;
+
+    os::LibraryHandle m_vulkan_library;
+    os::WindowParameters m_window_parameters;
+    VulkanCommonParameters m_vulkan_parameters;
+    std::atomic<bool> m_enable_vk_debug;
 };
 
 }  // namespace intel_vulkan

@@ -14,13 +14,18 @@
 // under the License.
 ////////////////////////////////////////////////////////////////////////////////
 
-#if !defined(TUTORIAL_03_HEADER)
-#define TUTORIAL_03_HEADER
+#ifndef INTEL_VULKAN_TUTORIAL03_H
+#define INTEL_VULKAN_TUTORIAL03_H
 
-#include "Tools.h"
-#include "VulkanCommon.h"
+#include <vector>
 
-namespace ApiWithoutSecrets {
+#include <vulkan/vulkan.h>
+#include <vulkan/vulkan_core.h>
+
+#include "intel_vulkan/Tools.h"
+#include "intel_vulkan/VulkanCommon.h"
+
+namespace intel_vulkan {
 
 // ************************************************************ //
 // VulkanTutorial03Parameters                                   //
@@ -28,22 +33,46 @@ namespace ApiWithoutSecrets {
 // Vulkan specific parameters                                   //
 // ************************************************************ //
 struct VulkanTutorial03Parameters {
-  VkRenderPass RenderPass;
-  std::vector<VkFramebuffer> Framebuffers;
-  VkPipeline GraphicsPipeline;
-  VkSemaphore ImageAvailableSemaphore;
-  VkSemaphore RenderingFinishedSemaphore;
-  VkCommandPool GraphicsCommandPool;
-  std::vector<VkCommandBuffer> GraphicsCommandBuffers;
+public:
+    VulkanTutorial03Parameters();
 
-  VulkanTutorial03Parameters()
-      : RenderPass(VK_NULL_HANDLE),
-        Framebuffers(),
-        GraphicsCommandPool(VK_NULL_HANDLE),
-        GraphicsCommandBuffers(),
-        GraphicsPipeline(VK_NULL_HANDLE),
-        ImageAvailableSemaphore(VK_NULL_HANDLE),
-        RenderingFinishedSemaphore(VK_NULL_HANDLE) {}
+    const VkRenderPass& getVkRenderPass() const;
+    VkRenderPass& getVkRenderPass();
+    void setVkRenderPass(const VkRenderPass& vk_render_pass);
+
+    const std::vector<VkFramebuffer>& getVkFramebuffers() const;
+    std::vector<VkFramebuffer>& getVkFramebuffers();
+    void setVkFramebuffers(const std::vector<VkFramebuffer>& vk_framebuffers);
+
+    const VkPipeline& getVkPipeline() const;
+    VkPipeline& getVkPipeline();
+    void setVkPipeline(const VkPipeline& vk_pipeline);
+
+    const VkSemaphore& getImageAvailableVkSemaphore() const;
+    VkSemaphore& getImageAvailableVkSemaphore();
+    void setImageAvailableVkSemaphore(const VkSemaphore& vk_semaphore);
+
+    const VkSemaphore& getRenderingFinishedVkSemaphore() const;
+    VkSemaphore& getRenderingFinishedVkSemaphore();
+    void setRenderingFinishedVkSemaphore(const VkSemaphore& vk_semaphore);
+
+    const VkCommandPool& getVkCommandPool() const;
+    VkCommandPool& getVkCommandPool();
+    void setVkCommandPool(const VkCommandPool& vk_command_pool);
+
+    const std::vector<VkCommandBuffer>& getVkCommandBuffers() const;
+    std::vector<VkCommandBuffer>& getVkCommandBuffers();
+    void setVkCommandBuffers(
+            const std::vector<VkCommandBuffer>& vk_command_buffers);
+
+private:
+    VkRenderPass m_vk_render_pass;
+    std::vector<VkFramebuffer> m_vk_framebuffers;
+    VkPipeline m_vk_pipeline;
+    VkSemaphore m_image_available_vk_semaphore;
+    VkSemaphore m_rendering_finished_vk_semaphore;
+    VkCommandPool m_vk_command_pool;
+    std::vector<VkCommandBuffer> m_vk_command_buffers;
 };
 
 // ************************************************************ //
@@ -52,34 +81,35 @@ struct VulkanTutorial03Parameters {
 // Class for presenting Vulkan usage topics                     //
 // ************************************************************ //
 class Tutorial03 : public VulkanCommon {
- public:
-  Tutorial03();
-  ~Tutorial03();
+public:
+    Tutorial03();
+    ~Tutorial03() override;
 
-  bool CreateRenderPass();
-  bool CreateFramebuffers();
-  bool CreatePipeline();
-  bool CreateSemaphores();
-  bool CreateCommandBuffers();
-  bool RecordCommandBuffers();
+    bool createRenderPass();
+    bool createFramebuffers();
+    bool createPipeline();
+    bool createSemaphores();
+    bool createCommandBuffers();
+    bool recordCommandBuffers();
 
-  bool Draw() override;
+    bool draw() override;
 
- private:
-  VulkanTutorial03Parameters Vulkan;
+private:
+    VulkanTutorial03Parameters m_vk_tutorial03_parameters;
 
-  Tools::AutoDeleter<VkShaderModule, PFN_vkDestroyShaderModule>
-  CreateShaderModule(const char *filename);
-  Tools::AutoDeleter<VkPipelineLayout, PFN_vkDestroyPipelineLayout>
-  CreatePipelineLayout();
-  bool CreateCommandPool(uint32_t queue_family_index, VkCommandPool *pool);
-  bool AllocateCommandBuffers(VkCommandPool pool, uint32_t count,
-                              VkCommandBuffer *command_buffers);
+    Tools::AutoDeleter<VkShaderModule, PFN_vkDestroyShaderModule>
+    createShaderModule(const char* filename);
+    Tools::AutoDeleter<VkPipelineLayout, PFN_vkDestroyPipelineLayout>
+    createPipelineLayout();
+    bool createCommandPool(uint32_t queue_family_index, VkCommandPool* pool);
+    bool allocateCommandBuffers(VkCommandPool pool,
+                                uint32_t count,
+                                VkCommandBuffer* command_buffers);
 
-  void ChildClear() override;
-  bool ChildOnWindowSizeChanged() override;
+    void childClear() override;
+    bool childOnWindowSizeChanged() override;
 };
 
-}  // namespace ApiWithoutSecrets
+}  // namespace intel_vulkan
 
 #endif  // TUTORIAL_03_HEADER

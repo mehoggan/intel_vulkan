@@ -293,9 +293,11 @@ void VulkanCommonParameters::setSwapchainParameters(
 }
 
 VulkanCommon::VulkanCommon()
-        : m_vk_library_handle()
+        : LoggedClass<VulkanCommon>(*this)
+        , m_vulkan_library()
         , m_window_parameters()
-        , m_vulkan_parameters() {}
+        , m_vulkan_parameters()
+        , m_enable_vk_debug(true) {}
 
 bool VulkanCommon::prepareVulkan(os::WindowParameters parameters) {
     m_window_parameters = parameters;
@@ -350,11 +352,19 @@ bool VulkanCommon::onWindowSizeChanged() {
     return false;
 }
 
-VkPhysicalDevice VulkanCommon::getVkPhysicalDevice() const {
+const VkPhysicalDevice& VulkanCommon::getVkPhysicalDevice() const {
     return m_vulkan_parameters.getVkPhysicalDevice();
 }
 
-VkDevice VulkanCommon::getVkDevice() const {
+VkPhysicalDevice& VulkanCommon::getVkPhysicalDevice() {
+    return m_vulkan_parameters.getVkPhysicalDevice();
+}
+
+const VkDevice& VulkanCommon::getVkDevice() const {
+    return m_vulkan_parameters.getVkDevice();
+}
+
+VkDevice& VulkanCommon::getVkDevice() {
     return m_vulkan_parameters.getVkDevice();
 }
 
@@ -1175,6 +1185,120 @@ VkPresentModeKHR VulkanCommon::getSwapChainPresentMode(
     std::cout << "FIFO present mode is not supported by the swap chain!"
               << std::endl;
     return static_cast<VkPresentModeKHR>(-1);
+}
+
+bool VulkanCommon::checkValidationLayerSupport() const {
+    static const std::vector<const char*> validation_layers = {
+            "VK_LAYER_KHRONOS_validation"};
+
+    std::uint32_t layer_count;
+    vkEnumerateInstanceLayerProperties(&layer_count, nullptr);
+
+    std::vector<VkLayerProperties> vk_layer_properties(layer_count);
+    vkEnumerateInstanceLayerProperties(&layer_count,
+                                       vk_layer_properties.data());
+    Logging::info(LOG_TAG, "The vk_instance has the following properties:");
+    Logging::info(LOG_TAG, vk_layer_properties);
+
+    bool response = true;
+    for (const char* layer_name : validation_layers) {
+        std::vector<VkLayerProperties>::iterator layer_it = std::find_if(
+                vk_layer_properties.begin(),
+                vk_layer_properties.end(),
+                [&layer_name](const VkLayerProperties& vk_layer_property) {
+                    return strcmp(layer_name, vk_layer_property.layerName) ==
+                           0;
+                });
+        if (layer_it == vk_layer_properties.end()) {
+            Logging::error(LOG_TAG,
+                           "The following layer \"",
+                           layer_name,
+                           "\""
+                           "could not be loaded!!!");
+            response = false;
+            break;
+        }
+    }
+
+    return response;
+}
+
+static VKAPI_ATTR VkBool32 VKAPI_CALL
+debugCallback(VkDebugUtilsMessageSeverityFlagBitsEXT message_severity,
+              VkDebugUtilsMessageTypeFlagsEXT message_type,
+              const VkDebugUtilsMessengerCallbackDataEXT*
+                      vk_debug_utils_messenger_callback_data_ext,
+              void* p_user_data) {
+    static LogTag debug_log_tag("DebugCallback");
+    static std::atomic<bool> log_tag_created(false);
+    if (!log_tag_created.load()) {
+        Logging::addStdCerrLogger(debug_log_tag);
+        log_tag_created.store(true);
+    }
+
+    Logging::error(debug_log_tag,
+                   "validation layer:",
+                   vk_debug_utils_messenger_callback_data_ext->pMessage);
+
+    return VK_FALSE;
+}
+
+bool VulkanCommon::setupDebugMessenger() {
+    bool response = false;
+    if (!m_enable_vk_debug.load()) {
+        response = true;
+    } else {
+        Logging::info(LOG_TAG, "Setting up Vulkan debugger...");
+        VkDebugUtilsMessengerCreateInfoEXT
+                vk_debug_utils_messenger_create_info_ext{};
+        vk_debug_utils_messenger_create_info_ext.sType =
+                VK_STRUCTURE_TYPE_DEBUG_UTILS_MESSENGER_CREATE_INFO_EXT;
+        vk_debug_utils_messenger_create_info_ext.messageSeverity =
+                VK_DEBUG_UTILS_MESSAGE_SEVERITY_VERBOSE_BIT_EXT |
+                VK_DEBUG_UTILS_MESSAGE_SEVERITY_WARNING_BIT_EXT |
+                VK_DEBUG_UTILS_MESSAGE_SEVERITY_ERROR_BIT_EXT;
+        vk_debug_utils_messenger_create_info_ext.messageType =
+                VK_DEBUG_UTILS_MESSAGE_TYPE_GENERAL_BIT_EXT |
+                VK_DEBUG_UTILS_MESSAGE_TYPE_VALIDATION_BIT_EXT |
+                VK_DEBUG_UTILS_MESSAGE_TYPE_PERFORMANCE_BIT_EXT;
+        vk_debug_utils_messenger_create_info_ext.pfnUserCallback =
+                debugCallback;
+
+        PFN_vkCreateDebugUtilsMessengerEXT func =
+                (PFN_vkCreateDebugUtilsMessengerEXT)vkGetInstanceProcAddr(
+                        m_vk_tutorial03_parameters.getVkInstance(),
+                        "vkCreateDebugUtilsMessengerEXT");
+
+        VkResult vk_result = VK_SUCCESS;
+        if (func != nullptr) {
+            vk_result = func(
+                    m_vk_tutorial03_parameters.getVkInstance(),
+                    &vk_debug_utils_messenger_create_info_ext,
+                    nullptr,
+                    &m_vk_tutorial03_parameters.getVkDebugUtilsMessenger());
+        } else {
+            vk_result = VK_ERROR_EXTENSION_NOT_PRESENT;
+        }
+
+        response = vk_result == VK_SUCCESS;
+    }
+
+    return response;
+}
+
+bool VulkanCommon::destroyDebugMessenger() {
+    bool response = false;
+    auto func = (PFN_vkDestroyDebugUtilsMessengerEXT)vkGetInstanceProcAddr(
+            m_vk_tutorial03_parameters.getVkInstance(),
+            "vkDestroyDebugUtilsMessengerEXT");
+    if (func != nullptr) {
+        func(m_vk_tutorial03_parameters.getVkInstance(),
+             m_vk_tutorial03_parameters.getVkDebugUtilsMessenger(),
+             nullptr);
+        response = true;
+    }
+
+    return response;
 }
 
 VulkanCommon::~VulkanCommon() {

@@ -1265,6 +1265,7 @@ bool Tutorial02::destroyDebugMessenger() {
 
     return response;
 }
+
 bool Tutorial02::checkExtensionAvailability(
         const char* extension_name,
         const std::vector<VkExtensionProperties>& available_extensions) {

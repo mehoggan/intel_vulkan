@@ -193,6 +193,11 @@ public:
     SwapChainParameters& getSwapchainParameters();
     void setSwapchainParameters(const SwapChainParameters& other);
 
+    const VkDebugUtilsMessengerEXT& getVkDebugUtilsMessenger() const;
+    VkDebugUtilsMessengerEXT& getVkDebugUtilsMessenger();
+    void setVkDebugUtilsMessenger(
+            const VkDebugUtilsMessengerEXT& vk_debug_messenger);
+
 private:
     VkInstance m_vk_instance;
     VkPhysicalDevice m_vk_physical_device;
@@ -201,6 +206,7 @@ private:
     QueueParameters m_present_queue_parameters;
     VkSurfaceKHR m_vk_surface_khr;
     SwapChainParameters m_swapchain_parameters;
+    VkDebugUtilsMessengerEXT m_vk_debug_utils_messenger;
 };
 
 // ************************************************************ //
@@ -265,7 +271,7 @@ private:
     virtual bool childOnWindowSizeChanged() = 0;
     virtual void childClear() = 0;
 
-    os::LibraryHandle m_vulkan_library;
+    os::LibraryHandle m_vulkan_library_handle;
     os::WindowParameters m_window_parameters;
     VulkanCommonParameters m_vulkan_parameters;
     std::atomic<bool> m_enable_vk_debug;

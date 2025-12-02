@@ -292,9 +292,21 @@ void VulkanCommonParameters::setSwapchainParameters(
     m_swapchain_parameters = other;
 }
 
+const VkDebugUtilsMessengerEXT&
+VulkanCommonParameters::getVkDebugUtilsMessenger() const {
+    return m_vk_debug_utils_messenger;
+}
+VkDebugUtilsMessengerEXT& VulkanCommonParameters::getVkDebugUtilsMessenger() {
+    return m_vk_debug_utils_messenger;
+}
+void VulkanCommonParameters::setVkDebugUtilsMessenger(
+        const VkDebugUtilsMessengerEXT& vk_debug_utils_messenger) {
+    m_vk_debug_utils_messenger = vk_debug_utils_messenger;
+}
+
 VulkanCommon::VulkanCommon()
         : LoggedClass<VulkanCommon>(*this)
-        , m_vulkan_library()
+        , m_vulkan_library_handle()
         , m_window_parameters()
         , m_vulkan_parameters()
         , m_enable_vk_debug(true) {}
@@ -381,9 +393,9 @@ const SwapChainParameters& VulkanCommon::getSwapchainParameters() const {
 }
 
 bool VulkanCommon::loadVulkanLibrary() {
-    m_vk_library_handle = dlopen("libvulkan.so.1", RTLD_NOW);
+    m_vulkan_library_handle = dlopen("libvulkan.so.1", RTLD_NOW);
 
-    if (m_vk_library_handle == nullptr) {
+    if (m_vulkan_library_handle == nullptr) {
         std::cout << "Could not load Vulkan library!" << std::endl;
         return false;
     }
@@ -393,11 +405,11 @@ bool VulkanCommon::loadVulkanLibrary() {
 bool VulkanCommon::loadExportedEntryPoints() {
 #define LoadProcAddress dlsym
 
-#define VK_EXPORTED_FUNCTION(fun)                                         \
-    if (!(fun = (PFN_##fun)LoadProcAddress(m_vk_library_handle, #fun))) { \
-        std::cout << "Could not load exported function: " << #fun << "!"  \
-                  << std::endl;                                           \
-        return false;                                                     \
+#define VK_EXPORTED_FUNCTION(fun)                                             \
+    if (!(fun = (PFN_##fun)LoadProcAddress(m_vulkan_library_handle, #fun))) { \
+        std::cout << "Could not load exported function: " << #fun << "!"      \
+                  << std::endl;                                               \
+        return false;                                                         \
     }
 
 #include "intel_vulkan/ListOfFunctions.inl"
@@ -1266,16 +1278,15 @@ bool VulkanCommon::setupDebugMessenger() {
 
         PFN_vkCreateDebugUtilsMessengerEXT func =
                 (PFN_vkCreateDebugUtilsMessengerEXT)vkGetInstanceProcAddr(
-                        m_vk_tutorial03_parameters.getVkInstance(),
+                        m_vulkan_parameters.getVkInstance(),
                         "vkCreateDebugUtilsMessengerEXT");
 
         VkResult vk_result = VK_SUCCESS;
         if (func != nullptr) {
-            vk_result = func(
-                    m_vk_tutorial03_parameters.getVkInstance(),
-                    &vk_debug_utils_messenger_create_info_ext,
-                    nullptr,
-                    &m_vk_tutorial03_parameters.getVkDebugUtilsMessenger());
+            vk_result = func(m_vulkan_parameters.getVkInstance(),
+                             &vk_debug_utils_messenger_create_info_ext,
+                             nullptr,
+                             &m_vulkan_parameters.getVkDebugUtilsMessenger());
         } else {
             vk_result = VK_ERROR_EXTENSION_NOT_PRESENT;
         }
@@ -1289,11 +1300,11 @@ bool VulkanCommon::setupDebugMessenger() {
 bool VulkanCommon::destroyDebugMessenger() {
     bool response = false;
     auto func = (PFN_vkDestroyDebugUtilsMessengerEXT)vkGetInstanceProcAddr(
-            m_vk_tutorial03_parameters.getVkInstance(),
+            m_vulkan_parameters.getVkInstance(),
             "vkDestroyDebugUtilsMessengerEXT");
     if (func != nullptr) {
-        func(m_vk_tutorial03_parameters.getVkInstance(),
-             m_vk_tutorial03_parameters.getVkDebugUtilsMessenger(),
+        func(m_vulkan_parameters.getVkInstance(),
+             m_vulkan_parameters.getVkDebugUtilsMessenger(),
              nullptr);
         response = true;
     }
@@ -1340,8 +1351,8 @@ VulkanCommon::~VulkanCommon() {
         vkDestroyInstance(m_vulkan_parameters.getVkInstance(), nullptr);
     }
 
-    if (m_vk_library_handle) {
-        dlclose(m_vk_library_handle);
+    if (m_vulkan_library_handle) {
+        dlclose(m_vulkan_library_handle);
     }
 }
 

@@ -101,9 +101,6 @@ public:
     bool draw() override;
 
 private:
-    VulkanTutorial03Parameters m_vk_tutorial03_parameters;
-    VulkanCommonParameters m_vk_common_parameters;
-
     Tools::AutoDeleter<VkShaderModule, PFN_vkDestroyShaderModule>
     createShaderModule(const char* filename);
     Tools::AutoDeleter<VkPipelineLayout, PFN_vkDestroyPipelineLayout>
@@ -119,6 +116,9 @@ private:
     bool checkValidationLayerSupport() const;
     bool setupDebugMessenger();
     bool destroyDebugMessenger();
+
+    VulkanTutorial03Parameters m_vk_tutorial03_parameters;
+    VulkanCommonParameters m_vk_common_parameters;
 };
 
 }  // namespace intel_vulkan

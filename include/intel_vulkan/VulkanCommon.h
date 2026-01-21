@@ -232,7 +232,7 @@ public:
 
     const SwapChainParameters& getSwapchainParameters() const;
 
-private:
+protected:
     bool loadVulkanLibrary();
     bool loadExportedEntryPoints();
     bool loadGlobalLevelEntryPoints();

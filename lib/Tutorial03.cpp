@@ -130,6 +130,30 @@ void VulkanTutorial03Parameters::setVkDebugUtilsMessenger(
 
 Tutorial03::Tutorial03() {}
 
+Tutorial03::~Tutorial03() {
+    childClear();
+
+    if (getVkDevice() != VK_NULL_HANDLE) {
+        vkDeviceWaitIdle(getVkDevice());
+
+        if (m_vk_tutorial03_parameters.getImageAvailableVkSemaphore() !=
+            VK_NULL_HANDLE) {
+            vkDestroySemaphore(
+                    getVkDevice(),
+                    m_vk_tutorial03_parameters.getImageAvailableVkSemaphore(),
+                    nullptr);
+        }
+
+        if (m_vk_tutorial03_parameters.getRenderingFinishedVkSemaphore() !=
+            VK_NULL_HANDLE) {
+            vkDestroySemaphore(getVkDevice(),
+                               m_vk_tutorial03_parameters
+                                       .getRenderingFinishedVkSemaphore(),
+                               nullptr);
+        }
+    }
+}
+
 bool Tutorial03::createRenderPass() {
     VkAttachmentDescription attachment_descriptions[] = {{
             0,  // VkAttachmentDescriptionFlags   flags
@@ -222,64 +246,6 @@ bool Tutorial03::createFramebuffers() {
         }
     }
     return true;
-}
-
-Tools::AutoDeleter<VkShaderModule, PFN_vkDestroyShaderModule>
-Tutorial03::createShaderModule(const char* filename) {
-    const std::vector<char> code = Tools::GetBinaryFileContents(filename);
-    if (code.size() == 0) {
-        return Tools::AutoDeleter<VkShaderModule, PFN_vkDestroyShaderModule>();
-    }
-
-    VkShaderModuleCreateInfo shader_module_create_info = {
-            VK_STRUCTURE_TYPE_SHADER_MODULE_CREATE_INFO,  // VkStructureType
-                                                          // sType
-            nullptr,      // const void                    *pNext
-            0,            // VkShaderModuleCreateFlags      flags
-            code.size(),  // size_t                         codeSize
-            reinterpret_cast<const uint32_t*>(
-                    code.data())  // const uint32_t *pCode
-    };
-
-    VkShaderModule shader_module;
-    if (vkCreateShaderModule(getVkDevice(),
-                             &shader_module_create_info,
-                             nullptr,
-                             &shader_module) != VK_SUCCESS) {
-        std::cout << "Could not create shader module from a \"" << filename
-                  << "\" file!" << std::endl;
-        return Tools::AutoDeleter<VkShaderModule, PFN_vkDestroyShaderModule>();
-    }
-
-    return Tools::AutoDeleter<VkShaderModule, PFN_vkDestroyShaderModule>(
-            shader_module, vkDestroyShaderModule, getVkDevice());
-}
-
-Tools::AutoDeleter<VkPipelineLayout, PFN_vkDestroyPipelineLayout>
-Tutorial03::createPipelineLayout() {
-    VkPipelineLayoutCreateInfo layout_create_info = {
-            VK_STRUCTURE_TYPE_PIPELINE_LAYOUT_CREATE_INFO,  // VkStructureType
-                                                            // sType
-            nullptr,  // const void                    *pNext
-            0,        // VkPipelineLayoutCreateFlags    flags
-            0,        // uint32_t                       setLayoutCount
-            nullptr,  // const VkDescriptorSetLayout   *pSetLayouts
-            0,        // uint32_t                       pushConstantRangeCount
-            nullptr   // const VkPushConstantRange     *pPushConstantRanges
-    };
-
-    VkPipelineLayout pipeline_layout;
-    if (vkCreatePipelineLayout(getVkDevice(),
-                               &layout_create_info,
-                               nullptr,
-                               &pipeline_layout) != VK_SUCCESS) {
-        std::cout << "Could not create pipeline layout!" << std::endl;
-        return Tools::AutoDeleter<VkPipelineLayout,
-                                  PFN_vkDestroyPipelineLayout>();
-    }
-
-    return Tools::AutoDeleter<VkPipelineLayout, PFN_vkDestroyPipelineLayout>(
-            pipeline_layout, vkDestroyPipelineLayout, getVkDevice());
 }
 
 bool Tutorial03::createPipeline() {
@@ -521,44 +487,6 @@ bool Tutorial03::createCommandBuffers() {
     return true;
 }
 
-bool Tutorial03::createCommandPool(uint32_t queue_family_index,
-                                   VkCommandPool* pool) {
-    VkCommandPoolCreateInfo cmd_pool_create_info = {
-            VK_STRUCTURE_TYPE_COMMAND_POOL_CREATE_INFO,  // VkStructureType
-                                                         // sType
-            nullptr,            // const void                    *pNext
-            0,                  // VkCommandPoolCreateFlags       flags
-            queue_family_index  // uint32_t queueFamilyIndex
-    };
-
-    if (vkCreateCommandPool(
-                getVkDevice(), &cmd_pool_create_info, nullptr, pool) !=
-        VK_SUCCESS) {
-        return false;
-    }
-    return true;
-}
-
-bool Tutorial03::allocateCommandBuffers(VkCommandPool pool,
-                                        uint32_t count,
-                                        VkCommandBuffer* command_buffers) {
-    VkCommandBufferAllocateInfo command_buffer_allocate_info = {
-            VK_STRUCTURE_TYPE_COMMAND_BUFFER_ALLOCATE_INFO,  // VkStructureType
-                                                             // sType
-            nullptr,  // const void                    *pNext
-            pool,     // VkCommandPool                  commandPool
-            VK_COMMAND_BUFFER_LEVEL_PRIMARY,  // VkCommandBufferLevel level
-            count  // uint32_t                       bufferCount
-    };
-
-    if (vkAllocateCommandBuffers(getVkDevice(),
-                                 &command_buffer_allocate_info,
-                                 command_buffers) != VK_SUCCESS) {
-        return false;
-    }
-    return true;
-}
-
 bool Tutorial03::recordCommandBuffers() {
     VkCommandBufferBeginInfo graphics_command_buffer_begin_info = {
             VK_STRUCTURE_TYPE_COMMAND_BUFFER_BEGIN_INFO,  // VkStructureType
@@ -678,6 +606,228 @@ bool Tutorial03::recordCommandBuffers() {
         }
     }
     return true;
+}
+
+bool Tutorial03::draw() {
+    VkSwapchainKHR swap_chain = getSwapchainParameters().getVkSwapchainKhr();
+    uint32_t image_index;
+
+    VkResult result = vkAcquireNextImageKHR(
+            getVkDevice(),
+            swap_chain,
+            UINT64_MAX,
+            m_vk_tutorial03_parameters.getImageAvailableVkSemaphore(),
+            VK_NULL_HANDLE,
+            &image_index);
+    switch (result) {
+        case VK_SUCCESS:
+        case VK_SUBOPTIMAL_KHR:
+            break;
+        case VK_ERROR_OUT_OF_DATE_KHR:
+            return onWindowSizeChanged();
+        default:
+            std::cout
+                    << "Problem occurred during swap chain image acquisition!"
+                    << std::endl;
+            return false;
+    }
+
+    VkPipelineStageFlags wait_dst_stage_mask =
+            VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT;
+    VkSubmitInfo submit_info = {
+            VK_STRUCTURE_TYPE_SUBMIT_INFO,
+            nullptr,
+            1,
+            &m_vk_tutorial03_parameters.getImageAvailableVkSemaphore(),
+            &wait_dst_stage_mask,
+            1,
+            &m_vk_tutorial03_parameters.getVkCommandBuffers()[image_index],
+            1,
+            &m_vk_tutorial03_parameters.getRenderingFinishedVkSemaphore()};
+
+    if (vkQueueSubmit(getGraphicsQueueParameters().getVkQueue(),
+                      1,
+                      &submit_info,
+                      VK_NULL_HANDLE) != VK_SUCCESS) {
+        return false;
+    }
+
+    VkPresentInfoKHR present_info = {
+            VK_STRUCTURE_TYPE_PRESENT_INFO_KHR,
+            nullptr,
+            1,
+            &m_vk_tutorial03_parameters.getRenderingFinishedVkSemaphore(),
+            1,
+            &swap_chain,
+            &image_index,
+            nullptr};
+    result = vkQueuePresentKHR(getPresentQueueParameters().getVkQueue(),
+                               &present_info);
+
+    switch (result) {
+        case VK_SUCCESS:
+            break;
+        case VK_ERROR_OUT_OF_DATE_KHR:
+        case VK_SUBOPTIMAL_KHR:
+            return onWindowSizeChanged();
+        default:
+            std::cout << "Problem occurred during image presentation!"
+                      << std::endl;
+            return false;
+    }
+
+    return true;
+}
+
+Tools::AutoDeleter<VkShaderModule, PFN_vkDestroyShaderModule>
+Tutorial03::createShaderModule(const char* filename) {
+    const std::vector<char> code = Tools::GetBinaryFileContents(filename);
+    if (code.size() == 0) {
+        return Tools::AutoDeleter<VkShaderModule, PFN_vkDestroyShaderModule>();
+    }
+
+    VkShaderModuleCreateInfo shader_module_create_info = {
+            VK_STRUCTURE_TYPE_SHADER_MODULE_CREATE_INFO,  // VkStructureType
+                                                          // sType
+            nullptr,      // const void                    *pNext
+            0,            // VkShaderModuleCreateFlags      flags
+            code.size(),  // size_t                         codeSize
+            reinterpret_cast<const uint32_t*>(
+                    code.data())  // const uint32_t *pCode
+    };
+
+    VkShaderModule shader_module;
+    if (vkCreateShaderModule(getVkDevice(),
+                             &shader_module_create_info,
+                             nullptr,
+                             &shader_module) != VK_SUCCESS) {
+        std::cout << "Could not create shader module from a \"" << filename
+                  << "\" file!" << std::endl;
+        return Tools::AutoDeleter<VkShaderModule, PFN_vkDestroyShaderModule>();
+    }
+
+    return Tools::AutoDeleter<VkShaderModule, PFN_vkDestroyShaderModule>(
+            shader_module, vkDestroyShaderModule, getVkDevice());
+}
+
+Tools::AutoDeleter<VkPipelineLayout, PFN_vkDestroyPipelineLayout>
+Tutorial03::createPipelineLayout() {
+    VkPipelineLayoutCreateInfo layout_create_info = {
+            VK_STRUCTURE_TYPE_PIPELINE_LAYOUT_CREATE_INFO,  // VkStructureType
+                                                            // sType
+            nullptr,  // const void                    *pNext
+            0,        // VkPipelineLayoutCreateFlags    flags
+            0,        // uint32_t                       setLayoutCount
+            nullptr,  // const VkDescriptorSetLayout   *pSetLayouts
+            0,        // uint32_t                       pushConstantRangeCount
+            nullptr   // const VkPushConstantRange     *pPushConstantRanges
+    };
+
+    VkPipelineLayout pipeline_layout;
+    if (vkCreatePipelineLayout(getVkDevice(),
+                               &layout_create_info,
+                               nullptr,
+                               &pipeline_layout) != VK_SUCCESS) {
+        std::cout << "Could not create pipeline layout!" << std::endl;
+        return Tools::AutoDeleter<VkPipelineLayout,
+                                  PFN_vkDestroyPipelineLayout>();
+    }
+
+    return Tools::AutoDeleter<VkPipelineLayout, PFN_vkDestroyPipelineLayout>(
+            pipeline_layout, vkDestroyPipelineLayout, getVkDevice());
+}
+
+bool Tutorial03::createCommandPool(uint32_t queue_family_index,
+                                   VkCommandPool* pool) {
+    VkCommandPoolCreateInfo cmd_pool_create_info = {
+            VK_STRUCTURE_TYPE_COMMAND_POOL_CREATE_INFO,  // VkStructureType
+                                                         // sType
+            nullptr,            // const void                    *pNext
+            0,                  // VkCommandPoolCreateFlags       flags
+            queue_family_index  // uint32_t queueFamilyIndex
+    };
+
+    if (vkCreateCommandPool(
+                getVkDevice(), &cmd_pool_create_info, nullptr, pool) !=
+        VK_SUCCESS) {
+        return false;
+    }
+    return true;
+}
+
+bool Tutorial03::allocateCommandBuffers(VkCommandPool pool,
+                                        uint32_t count,
+                                        VkCommandBuffer* command_buffers) {
+    VkCommandBufferAllocateInfo command_buffer_allocate_info = {
+            VK_STRUCTURE_TYPE_COMMAND_BUFFER_ALLOCATE_INFO,  // VkStructureType
+                                                             // sType
+            nullptr,  // const void                    *pNext
+            pool,     // VkCommandPool                  commandPool
+            VK_COMMAND_BUFFER_LEVEL_PRIMARY,  // VkCommandBufferLevel level
+            count  // uint32_t                       bufferCount
+    };
+
+    if (vkAllocateCommandBuffers(getVkDevice(),
+                                 &command_buffer_allocate_info,
+                                 command_buffers) != VK_SUCCESS) {
+        return false;
+    }
+    return true;
+}
+
+void Tutorial03::childClear() {
+    if (getVkDevice() != VK_NULL_HANDLE) {
+        vkDeviceWaitIdle(getVkDevice());
+
+        if ((m_vk_tutorial03_parameters.getVkCommandBuffers().size() > 0) &&
+            (m_vk_tutorial03_parameters.getVkCommandBuffers()[0] !=
+             VK_NULL_HANDLE)) {
+            vkFreeCommandBuffers(
+                    getVkDevice(),
+                    m_vk_tutorial03_parameters.getVkCommandPool(),
+                    static_cast<uint32_t>(
+                            m_vk_tutorial03_parameters.getVkCommandBuffers()
+                                    .size()),
+                    m_vk_tutorial03_parameters.getVkCommandBuffers().data());
+            m_vk_tutorial03_parameters.getVkCommandBuffers().clear();
+        }
+
+        if (m_vk_tutorial03_parameters.getVkCommandPool() != VK_NULL_HANDLE) {
+            vkDestroyCommandPool(getVkDevice(),
+                                 m_vk_tutorial03_parameters.getVkCommandPool(),
+                                 nullptr);
+            m_vk_tutorial03_parameters.getVkCommandPool() = VK_NULL_HANDLE;
+        }
+
+        if (m_vk_tutorial03_parameters.getVkPipeline() != VK_NULL_HANDLE) {
+            vkDestroyPipeline(getVkDevice(),
+                              m_vk_tutorial03_parameters.getVkPipeline(),
+                              nullptr);
+            m_vk_tutorial03_parameters.getVkPipeline() = VK_NULL_HANDLE;
+        }
+
+        if (m_vk_tutorial03_parameters.getVkRenderPass() != VK_NULL_HANDLE) {
+            vkDestroyRenderPass(getVkDevice(),
+                                m_vk_tutorial03_parameters.getVkRenderPass(),
+                                nullptr);
+            m_vk_tutorial03_parameters.getVkRenderPass() = VK_NULL_HANDLE;
+        }
+
+        for (size_t i = 0;
+             i < m_vk_tutorial03_parameters.getVkFramebuffers().size();
+             ++i) {
+            if (m_vk_tutorial03_parameters.getVkFramebuffers()[i] !=
+                VK_NULL_HANDLE) {
+                vkDestroyFramebuffer(
+                        getVkDevice(),
+                        m_vk_tutorial03_parameters.getVkFramebuffers()[i],
+                        nullptr);
+                m_vk_tutorial03_parameters.getVkFramebuffers()[i] =
+                        VK_NULL_HANDLE;
+            }
+        }
+        m_vk_tutorial03_parameters.getVkFramebuffers().clear();
+    }
 }
 
 bool Tutorial03::childOnWindowSizeChanged() {
@@ -812,156 +962,6 @@ bool Tutorial03::destroyDebugMessenger() {
     }
 
     return response;
-}
-
-bool Tutorial03::draw() {
-    VkSwapchainKHR swap_chain = getSwapchainParameters().getVkSwapchainKhr();
-    uint32_t image_index;
-
-    VkResult result = vkAcquireNextImageKHR(
-            getVkDevice(),
-            swap_chain,
-            UINT64_MAX,
-            m_vk_tutorial03_parameters.getImageAvailableVkSemaphore(),
-            VK_NULL_HANDLE,
-            &image_index);
-    switch (result) {
-        case VK_SUCCESS:
-        case VK_SUBOPTIMAL_KHR:
-            break;
-        case VK_ERROR_OUT_OF_DATE_KHR:
-            return onWindowSizeChanged();
-        default:
-            std::cout
-                    << "Problem occurred during swap chain image acquisition!"
-                    << std::endl;
-            return false;
-    }
-
-    VkPipelineStageFlags wait_dst_stage_mask =
-            VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT;
-    VkSubmitInfo submit_info = {
-            VK_STRUCTURE_TYPE_SUBMIT_INFO,
-            nullptr,
-            1,
-            &m_vk_tutorial03_parameters.getImageAvailableVkSemaphore(),
-            &wait_dst_stage_mask,
-            1,
-            &m_vk_tutorial03_parameters.getVkCommandBuffers()[image_index],
-            1,
-            &m_vk_tutorial03_parameters.getRenderingFinishedVkSemaphore()};
-
-    if (vkQueueSubmit(getGraphicsQueueParameters().getVkQueue(),
-                      1,
-                      &submit_info,
-                      VK_NULL_HANDLE) != VK_SUCCESS) {
-        return false;
-    }
-
-    VkPresentInfoKHR present_info = {
-            VK_STRUCTURE_TYPE_PRESENT_INFO_KHR,
-            nullptr,
-            1,
-            &m_vk_tutorial03_parameters.getRenderingFinishedVkSemaphore(),
-            1,
-            &swap_chain,
-            &image_index,
-            nullptr};
-    result = vkQueuePresentKHR(getPresentQueueParameters().getVkQueue(),
-                               &present_info);
-
-    switch (result) {
-        case VK_SUCCESS:
-            break;
-        case VK_ERROR_OUT_OF_DATE_KHR:
-        case VK_SUBOPTIMAL_KHR:
-            return onWindowSizeChanged();
-        default:
-            std::cout << "Problem occurred during image presentation!"
-                      << std::endl;
-            return false;
-    }
-
-    return true;
-}
-
-void Tutorial03::childClear() {
-    if (getVkDevice() != VK_NULL_HANDLE) {
-        vkDeviceWaitIdle(getVkDevice());
-
-        if ((m_vk_tutorial03_parameters.getVkCommandBuffers().size() > 0) &&
-            (m_vk_tutorial03_parameters.getVkCommandBuffers()[0] !=
-             VK_NULL_HANDLE)) {
-            vkFreeCommandBuffers(
-                    getVkDevice(),
-                    m_vk_tutorial03_parameters.getVkCommandPool(),
-                    static_cast<uint32_t>(
-                            m_vk_tutorial03_parameters.getVkCommandBuffers()
-                                    .size()),
-                    m_vk_tutorial03_parameters.getVkCommandBuffers().data());
-            m_vk_tutorial03_parameters.getVkCommandBuffers().clear();
-        }
-
-        if (m_vk_tutorial03_parameters.getVkCommandPool() != VK_NULL_HANDLE) {
-            vkDestroyCommandPool(getVkDevice(),
-                                 m_vk_tutorial03_parameters.getVkCommandPool(),
-                                 nullptr);
-            m_vk_tutorial03_parameters.getVkCommandPool() = VK_NULL_HANDLE;
-        }
-
-        if (m_vk_tutorial03_parameters.getVkPipeline() != VK_NULL_HANDLE) {
-            vkDestroyPipeline(getVkDevice(),
-                              m_vk_tutorial03_parameters.getVkPipeline(),
-                              nullptr);
-            m_vk_tutorial03_parameters.getVkPipeline() = VK_NULL_HANDLE;
-        }
-
-        if (m_vk_tutorial03_parameters.getVkRenderPass() != VK_NULL_HANDLE) {
-            vkDestroyRenderPass(getVkDevice(),
-                                m_vk_tutorial03_parameters.getVkRenderPass(),
-                                nullptr);
-            m_vk_tutorial03_parameters.getVkRenderPass() = VK_NULL_HANDLE;
-        }
-
-        for (size_t i = 0;
-             i < m_vk_tutorial03_parameters.getVkFramebuffers().size();
-             ++i) {
-            if (m_vk_tutorial03_parameters.getVkFramebuffers()[i] !=
-                VK_NULL_HANDLE) {
-                vkDestroyFramebuffer(
-                        getVkDevice(),
-                        m_vk_tutorial03_parameters.getVkFramebuffers()[i],
-                        nullptr);
-                m_vk_tutorial03_parameters.getVkFramebuffers()[i] =
-                        VK_NULL_HANDLE;
-            }
-        }
-        m_vk_tutorial03_parameters.getVkFramebuffers().clear();
-    }
-}
-
-Tutorial03::~Tutorial03() {
-    childClear();
-
-    if (getVkDevice() != VK_NULL_HANDLE) {
-        vkDeviceWaitIdle(getVkDevice());
-
-        if (m_vk_tutorial03_parameters.getImageAvailableVkSemaphore() !=
-            VK_NULL_HANDLE) {
-            vkDestroySemaphore(
-                    getVkDevice(),
-                    m_vk_tutorial03_parameters.getImageAvailableVkSemaphore(),
-                    nullptr);
-        }
-
-        if (m_vk_tutorial03_parameters.getRenderingFinishedVkSemaphore() !=
-            VK_NULL_HANDLE) {
-            vkDestroySemaphore(getVkDevice(),
-                               m_vk_tutorial03_parameters
-                                       .getRenderingFinishedVkSemaphore(),
-                               nullptr);
-        }
-    }
 }
 
 }  // namespace intel_vulkan

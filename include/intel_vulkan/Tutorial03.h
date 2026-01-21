@@ -65,6 +65,11 @@ public:
     void setVkCommandBuffers(
             const std::vector<VkCommandBuffer>& vk_command_buffers);
 
+    const VkDebugUtilsMessengerEXT& getVkDebugUtilsMessenger() const;
+    VkDebugUtilsMessengerEXT& getVkDebugUtilsMessenger();
+    void setVkDebugUtilsMessenger(
+            const VkDebugUtilsMessengerEXT& vk_debug_messenger);
+
 private:
     VkRenderPass m_vk_render_pass;
     std::vector<VkFramebuffer> m_vk_framebuffers;
@@ -73,6 +78,7 @@ private:
     VkSemaphore m_rendering_finished_vk_semaphore;
     VkCommandPool m_vk_command_pool;
     std::vector<VkCommandBuffer> m_vk_command_buffers;
+    VkDebugUtilsMessengerEXT m_vk_debug_utils_messenger;
 };
 
 // ************************************************************ //
@@ -96,6 +102,7 @@ public:
 
 private:
     VulkanTutorial03Parameters m_vk_tutorial03_parameters;
+    VulkanCommonParameters m_vk_common_parameters;
 
     Tools::AutoDeleter<VkShaderModule, PFN_vkDestroyShaderModule>
     createShaderModule(const char* filename);
@@ -108,6 +115,10 @@ private:
 
     void childClear() override;
     bool childOnWindowSizeChanged() override;
+
+    bool checkValidationLayerSupport() const;
+    bool setupDebugMessenger();
+    bool destroyDebugMessenger();
 };
 
 }  // namespace intel_vulkan

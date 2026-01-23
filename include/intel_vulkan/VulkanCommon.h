@@ -273,7 +273,7 @@ protected:
 
     os::LibraryHandle m_vulkan_library_handle;
     os::WindowParameters m_window_parameters;
-    VulkanCommonParameters m_vulkan_parameters;
+    VulkanCommonParameters m_vulkan_common_parameters;
     std::atomic<bool> m_enable_vk_debug;
 };
 

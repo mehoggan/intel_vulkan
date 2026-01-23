@@ -113,12 +113,7 @@ private:
     void childClear() override;
     bool childOnWindowSizeChanged() override;
 
-    bool checkValidationLayerSupport() const;
-    bool setupDebugMessenger();
-    bool destroyDebugMessenger();
-
-    VulkanTutorial03Parameters m_vk_tutorial03_parameters;
-    VulkanCommonParameters m_vk_common_parameters;
+    VulkanTutorial03Parameters m_vulkan_tutorial03_parameters;
 };
 
 }  // namespace intel_vulkan

@@ -518,6 +518,14 @@ bool VulkanCommon::createInstance() {
     std::vector<const char*> extensions = {VK_KHR_SURFACE_EXTENSION_NAME,
                                            VK_KHR_XLIB_SURFACE_EXTENSION_NAME};
 
+    if (m_enable_vk_debug.load()) {
+        Logging::info(LOG_TAG,
+                      "Adding the",
+                      VK_EXT_DEBUG_UTILS_EXTENSION_NAME,
+                      "extension...");
+        extensions.push_back(VK_EXT_DEBUG_UTILS_EXTENSION_NAME);
+    }
+
     for (size_t i = 0; i < extensions.size(); ++i) {
         if (!checkExtensionAvailability(extensions[i], available_extensions)) {
             Logging::error(LOG_TAG,

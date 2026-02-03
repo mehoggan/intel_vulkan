@@ -15,6 +15,7 @@
 ///////////////////////////////////////////////////////////////////////////////
 
 #include "intel_vulkan/VulkanCommon.h"
+#include <vulkan/vulkan_core.h>
 
 #include <cstdint>
 #include <iostream>
@@ -370,33 +371,43 @@ VulkanCommon::~VulkanCommon() {
 bool VulkanCommon::prepareVulkan(os::WindowParameters parameters) {
     m_window_parameters = parameters;
 
+    Logging::info(LOG_TAG, "loadVulkanLibrary()");
     if (!loadVulkanLibrary()) {
         return false;
     }
+    Logging::info(LOG_TAG, "loadExportedEntryPoints()");
     if (!loadExportedEntryPoints()) {
         return false;
     }
+    Logging::info(LOG_TAG, "loadGlobalLevelEntryPoints()");
     if (!loadGlobalLevelEntryPoints()) {
         return false;
     }
+    Logging::info(LOG_TAG, "createInstance()");
     if (!createInstance()) {
         return false;
     }
+    Logging::info(LOG_TAG, "loadInstanceLevelEntryPoints()");
     if (!loadInstanceLevelEntryPoints()) {
         return false;
     }
+    Logging::info(LOG_TAG, "createPresentationSurface()");
     if (!createPresentationSurface()) {
         return false;
     }
+    Logging::info(LOG_TAG, "createDevice()");
     if (!createDevice()) {
         return false;
     }
+    Logging::info(LOG_TAG, "loadDeviceLevelEntryPoints()");
     if (!loadDeviceLevelEntryPoints()) {
         return false;
     }
+    Logging::info(LOG_TAG, "getDeviceQueue()");
     if (!getDeviceQueue()) {
         return false;
     }
+    Logging::info(LOG_TAG, "createSwapChain()");
     if (!createSwapChain()) {
         return false;
     }
@@ -537,27 +548,23 @@ bool VulkanCommon::createInstance() {
     }
 
     VkApplicationInfo application_info = {
-            VK_STRUCTURE_TYPE_APPLICATION_INFO,  // VkStructureType sType
-            nullptr,  // const void                *pNext
-            "API without Secrets: Introduction to Vulkan",  // const char
-                                                            // *pApplicationName
-            VK_MAKE_VERSION(1, 0, 0),    // uint32_t applicationVersion
-            "Vulkan Tutorial by Intel",  // const char *pEngineName
-            VK_MAKE_VERSION(1, 0, 0),    // uint32_t engineVersion
-            VK_MAKE_VERSION(1, 0, 0)  // uint32_t                   apiVersion
-    };
+            .sType = VK_STRUCTURE_TYPE_APPLICATION_INFO,
+            .pNext = nullptr,
+            .pApplicationName = "API without Secrets: Introduction to Vulkan",
+            .applicationVersion = VK_MAKE_VERSION(1, 0, 0),
+            .pEngineName = "Vulkan Tutorial by Intel",
+            .engineVersion = VK_MAKE_VERSION(1, 0, 0),
+            .apiVersion = VK_MAKE_VERSION(1, 0, 0)};
 
     VkInstanceCreateInfo instance_create_info = {
-            VK_STRUCTURE_TYPE_INSTANCE_CREATE_INFO,  // VkStructureType sType
-            nullptr,            // const void                *pNext
-            0,                  // VkInstanceCreateFlags      flags
-            &application_info,  // const VkApplicationInfo   *pApplicationInfo
-            0,                  // uint32_t                   enabledLayerCount
-            nullptr,  // const char * const        *ppEnabledLayerNames
-            static_cast<uint32_t>(
-                    extensions.size()),  // uint32_t enabledExtensionCount
-            extensions.data()  // const char * const *ppEnabledExtensionNames
-    };
+            .sType = VK_STRUCTURE_TYPE_INSTANCE_CREATE_INFO,
+            .pNext = nullptr,
+            .flags = 0,
+            .pApplicationInfo = &application_info,
+            .enabledLayerCount = 0,
+            .ppEnabledLayerNames = nullptr,
+            .enabledExtensionCount = static_cast<uint32_t>(extensions.size()),
+            .ppEnabledExtensionNames = extensions.data()};
 
     if (vkCreateInstance(&instance_create_info,
                          nullptr,
@@ -592,13 +599,11 @@ bool VulkanCommon::loadInstanceLevelEntryPoints() {
 
 bool VulkanCommon::createPresentationSurface() {
     VkXlibSurfaceCreateInfoKHR surface_create_info = {
-            VK_STRUCTURE_TYPE_XLIB_SURFACE_CREATE_INFO_KHR,  // VkStructureType
-                                                             // sType
-            nullptr,  // const void                    *pNext
-            0,        // VkXlibSurfaceCreateFlagsKHR    flags
-            m_window_parameters.getDisplayPtr(),   // Display *dpy
-            m_window_parameters.getWindowHandle()  // Window window
-    };
+            .sType = VK_STRUCTURE_TYPE_XLIB_SURFACE_CREATE_INFO_KHR,
+            .pNext = nullptr,
+            .flags = 0,
+            .dpy = m_window_parameters.getDisplayPtr(),
+            .window = m_window_parameters.getWindowHandle()};
     if (vkCreateXlibSurfaceKHR(
                 m_vulkan_common_parameters.getVkInstance(),
                 &surface_create_info,
@@ -654,50 +659,39 @@ bool VulkanCommon::createDevice() {
     std::vector<VkDeviceQueueCreateInfo> queue_create_infos;
     std::vector<float> queue_priorities = {1.0f};
 
-    queue_create_infos.push_back({
-            VK_STRUCTURE_TYPE_DEVICE_QUEUE_CREATE_INFO,  // VkStructureType
-                                                         // sType
-            nullptr,  // const void                  *pNext
-            0,        // VkDeviceQueueCreateFlags     flags
-            selected_graphics_queue_family_index,  // uint32_t queueFamilyIndex
-            static_cast<uint32_t>(
-                    queue_priorities.size()),  // uint32_t queueCount
-            queue_priorities.data()            // const float *pQueuePriorities
-    });
+    queue_create_infos.push_back(VkDeviceQueueCreateInfo{
+            .sType = VK_STRUCTURE_TYPE_DEVICE_QUEUE_CREATE_INFO,
+            .pNext = nullptr,
+            .flags = 0,
+            .queueFamilyIndex = selected_graphics_queue_family_index,
+            .queueCount = static_cast<uint32_t>(queue_priorities.size()),
+            .pQueuePriorities = queue_priorities.data()});
 
     if (selected_graphics_queue_family_index !=
         selected_present_queue_family_index) {
-        queue_create_infos.push_back({
-                VK_STRUCTURE_TYPE_DEVICE_QUEUE_CREATE_INFO,  // VkStructureType
-                                                             // sType
-                nullptr,  // const void                  *pNext
-                0,        // VkDeviceQueueCreateFlags     flags
-                selected_present_queue_family_index,  // uint32_t
-                                                      // queueFamilyIndex
-                static_cast<uint32_t>(
-                        queue_priorities.size()),  // uint32_t queueCount
-                queue_priorities.data()  // const float *pQueuePriorities
-        });
+        queue_create_infos.push_back(VkDeviceQueueCreateInfo{
+                .sType = VK_STRUCTURE_TYPE_DEVICE_QUEUE_CREATE_INFO,
+                .pNext = nullptr,
+                .flags = 0,
+                .queueFamilyIndex = selected_present_queue_family_index,
+                .queueCount = static_cast<uint32_t>(queue_priorities.size()),
+                .pQueuePriorities = queue_priorities.data()});
     }
 
     std::vector<const char*> extensions = {VK_KHR_SWAPCHAIN_EXTENSION_NAME};
 
     VkDeviceCreateInfo device_create_info = {
-            VK_STRUCTURE_TYPE_DEVICE_CREATE_INFO,  // VkStructureType sType
-            nullptr,  // const void                        *pNext
-            0,        // VkDeviceCreateFlags                flags
-            static_cast<uint32_t>(
-                    queue_create_infos
-                            .size()),   // uint32_t queueCreateInfoCount
-            queue_create_infos.data(),  // const VkDeviceQueueCreateInfo
-                                        // *pQueueCreateInfos
-            0,        // uint32_t                           enabledLayerCount
-            nullptr,  // const char * const                *ppEnabledLayerNames
-            static_cast<uint32_t>(
-                    extensions.size()),  // uint32_t enabledExtensionCount
-            extensions.data(),  // const char * const *ppEnabledExtensionNames
-            nullptr  // const VkPhysicalDeviceFeatures    *pEnabledFeatures
-    };
+            .sType = VK_STRUCTURE_TYPE_DEVICE_CREATE_INFO,
+            .pNext = nullptr,
+            .flags = 0,
+            .queueCreateInfoCount =
+                    static_cast<uint32_t>(queue_create_infos.size()),
+            .pQueueCreateInfos = queue_create_infos.data(),
+            .enabledLayerCount = 0,
+            .ppEnabledLayerNames = nullptr,
+            .enabledExtensionCount = static_cast<uint32_t>(extensions.size()),
+            .ppEnabledExtensionNames = extensions.data(),
+            .pEnabledFeatures = nullptr};
 
     if (vkCreateDevice(m_vulkan_common_parameters.getVkPhysicalDevice(),
                        &device_create_info,
@@ -999,28 +993,24 @@ bool VulkanCommon::createSwapChain() {
     }
 
     VkSwapchainCreateInfoKHR swap_chain_create_info = {
-            VK_STRUCTURE_TYPE_SWAPCHAIN_CREATE_INFO_KHR,  // VkStructureType
-                                                          // sType
-            nullptr,  // const void                    *pNext
-            0,        // VkSwapchainCreateFlagsKHR      flags
-            m_vulkan_common_parameters
-                    .getVkSurfaceKhr(),  // VkSurfaceKHR surface
-            desired_number_of_images,    // uint32_t minImageCount
-            desired_format.format,       // VkFormat imageFormat
-            desired_format.colorSpace,   // VkColorSpaceKHR imageColorSpace
-            desired_extent,  // VkExtent2D                     imageExtent
-            1,               // uint32_t                       imageArrayLayers
-            desired_usage,   // VkImageUsageFlags              imageUsage
-            VK_SHARING_MODE_EXCLUSIVE,  // VkSharingMode imageSharingMode
-            0,        // uint32_t                       queueFamilyIndexCount
-            nullptr,  // const uint32_t                *pQueueFamilyIndices
-            desired_transform,  // VkSurfaceTransformFlagBitsKHR  preTransform
-            VK_COMPOSITE_ALPHA_OPAQUE_BIT_KHR,  // VkCompositeAlphaFlagBitsKHR
-                                                // compositeAlpha
-            desired_present_mode,               // VkPresentModeKHR presentMode
-            VK_TRUE,        // VkBool32                       clipped
-            old_swap_chain  // VkSwapchainKHR                 oldSwapchain
-    };
+            .sType = VK_STRUCTURE_TYPE_SWAPCHAIN_CREATE_INFO_KHR,
+            .pNext = nullptr,
+            .flags = 0,
+            .surface = m_vulkan_common_parameters.getVkSurfaceKhr(),
+            .minImageCount = desired_number_of_images,
+            .imageFormat = desired_format.format,
+            .imageColorSpace = desired_format.colorSpace,
+            .imageExtent = desired_extent,
+            .imageArrayLayers = 1,
+            .imageUsage = desired_usage,
+            .imageSharingMode = VK_SHARING_MODE_EXCLUSIVE,
+            .queueFamilyIndexCount = 0,
+            .pQueueFamilyIndices = nullptr,
+            .preTransform = desired_transform,
+            .compositeAlpha = VK_COMPOSITE_ALPHA_OPAQUE_BIT_KHR,
+            .presentMode = desired_present_mode,
+            .clipped = VK_TRUE,
+            .oldSwapchain = old_swap_chain};
 
     if (vkCreateSwapchainKHR(
                 m_vulkan_common_parameters.getVkDevice(),
@@ -1087,31 +1077,26 @@ bool VulkanCommon::createSwapChainImageViews() {
                                    .size();
          ++i) {
         VkImageViewCreateInfo image_view_create_info = {
-                VK_STRUCTURE_TYPE_IMAGE_VIEW_CREATE_INFO,  // VkStructureType
-                                                           // sType
-                nullptr,  // const void                    *pNext
-                0,        // VkImageViewCreateFlags         flags
-                m_vulkan_common_parameters.getSwapchainParameters()
-                        .getImageParameters()[i]
-                        .getVkImage(),  // VkImage image
-                VK_IMAGE_VIEW_TYPE_2D,  // VkImageViewType viewType
-                getSwapchainParameters().getVkFormat(),  // VkFormat format
-                {
-                        // VkComponentMapping             components
-                        VK_COMPONENT_SWIZZLE_IDENTITY,  // VkComponentSwizzle r
-                        VK_COMPONENT_SWIZZLE_IDENTITY,  // VkComponentSwizzle g
-                        VK_COMPONENT_SWIZZLE_IDENTITY,  // VkComponentSwizzle b
-                        VK_COMPONENT_SWIZZLE_IDENTITY   // VkComponentSwizzle a
-                },
-                {
-                        // VkImageSubresourceRange        subresourceRange
-                        VK_IMAGE_ASPECT_COLOR_BIT,  // VkImageAspectFlags
-                                                    // aspectMask
-                        0,  // uint32_t                       baseMipLevel
-                        1,  // uint32_t                       levelCount
-                        0,  // uint32_t                       baseArrayLayer
-                        1   // uint32_t                       layerCount
-                }};
+                .sType = VK_STRUCTURE_TYPE_IMAGE_VIEW_CREATE_INFO,
+                .pNext = nullptr,  // const void                    *pNext
+                .flags = 0,        // VkImageViewCreateFlags         flags
+                .image = m_vulkan_common_parameters.getSwapchainParameters()
+                                 .getImageParameters()[i]
+                                 .getVkImage(),
+                .viewType = VK_IMAGE_VIEW_TYPE_2D,  // VkImageViewType viewType
+                .format = getSwapchainParameters()
+                                  .getVkFormat(),  // VkFormat format
+                .components =
+                        VkComponentMapping{.r = VK_COMPONENT_SWIZZLE_IDENTITY,
+                                           .g = VK_COMPONENT_SWIZZLE_IDENTITY,
+                                           .b = VK_COMPONENT_SWIZZLE_IDENTITY,
+                                           .a = VK_COMPONENT_SWIZZLE_IDENTITY},
+                .subresourceRange = VkImageSubresourceRange{
+                        .aspectMask = VK_IMAGE_ASPECT_COLOR_BIT,
+                        .baseMipLevel = 0,
+                        .levelCount = 1,
+                        .baseArrayLayer = 0,
+                        .layerCount = 1}};
 
         if (vkCreateImageView(
                     getVkDevice(),
@@ -1357,9 +1342,21 @@ debugCallback(VkDebugUtilsMessageSeverityFlagBitsEXT message_severity,
         log_tag_created.store(true);
     }
 
-    Logging::error(debug_log_tag,
-                   "validation layer:",
-                   vk_debug_utils_messenger_callback_data_ext->pMessage);
+    if (message_severity & VK_DEBUG_UTILS_MESSAGE_SEVERITY_ERROR_BIT_EXT) {
+        Logging::error(debug_log_tag,
+                       "validation layer:",
+                       vk_debug_utils_messenger_callback_data_ext->pMessage);
+    } else if (message_severity &
+               VK_DEBUG_UTILS_MESSAGE_SEVERITY_INFO_BIT_EXT) {
+        Logging::info(debug_log_tag,
+                      "validation layer:",
+                      vk_debug_utils_messenger_callback_data_ext->pMessage);
+    } else if (message_severity &
+               VK_DEBUG_UTILS_MESSAGE_SEVERITY_WARNING_BIT_EXT) {
+        Logging::warn(debug_log_tag,
+                      "validation layer:",
+                      vk_debug_utils_messenger_callback_data_ext->pMessage);
+    }
 
     return VK_FALSE;
 }
@@ -1376,6 +1373,7 @@ bool VulkanCommon::setupDebugMessenger() {
                 VK_STRUCTURE_TYPE_DEBUG_UTILS_MESSENGER_CREATE_INFO_EXT;
         vk_debug_utils_messenger_create_info_ext.messageSeverity =
                 VK_DEBUG_UTILS_MESSAGE_SEVERITY_VERBOSE_BIT_EXT |
+                VK_DEBUG_UTILS_MESSAGE_SEVERITY_INFO_BIT_EXT |
                 VK_DEBUG_UTILS_MESSAGE_SEVERITY_WARNING_BIT_EXT |
                 VK_DEBUG_UTILS_MESSAGE_SEVERITY_ERROR_BIT_EXT;
         vk_debug_utils_messenger_create_info_ext.messageType =

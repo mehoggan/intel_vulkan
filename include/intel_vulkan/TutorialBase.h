@@ -157,13 +157,13 @@ private:
 };
 
 // ************************************************************ //
-// VulkanCommonParameters                                       //
+// TutorialBaseParameters                                       //
 //                                                              //
 // General Vulkan parameters' container class                   //
 // ************************************************************ //
-class VulkanCommonParameters {
+class TutorialBaseParameters {
 public:
-    VulkanCommonParameters();
+    TutorialBaseParameters();
 
     const VkInstance& getVkInstance() const;
     VkInstance& getVkInstance();
@@ -210,14 +210,14 @@ private:
 };
 
 // ************************************************************ //
-// VulkanCommon                                                 //
+// TutorialBase                                                 //
 //                                                              //
 // Base class for Vulkan more advanced tutorial classes         //
 // ************************************************************ //
-class VulkanCommon : public os::ProjectBase, public LoggedClass<VulkanCommon> {
+class TutorialBase : public os::ProjectBase, public LoggedClass<TutorialBase> {
 public:
-    VulkanCommon();
-    ~VulkanCommon() override;
+    TutorialBase();
+    ~TutorialBase() override;
 
     bool prepareVulkan(os::WindowParameters parameters);
     bool onWindowSizeChanged() override;
@@ -273,7 +273,7 @@ protected:
 
     os::LibraryHandle m_vulkan_library_handle;
     os::WindowParameters m_window_parameters;
-    VulkanCommonParameters m_vulkan_common_parameters;
+    TutorialBaseParameters m_vulkan_common_parameters;
     std::atomic<bool> m_enable_vk_debug;
 };
 

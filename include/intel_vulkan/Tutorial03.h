@@ -23,7 +23,7 @@
 #include <vulkan/vulkan_core.h>
 
 #include "intel_vulkan/Tools.h"
-#include "intel_vulkan/VulkanCommon.h"
+#include "intel_vulkan/TutorialBase.h"
 
 namespace intel_vulkan {
 
@@ -65,11 +65,6 @@ public:
     void setVkCommandBuffers(
             const std::vector<VkCommandBuffer>& vk_command_buffers);
 
-    const VkDebugUtilsMessengerEXT& getVkDebugUtilsMessenger() const;
-    VkDebugUtilsMessengerEXT& getVkDebugUtilsMessenger();
-    void setVkDebugUtilsMessenger(
-            const VkDebugUtilsMessengerEXT& vk_debug_messenger);
-
 private:
     VkRenderPass m_vk_render_pass;
     std::vector<VkFramebuffer> m_vk_framebuffers;
@@ -78,7 +73,6 @@ private:
     VkSemaphore m_rendering_finished_vk_semaphore;
     VkCommandPool m_vk_command_pool;
     std::vector<VkCommandBuffer> m_vk_command_buffers;
-    VkDebugUtilsMessengerEXT m_vk_debug_utils_messenger;
 };
 
 // ************************************************************ //
@@ -86,7 +80,7 @@ private:
 //                                                              //
 // Class for presenting Vulkan usage topics                     //
 // ************************************************************ //
-class Tutorial03 : public VulkanCommon {
+class Tutorial03 : public TutorialBase {
 public:
     Tutorial03();
     ~Tutorial03() override;

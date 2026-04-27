@@ -14,7 +14,7 @@
 // under the License.
 ///////////////////////////////////////////////////////////////////////////////
 
-#include "intel_vulkan/VulkanCommon.h"
+#include "intel_vulkan/TutorialBase.h"
 #include <vulkan/vulkan_core.h>
 
 #include <cstdint>
@@ -197,7 +197,7 @@ void SwapChainParameters::setVkExtent2d(VkExtent2D& other) {
 /*
  * Vulkan Common Parameters
  */
-VulkanCommonParameters::VulkanCommonParameters()
+TutorialBaseParameters::TutorialBaseParameters()
         : m_vk_instance(VK_NULL_HANDLE)
         , m_vk_physical_device(VK_NULL_HANDLE)
         , m_vk_device(VK_NULL_HANDLE)
@@ -206,113 +206,113 @@ VulkanCommonParameters::VulkanCommonParameters()
         , m_vk_surface_khr(VK_NULL_HANDLE)
         , m_swapchain_parameters() {}
 
-const VkInstance& VulkanCommonParameters::getVkInstance() const {
+const VkInstance& TutorialBaseParameters::getVkInstance() const {
     return m_vk_instance;
 }
 
-VkInstance& VulkanCommonParameters::getVkInstance() { return m_vk_instance; }
+VkInstance& TutorialBaseParameters::getVkInstance() { return m_vk_instance; }
 
-void VulkanCommonParameters::setVkInstance(const VkInstance& other) {
+void TutorialBaseParameters::setVkInstance(const VkInstance& other) {
     m_vk_instance = other;
 }
 
-const VkPhysicalDevice& VulkanCommonParameters::getVkPhysicalDevice() const {
+const VkPhysicalDevice& TutorialBaseParameters::getVkPhysicalDevice() const {
     return m_vk_physical_device;
 }
 
-VkPhysicalDevice& VulkanCommonParameters::getVkPhysicalDevice() {
+VkPhysicalDevice& TutorialBaseParameters::getVkPhysicalDevice() {
     return m_vk_physical_device;
 }
 
-void VulkanCommonParameters::setVkPhysicalDevice(
+void TutorialBaseParameters::setVkPhysicalDevice(
         const VkPhysicalDevice& other) {
     m_vk_physical_device = other;
 }
 
-const VkDevice& VulkanCommonParameters::getVkDevice() const {
+const VkDevice& TutorialBaseParameters::getVkDevice() const {
     return m_vk_device;
 }
 
-VkDevice& VulkanCommonParameters::getVkDevice() { return m_vk_device; }
+VkDevice& TutorialBaseParameters::getVkDevice() { return m_vk_device; }
 
-void VulkanCommonParameters::setVkDevice(const VkDevice& other) {
+void TutorialBaseParameters::setVkDevice(const VkDevice& other) {
     m_vk_device = other;
 }
 
-const QueueParameters& VulkanCommonParameters::getGraphicsQueueParameters()
+const QueueParameters& TutorialBaseParameters::getGraphicsQueueParameters()
         const {
     return m_graphics_queue_parameters;
 }
 
-QueueParameters& VulkanCommonParameters::getGraphicsQueueParameters() {
+QueueParameters& TutorialBaseParameters::getGraphicsQueueParameters() {
     return m_graphics_queue_parameters;
 }
 
-void VulkanCommonParameters::setGraphicsQueueParameters(
+void TutorialBaseParameters::setGraphicsQueueParameters(
         const QueueParameters& other) {
     m_graphics_queue_parameters = other;
 }
 
-const QueueParameters& VulkanCommonParameters::getPresentQueueParameters()
+const QueueParameters& TutorialBaseParameters::getPresentQueueParameters()
         const {
     return m_present_queue_parameters;
 }
 
-QueueParameters& VulkanCommonParameters::getPresentQueueParameters() {
+QueueParameters& TutorialBaseParameters::getPresentQueueParameters() {
     return m_present_queue_parameters;
 }
 
-void VulkanCommonParameters::setPresentQueueParameters(
+void TutorialBaseParameters::setPresentQueueParameters(
         const QueueParameters& other) {
     m_present_queue_parameters = other;
 }
 
-const VkSurfaceKHR& VulkanCommonParameters::getVkSurfaceKhr() const {
+const VkSurfaceKHR& TutorialBaseParameters::getVkSurfaceKhr() const {
     return m_vk_surface_khr;
 }
 
-VkSurfaceKHR& VulkanCommonParameters::getVkSurfaceKhr() {
+VkSurfaceKHR& TutorialBaseParameters::getVkSurfaceKhr() {
     return m_vk_surface_khr;
 }
 
-void VulkanCommonParameters::setVkSurfaceKhr(const VkSurfaceKHR& other) {
+void TutorialBaseParameters::setVkSurfaceKhr(const VkSurfaceKHR& other) {
     m_vk_surface_khr = other;
 }
 
-const SwapChainParameters& VulkanCommonParameters::getSwapchainParameters()
+const SwapChainParameters& TutorialBaseParameters::getSwapchainParameters()
         const {
     return m_swapchain_parameters;
 }
 
-SwapChainParameters& VulkanCommonParameters::getSwapchainParameters() {
+SwapChainParameters& TutorialBaseParameters::getSwapchainParameters() {
     return m_swapchain_parameters;
 }
 
-void VulkanCommonParameters::setSwapchainParameters(
+void TutorialBaseParameters::setSwapchainParameters(
         const SwapChainParameters& other) {
     m_swapchain_parameters = other;
 }
 
 const VkDebugUtilsMessengerEXT&
-VulkanCommonParameters::getVkDebugUtilsMessenger() const {
+TutorialBaseParameters::getVkDebugUtilsMessenger() const {
     return m_vk_debug_utils_messenger;
 }
-VkDebugUtilsMessengerEXT& VulkanCommonParameters::getVkDebugUtilsMessenger() {
+VkDebugUtilsMessengerEXT& TutorialBaseParameters::getVkDebugUtilsMessenger() {
     return m_vk_debug_utils_messenger;
 }
-void VulkanCommonParameters::setVkDebugUtilsMessenger(
+void TutorialBaseParameters::setVkDebugUtilsMessenger(
         const VkDebugUtilsMessengerEXT& vk_debug_utils_messenger) {
     m_vk_debug_utils_messenger = vk_debug_utils_messenger;
 }
 
-VulkanCommon::VulkanCommon()
-        : LoggedClass<VulkanCommon>(*this)
+TutorialBase::TutorialBase()
+        : LoggedClass<TutorialBase>(*this)
         , m_vulkan_library_handle()
         , m_window_parameters()
         , m_vulkan_common_parameters()
         , m_enable_vk_debug(true) {}
 
-VulkanCommon::~VulkanCommon() {
+TutorialBase::~TutorialBase() {
     if (m_vulkan_common_parameters.getVkDevice() != VK_NULL_HANDLE) {
         vkDeviceWaitIdle(m_vulkan_common_parameters.getVkDevice());
 
@@ -368,7 +368,7 @@ VulkanCommon::~VulkanCommon() {
     }
 }
 
-bool VulkanCommon::prepareVulkan(os::WindowParameters parameters) {
+bool TutorialBase::prepareVulkan(os::WindowParameters parameters) {
     m_window_parameters = parameters;
 
     Logging::info(LOG_TAG, "loadVulkanLibrary()");
@@ -414,7 +414,7 @@ bool VulkanCommon::prepareVulkan(os::WindowParameters parameters) {
     return true;
 }
 
-bool VulkanCommon::onWindowSizeChanged() {
+bool TutorialBase::onWindowSizeChanged() {
     if (m_vulkan_common_parameters.getVkDevice() != VK_NULL_HANDLE) {
         vkDeviceWaitIdle(m_vulkan_common_parameters.getVkDevice());
     }
@@ -431,35 +431,35 @@ bool VulkanCommon::onWindowSizeChanged() {
     return false;
 }
 
-const VkPhysicalDevice& VulkanCommon::getVkPhysicalDevice() const {
+const VkPhysicalDevice& TutorialBase::getVkPhysicalDevice() const {
     return m_vulkan_common_parameters.getVkPhysicalDevice();
 }
 
-VkPhysicalDevice& VulkanCommon::getVkPhysicalDevice() {
+VkPhysicalDevice& TutorialBase::getVkPhysicalDevice() {
     return m_vulkan_common_parameters.getVkPhysicalDevice();
 }
 
-const VkDevice& VulkanCommon::getVkDevice() const {
+const VkDevice& TutorialBase::getVkDevice() const {
     return m_vulkan_common_parameters.getVkDevice();
 }
 
-VkDevice& VulkanCommon::getVkDevice() {
+VkDevice& TutorialBase::getVkDevice() {
     return m_vulkan_common_parameters.getVkDevice();
 }
 
-const QueueParameters& VulkanCommon::getGraphicsQueueParameters() const {
+const QueueParameters& TutorialBase::getGraphicsQueueParameters() const {
     return m_vulkan_common_parameters.getGraphicsQueueParameters();
 }
 
-const QueueParameters& VulkanCommon::getPresentQueueParameters() const {
+const QueueParameters& TutorialBase::getPresentQueueParameters() const {
     return m_vulkan_common_parameters.getPresentQueueParameters();
 }
 
-const SwapChainParameters& VulkanCommon::getSwapchainParameters() const {
+const SwapChainParameters& TutorialBase::getSwapchainParameters() const {
     return m_vulkan_common_parameters.getSwapchainParameters();
 }
 
-bool VulkanCommon::loadVulkanLibrary() {
+bool TutorialBase::loadVulkanLibrary() {
     m_vulkan_library_handle = dlopen("libvulkan.so.1", RTLD_NOW);
 
     if (m_vulkan_library_handle == nullptr) {
@@ -469,7 +469,7 @@ bool VulkanCommon::loadVulkanLibrary() {
     return true;
 }
 
-bool VulkanCommon::loadExportedEntryPoints() {
+bool TutorialBase::loadExportedEntryPoints() {
 #define LoadProcAddress dlsym
 
 #define VK_EXPORTED_FUNCTION(fun)                                             \
@@ -484,7 +484,7 @@ bool VulkanCommon::loadExportedEntryPoints() {
     return true;
 }
 
-bool VulkanCommon::loadGlobalLevelEntryPoints() {
+bool TutorialBase::loadGlobalLevelEntryPoints() {
 #define VK_GLOBAL_LEVEL_FUNCTION(fun)                               \
     if (!(fun = (PFN_##fun)vkGetInstanceProcAddr(nullptr, #fun))) { \
         Logging::error(LOG_TAG,                                     \
@@ -499,7 +499,7 @@ bool VulkanCommon::loadGlobalLevelEntryPoints() {
     return true;
 }
 
-bool VulkanCommon::createInstance() {
+bool TutorialBase::createInstance() {
     if (!checkValidationLayerSupport()) {
         Logging::error(LOG_TAG,
                        "Failed to create an instance that does not support",
@@ -581,7 +581,7 @@ bool VulkanCommon::createInstance() {
     return true;
 }
 
-bool VulkanCommon::loadInstanceLevelEntryPoints() {
+bool TutorialBase::loadInstanceLevelEntryPoints() {
 #define VK_INSTANCE_LEVEL_FUNCTION(fun)                                 \
     if (!(fun = (PFN_##fun)vkGetInstanceProcAddr(                       \
                   m_vulkan_common_parameters.getVkInstance(), #fun))) { \
@@ -597,7 +597,7 @@ bool VulkanCommon::loadInstanceLevelEntryPoints() {
     return true;
 }  // namespace intel_vulkan
 
-bool VulkanCommon::createPresentationSurface() {
+bool TutorialBase::createPresentationSurface() {
     VkXlibSurfaceCreateInfoKHR surface_create_info = {
             .sType = VK_STRUCTURE_TYPE_XLIB_SURFACE_CREATE_INFO_KHR,
             .pNext = nullptr,
@@ -616,7 +616,7 @@ bool VulkanCommon::createPresentationSurface() {
     return false;
 }
 
-bool VulkanCommon::createDevice() {
+bool TutorialBase::createDevice() {
     uint32_t num_devices = 0;
     if ((vkEnumeratePhysicalDevices(m_vulkan_common_parameters.getVkInstance(),
                                     &num_devices,
@@ -709,7 +709,7 @@ bool VulkanCommon::createDevice() {
     return true;
 }
 
-bool VulkanCommon::checkPhysicalDeviceProperties(
+bool TutorialBase::checkPhysicalDeviceProperties(
         VkPhysicalDevice physical_device,
         uint32_t& selected_graphics_queue_family_index,
         uint32_t& selected_present_queue_family_index) {
@@ -843,7 +843,7 @@ bool VulkanCommon::checkPhysicalDeviceProperties(
     return true;
 }
 
-bool VulkanCommon::loadDeviceLevelEntryPoints() {
+bool TutorialBase::loadDeviceLevelEntryPoints() {
 #define VK_DEVICE_LEVEL_FUNCTION(fun)                                         \
     if (!(fun = (PFN_##fun)vkGetDeviceProcAddr(                               \
                   m_vulkan_common_parameters.getVkDevice(), #fun))) {         \
@@ -857,7 +857,7 @@ bool VulkanCommon::loadDeviceLevelEntryPoints() {
     return true;
 }
 
-bool VulkanCommon::getDeviceQueue() {
+bool TutorialBase::getDeviceQueue() {
     vkGetDeviceQueue(m_vulkan_common_parameters.getVkDevice(),
                      m_vulkan_common_parameters.getGraphicsQueueParameters()
                              .getFamilyIndex(),
@@ -873,7 +873,7 @@ bool VulkanCommon::getDeviceQueue() {
     return true;
 }
 
-bool VulkanCommon::createSwapChain() {
+bool TutorialBase::createSwapChain() {
     m_can_render = false;
 
     if (m_vulkan_common_parameters.getVkDevice() != VK_NULL_HANDLE) {
@@ -1071,7 +1071,7 @@ bool VulkanCommon::createSwapChain() {
     return createSwapChainImageViews();
 }
 
-bool VulkanCommon::createSwapChainImageViews() {
+bool TutorialBase::createSwapChainImageViews() {
     for (size_t i = 0; i < m_vulkan_common_parameters.getSwapchainParameters()
                                    .getImageParameters()
                                    .size();
@@ -1116,7 +1116,7 @@ bool VulkanCommon::createSwapChainImageViews() {
     return true;
 }
 
-bool VulkanCommon::checkExtensionAvailability(
+bool TutorialBase::checkExtensionAvailability(
         const char* extension_name,
         const std::vector<VkExtensionProperties>& available_extensions) {
     for (size_t i = 0; i < available_extensions.size(); ++i) {
@@ -1128,7 +1128,7 @@ bool VulkanCommon::checkExtensionAvailability(
     return false;
 }
 
-uint32_t VulkanCommon::getSwapChainNumImages(
+uint32_t TutorialBase::getSwapChainNumImages(
         VkSurfaceCapabilitiesKHR& surface_capabilities) {
     // Set of images defined in a swap chain may not always be available for
     // application to render to: One may be displayed and one may wait in a
@@ -1142,7 +1142,7 @@ uint32_t VulkanCommon::getSwapChainNumImages(
     return image_count;
 }
 
-VkSurfaceFormatKHR VulkanCommon::getSwapChainFormat(
+VkSurfaceFormatKHR TutorialBase::getSwapChainFormat(
         std::vector<VkSurfaceFormatKHR>& surface_formats) {
     // If the list contains only one entry with undefined format
     // it means that there are no preferred surface formats and any can be
@@ -1164,7 +1164,7 @@ VkSurfaceFormatKHR VulkanCommon::getSwapChainFormat(
     return surface_formats[0];
 }
 
-VkExtent2D VulkanCommon::getSwapChainExtent(
+VkExtent2D TutorialBase::getSwapChainExtent(
         VkSurfaceCapabilitiesKHR& surface_capabilities) {
     // Special value of surface extent is width == height == -1
     // If this is so we define the size by ourselves but it must fit within
@@ -1200,7 +1200,7 @@ VkExtent2D VulkanCommon::getSwapChainExtent(
     return surface_capabilities.currentExtent;
 }
 
-VkImageUsageFlags VulkanCommon::getSwapChainUsageFlags(
+VkImageUsageFlags TutorialBase::getSwapChainUsageFlags(
         VkSurfaceCapabilitiesKHR& surface_capabilities) {
     // Color attachment flag must always be supported
     // We can define other usage flags but we always need to check if they are
@@ -1248,7 +1248,7 @@ VkImageUsageFlags VulkanCommon::getSwapChainUsageFlags(
     return static_cast<VkImageUsageFlags>(-1);
 }
 
-VkSurfaceTransformFlagBitsKHR VulkanCommon::getSwapChainTransform(
+VkSurfaceTransformFlagBitsKHR TutorialBase::getSwapChainTransform(
         VkSurfaceCapabilitiesKHR& surface_capabilities) {
     // Sometimes images must be transformed before they are presented (i.e. due
     // to device's orientation being other than default orientation) If the
@@ -1265,7 +1265,7 @@ VkSurfaceTransformFlagBitsKHR VulkanCommon::getSwapChainTransform(
     }
 }
 
-VkPresentModeKHR VulkanCommon::getSwapChainPresentMode(
+VkPresentModeKHR TutorialBase::getSwapChainPresentMode(
         std::vector<VkPresentModeKHR>& present_modes) {
     // MAILBOX is the lowest latency V-Sync enabled mode (something like
     // triple-buffering) so use it if available
@@ -1293,7 +1293,7 @@ VkPresentModeKHR VulkanCommon::getSwapChainPresentMode(
     return static_cast<VkPresentModeKHR>(-1);
 }
 
-bool VulkanCommon::checkValidationLayerSupport() const {
+bool TutorialBase::checkValidationLayerSupport() const {
     static const std::vector<const char*> validation_layers = {
             "VK_LAYER_KHRONOS_validation"};
 
@@ -1361,7 +1361,7 @@ debugCallback(VkDebugUtilsMessageSeverityFlagBitsEXT message_severity,
     return VK_FALSE;
 }
 
-bool VulkanCommon::setupDebugMessenger() {
+bool TutorialBase::setupDebugMessenger() {
     bool response = false;
     if (!m_enable_vk_debug.load()) {
         response = true;
@@ -1405,7 +1405,7 @@ bool VulkanCommon::setupDebugMessenger() {
     return response;
 }
 
-bool VulkanCommon::destroyDebugMessenger() {
+bool TutorialBase::destroyDebugMessenger() {
     bool response = false;
     auto func = (PFN_vkDestroyDebugUtilsMessengerEXT)vkGetInstanceProcAddr(
             m_vulkan_common_parameters.getVkInstance(),

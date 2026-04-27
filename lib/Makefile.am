@@ -10,7 +10,7 @@ libintel_vulkan_la_SOURCES = ./LoggerHelpers.cpp \
 															./Tutorial01.cpp \
 															./Tutorial02.cpp \
 															./Tutorial03.cpp \
-															./VulkanCommon.cpp \
+															./TutorialBase.cpp \
 															./VulkanFunctions.cpp
 
 libintel_vulkan_la_LIBADD = -lboost_log -lboost_system -lboost_thread \

@@ -31,8 +31,7 @@ VulkanTutorial03Parameters::VulkanTutorial03Parameters()
         , m_image_available_vk_semaphore(VK_NULL_HANDLE)
         , m_rendering_finished_vk_semaphore(VK_NULL_HANDLE)
         , m_vk_command_pool(VK_NULL_HANDLE)
-        , m_vk_command_buffers({})
-        , m_vk_debug_utils_messenger(VK_NULL_HANDLE) {}
+        , m_vk_command_buffers({}) {}
 
 const VkRenderPass& VulkanTutorial03Parameters::getVkRenderPass() const {
     return m_vk_render_pass;
@@ -113,19 +112,6 @@ VulkanTutorial03Parameters::getVkCommandBuffers() {
 void VulkanTutorial03Parameters::setVkCommandBuffers(
         const std::vector<VkCommandBuffer>& vk_command_buffers) {
     m_vk_command_buffers = vk_command_buffers;
-}
-
-const VkDebugUtilsMessengerEXT&
-VulkanTutorial03Parameters::getVkDebugUtilsMessenger() const {
-    return m_vk_debug_utils_messenger;
-}
-VkDebugUtilsMessengerEXT&
-VulkanTutorial03Parameters::getVkDebugUtilsMessenger() {
-    return m_vk_debug_utils_messenger;
-}
-void VulkanTutorial03Parameters::setVkDebugUtilsMessenger(
-        const VkDebugUtilsMessengerEXT& vk_debug_utils_messenger) {
-    m_vk_debug_utils_messenger = vk_debug_utils_messenger;
 }
 
 Tutorial03::Tutorial03() {}

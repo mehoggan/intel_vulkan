@@ -974,7 +974,7 @@ bool TutorialBase::createSwapChain() {
             getSwapChainTransform(surface_capabilities);
     VkPresentModeKHR desired_present_mode =
             getSwapChainPresentMode(present_modes);
-    const VkSwapchainKHR& old_swap_chain =
+    VkSwapchainKHR old_swap_chain =
             m_vulkan_common_parameters.getSwapchainParameters()
                     .getVkSwapchainKhr();
 

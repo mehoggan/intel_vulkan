@@ -16,8 +16,6 @@
 
 #include "intel_vulkan/Tutorial03.h"
 
-#include <iostream>
-
 #include <vulkan/vulkan_core.h>
 
 #include "intel_vulkan/VulkanFunctions.h"
@@ -225,11 +223,9 @@ bool Tutorial03::createFramebuffers() {
 
 bool Tutorial03::createPipeline() {
     Tools::AutoDeleter<VkShaderModule, PFN_vkDestroyShaderModule>
-            vertex_shader_module =
-                    createShaderModule("Data/Tutorials/03/shader.vert.spv");
+            vertex_shader_module = createShaderModule("shader.03.vert.spv");
     Tools::AutoDeleter<VkShaderModule, PFN_vkDestroyShaderModule>
-            fragment_shader_module =
-                    createShaderModule("Data/Tutorials/03/shader.frag.spv");
+            fragment_shader_module = createShaderModule("shader.03.frag.spv");
 
     if (!vertex_shader_module || !fragment_shader_module) {
         return false;

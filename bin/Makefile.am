@@ -23,6 +23,8 @@ tutorial03_runner_CPPFLAGS = -Werror -Wall -pedantic \
 tutorial03_runner_LDADD = \
     $(abs_top_builddir)/lib/libintel_vulkan.la $(VULKAN_LIBS) $(X11_LIBS)
 tutorial03_runner_LDFLAGS = -pthread
+pkgdatadir = $(bindir)
+dist_pkgdata_DATA = $(top_srcdir)/resources/03/Data/*.spv
 
-CLEANFILES = *.o
+CLEANFILES = *.o,*.spv
 CLEANDIRS = .lib/

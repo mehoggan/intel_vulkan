@@ -18,7 +18,6 @@
 #include <vulkan/vulkan_core.h>
 
 #include <cstdint>
-#include <iostream>
 
 #include "intel_vulkan/VulkanFunctions.h"
 

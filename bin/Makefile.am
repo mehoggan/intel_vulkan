@@ -30,15 +30,7 @@ tutorial03_binary = $(top_builddir)/bin/tutorial03_runner
 tutorial03_shaders = $(top_srcdir)/resources/03/Data/shader.frag.03.spv \
     $(top_srcdir)/resources/03/Data/shader.vert.03.spv
 
-# --- Actual hook to copy shaders to the build directory ---
-all-loacl: $(tutorial03_binary)
-	@echo "Copying shaders for tutorial03_runner..."
-	cp $(tutorial03_shaders) $(top_builddir)/bin/
+all-local: $(tutorial03_shaders)
+	cp $^ $(builddir)/
 
-clean-local:
-	@echo "Cleaning shaders for tutorial03_runner..."
-	rm -f $(top_builddir)/bin/shader.frag.03.spv
-	rm -f $(top_builddir)/bin/shader.vert.03.spv
-
-CLEANFILES = *.o,*.spv
-CLEANDIRS = .lib/
+CLEANFILES = shader.frag.03.spv shader.vert.03.spv

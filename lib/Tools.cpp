@@ -17,8 +17,10 @@
 #include "intel_vulkan/Tools.h"
 
 #include <cmath>
+#include <filesystem>
 #include <fstream>
 #include <iostream>
+#include <unistd.h>
 #define STB_IMAGE_IMPLEMENTATION
 #include "intel_vulkan/stb_image.h"
 
@@ -26,13 +28,33 @@ namespace intel_vulkan {
 
 namespace Tools {
 
+namespace {
+std::filesystem::path executableDir() {
+    char exec_buf[4096];
+    ssize_t nread = ::readlink("/proc/self/exe", exec_buf, sizeof(exec_buf) - 1);
+    if (nread == -1) {
+        return {};
+    }
+    exec_buf[nread] = '\0';
+    std::filesystem::path exec_dir = std::filesystem::path(exec_buf).parent_path();
+    if (exec_dir.filename() == ".libs") {
+        exec_dir = exec_dir.parent_path();
+    }
+    return exec_dir;
+}
+}  // namespace
+
 // ************************************************************ //
 // GetBinaryFileContents                                        //
 //                                                              //
 // Function reading binary contents of a file                   //
 // ************************************************************ //
 std::vector<char> GetBinaryFileContents(std::string const& filename) {
-    std::ifstream file(filename, std::ios::binary);
+    std::filesystem::path path(filename);
+    if (!std::filesystem::exists(path)) {
+        path = executableDir() / filename;
+    }
+    std::ifstream file(path, std::ios::binary);
     if (file.fail()) {
         std::cout << "Could not open \"" << filename << "\" file!"
                   << std::endl;

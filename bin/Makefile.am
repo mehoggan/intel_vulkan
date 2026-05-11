@@ -26,11 +26,11 @@ tutorial03_runner_LDFLAGS = -pthread
 pkgdatadir = $(bindir)
 
 # --- Shader Copying Logic ---
-tutorial03_binary = $(top_builddir)/bin/tutorial03_runner
-tutorial03_shaders = $(top_srcdir)/resources/03/Data/shader.frag.03.spv \
-    $(top_srcdir)/resources/03/Data/shader.vert.03.spv
+tutorial03_vert = $(top_srcdir)/resources/03/Data/shader.vert.03.spv
+tutorial03_frag = $(top_srcdir)/resources/03/Data/shader.frag.03.spv
 
-all-local: $(tutorial03_shaders)
-	cp $^ $(builddir)/
+all-local: $(tutorial03_vert) $(tutorial03_frag)
+	cp $(tutorial03_vert) $(builddir)/shader.03.vert.spv
+	cp $(tutorial03_frag) $(builddir)/shader.03.frag.spv
 
-CLEANFILES = shader.frag.03.spv shader.vert.03.spv
+CLEANFILES = shader.03.vert.spv shader.03.frag.spv

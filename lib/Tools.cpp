@@ -22,7 +22,7 @@
 #include <fstream>
 #include <iostream>
 #define STB_IMAGE_IMPLEMENTATION
-#include "intel_vulkan/stb_image.h"
+#include "intel_vulkan/STBImage.h"
 
 namespace intel_vulkan::Tools {
 

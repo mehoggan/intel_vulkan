@@ -196,15 +196,15 @@ Tutorial02::Tutorial02()
         : LoggedClass<Tutorial02>(*this)
         , m_vulkan_library()
         , m_window_parameters()
-        , m_vk_tutorial02_parameters() {}
+        , m_vulkan_tutorial02_parameters() {}
 
 Tutorial02::~Tutorial02() {
     clear();
 
-    if (m_vk_tutorial02_parameters.getVkDevice() != VK_NULL_HANDLE) {
-        vkDeviceWaitIdle(m_vk_tutorial02_parameters.getVkDevice());
+    if (m_vulkan_tutorial02_parameters.getVkDevice() != VK_NULL_HANDLE) {
+        vkDeviceWaitIdle(m_vulkan_tutorial02_parameters.getVkDevice());
 
-        if (m_vk_tutorial02_parameters.getVkDebugUtilsMessenger() !=
+        if (m_vulkan_tutorial02_parameters.getVkDebugUtilsMessenger() !=
             VK_NULL_HANDLE) {
             if (!destroyDebugMessenger()) {
                 Logging::error(
@@ -213,39 +213,41 @@ Tutorial02::~Tutorial02() {
             }
         }
 
-        if (m_vk_tutorial02_parameters.getImageAvailableVkSemaphore() !=
+        if (m_vulkan_tutorial02_parameters.getImageAvailableVkSemaphore() !=
             VK_NULL_HANDLE) {
-            vkDestroySemaphore(
-                    m_vk_tutorial02_parameters.getVkDevice(),
-                    m_vk_tutorial02_parameters.getImageAvailableVkSemaphore(),
-                    nullptr);
+            vkDestroySemaphore(m_vulkan_tutorial02_parameters.getVkDevice(),
+                               m_vulkan_tutorial02_parameters
+                                       .getImageAvailableVkSemaphore(),
+                               nullptr);
         }
-        if (m_vk_tutorial02_parameters.getRenderingFinishedVkSemaphore() !=
+        if (m_vulkan_tutorial02_parameters.getRenderingFinishedVkSemaphore() !=
             VK_NULL_HANDLE) {
-            vkDestroySemaphore(m_vk_tutorial02_parameters.getVkDevice(),
-                               m_vk_tutorial02_parameters
+            vkDestroySemaphore(m_vulkan_tutorial02_parameters.getVkDevice(),
+                               m_vulkan_tutorial02_parameters
                                        .getRenderingFinishedVkSemaphore(),
                                nullptr);
         }
-        if (m_vk_tutorial02_parameters.getVkSwapchainKHR() != VK_NULL_HANDLE) {
+        if (m_vulkan_tutorial02_parameters.getVkSwapchainKHR() !=
+            VK_NULL_HANDLE) {
             vkDestroySwapchainKHR(
-                    m_vk_tutorial02_parameters.getVkDevice(),
-                    m_vk_tutorial02_parameters.getVkSwapchainKHR(),
+                    m_vulkan_tutorial02_parameters.getVkDevice(),
+                    m_vulkan_tutorial02_parameters.getVkSwapchainKHR(),
                     nullptr);
         }
-        vkDestroyDevice(m_vk_tutorial02_parameters.getVkDevice(), nullptr);
+        vkDestroyDevice(m_vulkan_tutorial02_parameters.getVkDevice(), nullptr);
     }
 
-    if (m_vk_tutorial02_parameters.getPresentVkSurfaceKHR() !=
+    if (m_vulkan_tutorial02_parameters.getPresentVkSurfaceKHR() !=
         VK_NULL_HANDLE) {
         vkDestroySurfaceKHR(
-                m_vk_tutorial02_parameters.getVkInstance(),
-                m_vk_tutorial02_parameters.getPresentVkSurfaceKHR(),
+                m_vulkan_tutorial02_parameters.getVkInstance(),
+                m_vulkan_tutorial02_parameters.getPresentVkSurfaceKHR(),
                 nullptr);
     }
 
-    if (m_vk_tutorial02_parameters.getVkInstance() != VK_NULL_HANDLE) {
-        vkDestroyInstance(m_vk_tutorial02_parameters.getVkInstance(), nullptr);
+    if (m_vulkan_tutorial02_parameters.getVkInstance() != VK_NULL_HANDLE) {
+        vkDestroyInstance(m_vulkan_tutorial02_parameters.getVkInstance(),
+                          nullptr);
     }
 
     if (m_vulkan_library) {
@@ -302,14 +304,14 @@ bool Tutorial02::prepareVulkan(os::WindowParameters parameters) {
 bool Tutorial02::createSwapChain() {
     ProjectBase::m_can_render = false;
 
-    if (m_vk_tutorial02_parameters.getVkDevice() != VK_NULL_HANDLE) {
-        vkDeviceWaitIdle(m_vk_tutorial02_parameters.getVkDevice());
+    if (m_vulkan_tutorial02_parameters.getVkDevice() != VK_NULL_HANDLE) {
+        vkDeviceWaitIdle(m_vulkan_tutorial02_parameters.getVkDevice());
     }
 
     VkSurfaceCapabilitiesKHR surface_capabilities;
     if (vkGetPhysicalDeviceSurfaceCapabilitiesKHR(
-                m_vk_tutorial02_parameters.getVkPhysicalDevice(),
-                m_vk_tutorial02_parameters.getPresentVkSurfaceKHR(),
+                m_vulkan_tutorial02_parameters.getVkPhysicalDevice(),
+                m_vulkan_tutorial02_parameters.getPresentVkSurfaceKHR(),
                 &surface_capabilities) != VK_SUCCESS) {
         Logging::error(LOG_TAG,
                        "Could not check presentation surface capabilities!");
@@ -318,8 +320,8 @@ bool Tutorial02::createSwapChain() {
 
     uint32_t formats_count;
     if ((vkGetPhysicalDeviceSurfaceFormatsKHR(
-                 m_vk_tutorial02_parameters.getVkPhysicalDevice(),
-                 m_vk_tutorial02_parameters.getPresentVkSurfaceKHR(),
+                 m_vulkan_tutorial02_parameters.getVkPhysicalDevice(),
+                 m_vulkan_tutorial02_parameters.getPresentVkSurfaceKHR(),
                  &formats_count,
                  nullptr) != VK_SUCCESS) ||
         (formats_count == 0)) {
@@ -331,8 +333,8 @@ bool Tutorial02::createSwapChain() {
 
     std::vector<VkSurfaceFormatKHR> surface_formats(formats_count);
     if (vkGetPhysicalDeviceSurfaceFormatsKHR(
-                m_vk_tutorial02_parameters.getVkPhysicalDevice(),
-                m_vk_tutorial02_parameters.getPresentVkSurfaceKHR(),
+                m_vulkan_tutorial02_parameters.getVkPhysicalDevice(),
+                m_vulkan_tutorial02_parameters.getPresentVkSurfaceKHR(),
                 &formats_count,
                 surface_formats.data()) != VK_SUCCESS) {
         Logging::error(LOG_TAG,
@@ -343,8 +345,8 @@ bool Tutorial02::createSwapChain() {
 
     uint32_t present_modes_count;
     if ((vkGetPhysicalDeviceSurfacePresentModesKHR(
-                 m_vk_tutorial02_parameters.getVkPhysicalDevice(),
-                 m_vk_tutorial02_parameters.getPresentVkSurfaceKHR(),
+                 m_vulkan_tutorial02_parameters.getVkPhysicalDevice(),
+                 m_vulkan_tutorial02_parameters.getPresentVkSurfaceKHR(),
                  &present_modes_count,
                  nullptr) != VK_SUCCESS) ||
         (present_modes_count == 0)) {
@@ -357,8 +359,8 @@ bool Tutorial02::createSwapChain() {
 
     std::vector<VkPresentModeKHR> present_modes(present_modes_count);
     if (vkGetPhysicalDeviceSurfacePresentModesKHR(
-                m_vk_tutorial02_parameters.getVkPhysicalDevice(),
-                m_vk_tutorial02_parameters.getPresentVkSurfaceKHR(),
+                m_vulkan_tutorial02_parameters.getVkPhysicalDevice(),
+                m_vulkan_tutorial02_parameters.getPresentVkSurfaceKHR(),
                 &present_modes_count,
                 present_modes.data()) != VK_SUCCESS) {
         Logging::error(
@@ -379,7 +381,7 @@ bool Tutorial02::createSwapChain() {
     VkPresentModeKHR desired_present_mode =
             getSwapChainPresentMode(present_modes);
     VkSwapchainKHR old_swap_chain =
-            m_vk_tutorial02_parameters.getVkSwapchainKHR();
+            m_vulkan_tutorial02_parameters.getVkSwapchainKHR();
 
     if (static_cast<int>(desired_usage) == -1) {
         return false;
@@ -399,7 +401,7 @@ bool Tutorial02::createSwapChain() {
             .sType = VK_STRUCTURE_TYPE_SWAPCHAIN_CREATE_INFO_KHR,
             .pNext = nullptr,
             .flags = 0,
-            .surface = m_vk_tutorial02_parameters.getPresentVkSurfaceKHR(),
+            .surface = m_vulkan_tutorial02_parameters.getPresentVkSurfaceKHR(),
             .minImageCount = desired_number_of_images,
             .imageFormat = desired_format.format,
             .imageColorSpace = desired_format.colorSpace,
@@ -416,16 +418,16 @@ bool Tutorial02::createSwapChain() {
             .oldSwapchain = old_swap_chain};
 
     if (vkCreateSwapchainKHR(
-                m_vk_tutorial02_parameters.getVkDevice(),
+                m_vulkan_tutorial02_parameters.getVkDevice(),
                 &swap_chain_create_info,
                 nullptr,
-                &m_vk_tutorial02_parameters.getVkSwapchainKHR()) !=
+                &m_vulkan_tutorial02_parameters.getVkSwapchainKHR()) !=
         VK_SUCCESS) {
         Logging::error(LOG_TAG, "Could not create swap chain!");
         return false;
     }
     if (old_swap_chain != VK_NULL_HANDLE) {
-        vkDestroySwapchainKHR(m_vk_tutorial02_parameters.getVkDevice(),
+        vkDestroySwapchainKHR(m_vulkan_tutorial02_parameters.getVkDevice(),
                               old_swap_chain,
                               nullptr);
     }
@@ -452,14 +454,14 @@ bool Tutorial02::createCommandBuffers() {
             .sType = VK_STRUCTURE_TYPE_COMMAND_POOL_CREATE_INFO,
             .pNext = nullptr,
             .flags = 0,
-            .queueFamilyIndex =
-                    m_vk_tutorial02_parameters.getPresentQueueFamilyIndex()};
+            .queueFamilyIndex = m_vulkan_tutorial02_parameters
+                                        .getPresentQueueFamilyIndex()};
 
-    if (vkCreateCommandPool(
-                m_vk_tutorial02_parameters.getVkDevice(),
-                &cmd_pool_create_info,
-                nullptr,
-                &m_vk_tutorial02_parameters.getPresentQueueVkCommandPool()) !=
+    if (vkCreateCommandPool(m_vulkan_tutorial02_parameters.getVkDevice(),
+                            &cmd_pool_create_info,
+                            nullptr,
+                            &m_vulkan_tutorial02_parameters
+                                     .getPresentQueueVkCommandPool()) !=
         VK_SUCCESS) {
         Logging::error(LOG_TAG, "Could not create a command pool!");
         return false;
@@ -467,8 +469,8 @@ bool Tutorial02::createCommandBuffers() {
 
     uint32_t image_count = 0;
     if ((vkGetSwapchainImagesKHR(
-                 m_vk_tutorial02_parameters.getVkDevice(),
-                 m_vk_tutorial02_parameters.getVkSwapchainKHR(),
+                 m_vulkan_tutorial02_parameters.getVkDevice(),
+                 m_vulkan_tutorial02_parameters.getVkSwapchainKHR(),
                  &image_count,
                  nullptr) != VK_SUCCESS) ||
         (image_count == 0)) {
@@ -477,21 +479,21 @@ bool Tutorial02::createCommandBuffers() {
         return false;
     }
 
-    m_vk_tutorial02_parameters.getPresentQueueVkCommandBuffers().resize(
+    m_vulkan_tutorial02_parameters.getPresentQueueVkCommandBuffers().resize(
             image_count);
 
     VkCommandBufferAllocateInfo cmd_buffer_allocate_info = {
             .sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_ALLOCATE_INFO,
             .pNext = nullptr,
-            .commandPool =
-                    m_vk_tutorial02_parameters.getPresentQueueVkCommandPool(),
+            .commandPool = m_vulkan_tutorial02_parameters
+                                   .getPresentQueueVkCommandPool(),
             .level = VK_COMMAND_BUFFER_LEVEL_PRIMARY,
             .commandBufferCount = image_count};
-    if (vkAllocateCommandBuffers(
-                m_vk_tutorial02_parameters.getVkDevice(),
-                &cmd_buffer_allocate_info,
-                m_vk_tutorial02_parameters.getPresentQueueVkCommandBuffers()
-                        .data()) != VK_SUCCESS) {
+    if (vkAllocateCommandBuffers(m_vulkan_tutorial02_parameters.getVkDevice(),
+                                 &cmd_buffer_allocate_info,
+                                 m_vulkan_tutorial02_parameters
+                                         .getPresentQueueVkCommandBuffers()
+                                         .data()) != VK_SUCCESS) {
         Logging::error(LOG_TAG, "Could not allocate command buffers!");
         return false;
     }
@@ -506,10 +508,10 @@ bool Tutorial02::createCommandBuffers() {
 bool Tutorial02::draw() {
     uint32_t image_index;
     VkResult result = vkAcquireNextImageKHR(
-            m_vk_tutorial02_parameters.getVkDevice(),
-            m_vk_tutorial02_parameters.getVkSwapchainKHR(),
+            m_vulkan_tutorial02_parameters.getVkDevice(),
+            m_vulkan_tutorial02_parameters.getVkSwapchainKHR(),
             UINT64_MAX,
-            m_vk_tutorial02_parameters.getImageAvailableVkSemaphore(),
+            m_vulkan_tutorial02_parameters.getImageAvailableVkSemaphore(),
             VK_NULL_HANDLE,
             &image_index);
     switch (result) {
@@ -530,18 +532,18 @@ bool Tutorial02::draw() {
             .sType = VK_STRUCTURE_TYPE_SUBMIT_INFO,
             .pNext = nullptr,
             .waitSemaphoreCount = 1,
-            .pWaitSemaphores =
-                    &m_vk_tutorial02_parameters.getImageAvailableVkSemaphore(),
+            .pWaitSemaphores = &m_vulkan_tutorial02_parameters
+                                        .getImageAvailableVkSemaphore(),
             .pWaitDstStageMask = &wait_dst_stage_mask,
             .commandBufferCount = 1,
             .pCommandBuffers =
-                    &m_vk_tutorial02_parameters
+                    &m_vulkan_tutorial02_parameters
                              .getPresentQueueVkCommandBuffers()[image_index],
             .signalSemaphoreCount = 1,
-            .pSignalSemaphores = &m_vk_tutorial02_parameters
+            .pSignalSemaphores = &m_vulkan_tutorial02_parameters
                                           .getRenderingFinishedVkSemaphore()};
 
-    if (vkQueueSubmit(m_vk_tutorial02_parameters.getPresentVkQueue(),
+    if (vkQueueSubmit(m_vulkan_tutorial02_parameters.getPresentVkQueue(),
                       1,
                       &submit_info,
                       VK_NULL_HANDLE) != VK_SUCCESS) {
@@ -552,14 +554,14 @@ bool Tutorial02::draw() {
             .sType = VK_STRUCTURE_TYPE_PRESENT_INFO_KHR,
             .pNext = nullptr,
             .waitSemaphoreCount = 1,
-            .pWaitSemaphores = &m_vk_tutorial02_parameters
+            .pWaitSemaphores = &m_vulkan_tutorial02_parameters
                                         .getRenderingFinishedVkSemaphore(),
             .swapchainCount = 1,
-            .pSwapchains = &m_vk_tutorial02_parameters.getVkSwapchainKHR(),
+            .pSwapchains = &m_vulkan_tutorial02_parameters.getVkSwapchainKHR(),
             .pImageIndices = &image_index,
             .pResults = nullptr};
-    result = vkQueuePresentKHR(m_vk_tutorial02_parameters.getPresentVkQueue(),
-                               &present_info);
+    result = vkQueuePresentKHR(
+            m_vulkan_tutorial02_parameters.getPresentVkQueue(), &present_info);
 
     switch (result) {
         case VK_SUCCESS:
@@ -680,7 +682,7 @@ bool Tutorial02::createInstance() {
 
     if (vkCreateInstance(&instance_create_info,
                          nullptr,
-                         &m_vk_tutorial02_parameters.getVkInstance()) !=
+                         &m_vulkan_tutorial02_parameters.getVkInstance()) !=
         VK_SUCCESS) {
         Logging::error(LOG_TAG, "Could not create Vulkan instance!");
         return false;
@@ -693,14 +695,14 @@ bool Tutorial02::createInstance() {
 }
 
 bool Tutorial02::loadInstanceLevelEntryPoints() {
-#define VK_INSTANCE_LEVEL_FUNCTION(fun)                                 \
-    if (!(fun = (PFN_##fun)vkGetInstanceProcAddr(                       \
-                  m_vk_tutorial02_parameters.getVkInstance(), #fun))) { \
-        Logging::error(LOG_TAG,                                         \
-                       "Could not load instance level function:",       \
-                       #fun,                                            \
-                       "!");                                            \
-        return false;                                                   \
+#define VK_INSTANCE_LEVEL_FUNCTION(fun)                                     \
+    if (!(fun = (PFN_##fun)vkGetInstanceProcAddr(                           \
+                  m_vulkan_tutorial02_parameters.getVkInstance(), #fun))) { \
+        Logging::error(LOG_TAG,                                             \
+                       "Could not load instance level function:",           \
+                       #fun,                                                \
+                       "!");                                                \
+        return false;                                                       \
     }
 
 #include "intel_vulkan/ListOfFunctions.inl"
@@ -716,10 +718,10 @@ bool Tutorial02::createPresentationSurface() {
             .dpy = m_window_parameters.getDisplayPtr(),
             .window = m_window_parameters.getWindowHandle()};
     if (vkCreateXlibSurfaceKHR(
-                m_vk_tutorial02_parameters.getVkInstance(),
+                m_vulkan_tutorial02_parameters.getVkInstance(),
                 &surface_create_info,
                 nullptr,
-                &m_vk_tutorial02_parameters.getPresentVkSurfaceKHR()) ==
+                &m_vulkan_tutorial02_parameters.getPresentVkSurfaceKHR()) ==
         VK_SUCCESS) {
         return true;
     }
@@ -730,9 +732,10 @@ bool Tutorial02::createPresentationSurface() {
 
 bool Tutorial02::createDevice() {
     uint32_t num_devices = 0;
-    if ((vkEnumeratePhysicalDevices(m_vk_tutorial02_parameters.getVkInstance(),
-                                    &num_devices,
-                                    nullptr) != VK_SUCCESS) ||
+    if ((vkEnumeratePhysicalDevices(
+                 m_vulkan_tutorial02_parameters.getVkInstance(),
+                 &num_devices,
+                 nullptr) != VK_SUCCESS) ||
         (num_devices == 0)) {
         Logging::error(LOG_TAG,
                        "Error occurred during physical devices enumeration!");
@@ -740,9 +743,10 @@ bool Tutorial02::createDevice() {
     }
 
     std::vector<VkPhysicalDevice> physical_devices(num_devices);
-    if (vkEnumeratePhysicalDevices(m_vk_tutorial02_parameters.getVkInstance(),
-                                   &num_devices,
-                                   physical_devices.data()) != VK_SUCCESS) {
+    if (vkEnumeratePhysicalDevices(
+                m_vulkan_tutorial02_parameters.getVkInstance(),
+                &num_devices,
+                physical_devices.data()) != VK_SUCCESS) {
         Logging::error(LOG_TAG,
                        "Error occurred during physical devices enumeration!");
         return false;
@@ -756,12 +760,13 @@ bool Tutorial02::createDevice() {
                     physical_devices[i],
                     selected_graphics_queue_family_index,
                     selected_present_queue_family_index)) {
-            m_vk_tutorial02_parameters.setVkPhysicalDevice(
+            m_vulkan_tutorial02_parameters.setVkPhysicalDevice(
                     physical_devices[i]);
             break;
         }
     }
-    if (m_vk_tutorial02_parameters.getVkPhysicalDevice() == VK_NULL_HANDLE) {
+    if (m_vulkan_tutorial02_parameters.getVkPhysicalDevice() ==
+        VK_NULL_HANDLE) {
         Logging::error(LOG_TAG,
                        "Could not select physical device based on the chosen "
                        "properties!");
@@ -805,18 +810,18 @@ bool Tutorial02::createDevice() {
             .ppEnabledExtensionNames = extensions.data(),
             .pEnabledFeatures = nullptr};
 
-    if (vkCreateDevice(m_vk_tutorial02_parameters.getVkPhysicalDevice(),
+    if (vkCreateDevice(m_vulkan_tutorial02_parameters.getVkPhysicalDevice(),
                        &device_create_info,
                        nullptr,
-                       &m_vk_tutorial02_parameters.getVkDevice()) !=
+                       &m_vulkan_tutorial02_parameters.getVkDevice()) !=
         VK_SUCCESS) {
         Logging::error(LOG_TAG, "Could not create Vulkan device!");
         return false;
     }
 
-    m_vk_tutorial02_parameters.setGraphicsQueueFamilyIndex(
+    m_vulkan_tutorial02_parameters.setGraphicsQueueFamilyIndex(
             selected_graphics_queue_family_index);
-    m_vk_tutorial02_parameters.setPresentQueueFamilyIndex(
+    m_vulkan_tutorial02_parameters.setPresentQueueFamilyIndex(
             selected_present_queue_family_index);
     return true;
 }
@@ -909,7 +914,7 @@ bool Tutorial02::checkPhysicalDeviceProperties(
         vkGetPhysicalDeviceSurfaceSupportKHR(
                 physical_device,
                 i,
-                m_vk_tutorial02_parameters.getPresentVkSurfaceKHR(),
+                m_vulkan_tutorial02_parameters.getPresentVkSurfaceKHR(),
                 &queue_present_support[i]);
 
         if ((queue_family_properties[i].queueCount > 0) &&
@@ -957,14 +962,14 @@ bool Tutorial02::checkPhysicalDeviceProperties(
 }
 
 bool Tutorial02::loadDeviceLevelEntryPoints() {
-#define VK_DEVICE_LEVEL_FUNCTION(fun)                                 \
-    if (!(fun = (PFN_##fun)vkGetDeviceProcAddr(                       \
-                  m_vk_tutorial02_parameters.getVkDevice(), #fun))) { \
-        Logging::error(LOG_TAG,                                       \
-                       "Could not load device level function: ",      \
-                       #fun,                                          \
-                       "!");                                          \
-        return false;                                                 \
+#define VK_DEVICE_LEVEL_FUNCTION(fun)                                     \
+    if (!(fun = (PFN_##fun)vkGetDeviceProcAddr(                           \
+                  m_vulkan_tutorial02_parameters.getVkDevice(), #fun))) { \
+        Logging::error(LOG_TAG,                                           \
+                       "Could not load device level function: ",          \
+                       #fun,                                              \
+                       "!");                                              \
+        return false;                                                     \
     }
 
 #include "intel_vulkan/ListOfFunctions.inl"
@@ -973,14 +978,16 @@ bool Tutorial02::loadDeviceLevelEntryPoints() {
 }
 
 bool Tutorial02::getDeviceQueue() {
-    vkGetDeviceQueue(m_vk_tutorial02_parameters.getVkDevice(),
-                     m_vk_tutorial02_parameters.getGraphicsQueueFamilyIndex(),
-                     0,
-                     &m_vk_tutorial02_parameters.getGraphicsVkQueue());
-    vkGetDeviceQueue(m_vk_tutorial02_parameters.getVkDevice(),
-                     m_vk_tutorial02_parameters.getPresentQueueFamilyIndex(),
-                     0,
-                     &m_vk_tutorial02_parameters.getPresentVkQueue());
+    vkGetDeviceQueue(
+            m_vulkan_tutorial02_parameters.getVkDevice(),
+            m_vulkan_tutorial02_parameters.getGraphicsQueueFamilyIndex(),
+            0,
+            &m_vulkan_tutorial02_parameters.getGraphicsVkQueue());
+    vkGetDeviceQueue(
+            m_vulkan_tutorial02_parameters.getVkDevice(),
+            m_vulkan_tutorial02_parameters.getPresentQueueFamilyIndex(),
+            0,
+            &m_vulkan_tutorial02_parameters.getPresentVkQueue());
     return true;
 }
 
@@ -991,16 +998,16 @@ bool Tutorial02::createSemaphores() {
             0         // VkSemaphoreCreateFlags   flags
     };
 
-    if ((vkCreateSemaphore(
-                 m_vk_tutorial02_parameters.getVkDevice(),
-                 &semaphore_create_info,
-                 nullptr,
-                 &m_vk_tutorial02_parameters.getImageAvailableVkSemaphore()) !=
-         VK_SUCCESS) ||
-        (vkCreateSemaphore(m_vk_tutorial02_parameters.getVkDevice(),
+    if ((vkCreateSemaphore(m_vulkan_tutorial02_parameters.getVkDevice(),
                            &semaphore_create_info,
                            nullptr,
-                           &m_vk_tutorial02_parameters
+                           &m_vulkan_tutorial02_parameters
+                                    .getImageAvailableVkSemaphore()) !=
+         VK_SUCCESS) ||
+        (vkCreateSemaphore(m_vulkan_tutorial02_parameters.getVkDevice(),
+                           &semaphore_create_info,
+                           nullptr,
+                           &m_vulkan_tutorial02_parameters
                                     .getRenderingFinishedVkSemaphore()) !=
          VK_SUCCESS)) {
         Logging::error(LOG_TAG, "Could not create semaphores!");
@@ -1012,14 +1019,15 @@ bool Tutorial02::createSemaphores() {
 
 bool Tutorial02::recordCommandBuffers() {
     uint32_t image_count = static_cast<uint32_t>(
-            m_vk_tutorial02_parameters.getPresentQueueVkCommandBuffers()
+            m_vulkan_tutorial02_parameters.getPresentQueueVkCommandBuffers()
                     .size());
 
     std::vector<VkImage> swap_chain_images(image_count);
-    if (vkGetSwapchainImagesKHR(m_vk_tutorial02_parameters.getVkDevice(),
-                                m_vk_tutorial02_parameters.getVkSwapchainKHR(),
-                                &image_count,
-                                swap_chain_images.data()) != VK_SUCCESS) {
+    if (vkGetSwapchainImagesKHR(
+                m_vulkan_tutorial02_parameters.getVkDevice(),
+                m_vulkan_tutorial02_parameters.getVkSwapchainKHR(),
+                &image_count,
+                swap_chain_images.data()) != VK_SUCCESS) {
         Logging::error(LOG_TAG, "Could not get swap chain images!");
         return false;
     }
@@ -1064,10 +1072,10 @@ bool Tutorial02::recordCommandBuffers() {
                 .image = swap_chain_images[i],  // VkImage image
                 .subresourceRange = image_subresource_range};
 
-        vkBeginCommandBuffer(m_vk_tutorial02_parameters
+        vkBeginCommandBuffer(m_vulkan_tutorial02_parameters
                                      .getPresentQueueVkCommandBuffers()[i],
                              &cmd_buffer_begin_info);
-        vkCmdPipelineBarrier(m_vk_tutorial02_parameters
+        vkCmdPipelineBarrier(m_vulkan_tutorial02_parameters
                                      .getPresentQueueVkCommandBuffers()[i],
                              VK_PIPELINE_STAGE_TRANSFER_BIT,
                              VK_PIPELINE_STAGE_TRANSFER_BIT,
@@ -1079,7 +1087,7 @@ bool Tutorial02::recordCommandBuffers() {
                              1,
                              &barrier_from_present_to_clear);
 
-        vkCmdClearColorImage(m_vk_tutorial02_parameters
+        vkCmdClearColorImage(m_vulkan_tutorial02_parameters
                                      .getPresentQueueVkCommandBuffers()[i],
                              swap_chain_images[i],
                              VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL,
@@ -1087,7 +1095,7 @@ bool Tutorial02::recordCommandBuffers() {
                              1,
                              &image_subresource_range);
 
-        vkCmdPipelineBarrier(m_vk_tutorial02_parameters
+        vkCmdPipelineBarrier(m_vulkan_tutorial02_parameters
                                      .getPresentQueueVkCommandBuffers()[i],
                              VK_PIPELINE_STAGE_TRANSFER_BIT,
                              VK_PIPELINE_STAGE_BOTTOM_OF_PIPE_BIT,
@@ -1099,7 +1107,7 @@ bool Tutorial02::recordCommandBuffers() {
                              1,
                              &barrier_from_clear_to_present);
         if (vkEndCommandBuffer(
-                    m_vk_tutorial02_parameters
+                    m_vulkan_tutorial02_parameters
                             .getPresentQueueVkCommandBuffers()[i]) !=
             VK_SUCCESS) {
             Logging::error(LOG_TAG, "Could not record command buffers!");
@@ -1111,34 +1119,36 @@ bool Tutorial02::recordCommandBuffers() {
 }
 
 void Tutorial02::clear() {
-    if (m_vk_tutorial02_parameters.getVkDevice() != VK_NULL_HANDLE) {
-        vkDeviceWaitIdle(m_vk_tutorial02_parameters.getVkDevice());
+    if (m_vulkan_tutorial02_parameters.getVkDevice() != VK_NULL_HANDLE) {
+        vkDeviceWaitIdle(m_vulkan_tutorial02_parameters.getVkDevice());
 
-        if ((m_vk_tutorial02_parameters.getPresentQueueVkCommandBuffers()
+        if ((m_vulkan_tutorial02_parameters.getPresentQueueVkCommandBuffers()
                      .size() > 0ull) &&
-            (m_vk_tutorial02_parameters.getPresentQueueVkCommandBuffers()[0] !=
+            (m_vulkan_tutorial02_parameters
+                     .getPresentQueueVkCommandBuffers()[0] !=
              VK_NULL_HANDLE)) {
             vkFreeCommandBuffers(
-                    m_vk_tutorial02_parameters.getVkDevice(),
-                    m_vk_tutorial02_parameters.getPresentQueueVkCommandPool(),
+                    m_vulkan_tutorial02_parameters.getVkDevice(),
+                    m_vulkan_tutorial02_parameters
+                            .getPresentQueueVkCommandPool(),
                     static_cast<uint32_t>(
-                            m_vk_tutorial02_parameters
+                            m_vulkan_tutorial02_parameters
                                     .getPresentQueueVkCommandBuffers()
                                     .size()),
-                    m_vk_tutorial02_parameters
+                    m_vulkan_tutorial02_parameters
                             .getPresentQueueVkCommandBuffers()
                             .data());
-            m_vk_tutorial02_parameters.getPresentQueueVkCommandBuffers()
+            m_vulkan_tutorial02_parameters.getPresentQueueVkCommandBuffers()
                     .clear();
         }
 
-        if (m_vk_tutorial02_parameters.getPresentQueueVkCommandPool() !=
+        if (m_vulkan_tutorial02_parameters.getPresentQueueVkCommandPool() !=
             VK_NULL_HANDLE) {
-            vkDestroyCommandPool(
-                    m_vk_tutorial02_parameters.getVkDevice(),
-                    m_vk_tutorial02_parameters.getPresentQueueVkCommandPool(),
-                    nullptr);
-            m_vk_tutorial02_parameters.getPresentQueueVkCommandPool() =
+            vkDestroyCommandPool(m_vulkan_tutorial02_parameters.getVkDevice(),
+                                 m_vulkan_tutorial02_parameters
+                                         .getPresentQueueVkCommandPool(),
+                                 nullptr);
+            m_vulkan_tutorial02_parameters.getPresentQueueVkCommandPool() =
                     VK_NULL_HANDLE;
         }
     }
@@ -1202,7 +1212,7 @@ debugCallback(VkDebugUtilsMessageSeverityFlagBitsEXT message_severity,
 
 bool Tutorial02::setupDebugMessenger() {
     bool response = false;
-    if (!m_enable_vk_debug.load()) {
+    if (!m_enable_vulkan_debug.load()) {
         response = true;
     } else {
         Logging::info(LOG_TAG, "Setting up Vulkan debugger...");
@@ -1223,16 +1233,16 @@ bool Tutorial02::setupDebugMessenger() {
 
         PFN_vkCreateDebugUtilsMessengerEXT func =
                 (PFN_vkCreateDebugUtilsMessengerEXT)vkGetInstanceProcAddr(
-                        m_vk_tutorial02_parameters.getVkInstance(),
+                        m_vulkan_tutorial02_parameters.getVkInstance(),
                         "vkCreateDebugUtilsMessengerEXT");
 
         VkResult vk_result = VK_SUCCESS;
         if (func != nullptr) {
-            vk_result = func(
-                    m_vk_tutorial02_parameters.getVkInstance(),
-                    &vk_debug_utils_messenger_create_info_ext,
-                    nullptr,
-                    &m_vk_tutorial02_parameters.getVkDebugUtilsMessenger());
+            vk_result = func(m_vulkan_tutorial02_parameters.getVkInstance(),
+                             &vk_debug_utils_messenger_create_info_ext,
+                             nullptr,
+                             &m_vulkan_tutorial02_parameters
+                                      .getVkDebugUtilsMessenger());
         } else {
             vk_result = VK_ERROR_EXTENSION_NOT_PRESENT;
         }
@@ -1246,11 +1256,11 @@ bool Tutorial02::setupDebugMessenger() {
 bool Tutorial02::destroyDebugMessenger() {
     bool response = false;
     auto func = (PFN_vkDestroyDebugUtilsMessengerEXT)vkGetInstanceProcAddr(
-            m_vk_tutorial02_parameters.getVkInstance(),
+            m_vulkan_tutorial02_parameters.getVkInstance(),
             "vkDestroyDebugUtilsMessengerEXT");
     if (func != nullptr) {
-        func(m_vk_tutorial02_parameters.getVkInstance(),
-             m_vk_tutorial02_parameters.getVkDebugUtilsMessenger(),
+        func(m_vulkan_tutorial02_parameters.getVkInstance(),
+             m_vulkan_tutorial02_parameters.getVkDebugUtilsMessenger(),
              nullptr);
         response = true;
     }

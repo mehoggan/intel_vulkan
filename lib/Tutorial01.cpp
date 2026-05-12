@@ -83,17 +83,17 @@ void VulkanTutorial01Parameters::setVkDebugUtilsMessenger(
 
 Tutorial01::Tutorial01(bool enable_debug)
         : LoggedClass<Tutorial01>(*this)
-        , m_vk_library_handle()
-        , m_vk_tutorial01_parameters()
-        , m_enable_vk_debug(enable_debug) {}
+        , m_vulkan_library_handle()
+        , m_vulkan_tutorial01_parameters()
+        , m_enable_vulkan_debug(enable_debug) {}
 
 Tutorial01::~Tutorial01() {
-    if (m_vk_tutorial01_parameters.getVkDevice() != VK_NULL_HANDLE) {
-        vkDeviceWaitIdle(m_vk_tutorial01_parameters.getVkDevice());
-        vkDestroyDevice(m_vk_tutorial01_parameters.getVkDevice(), nullptr);
+    if (m_vulkan_tutorial01_parameters.getVkDevice() != VK_NULL_HANDLE) {
+        vkDeviceWaitIdle(m_vulkan_tutorial01_parameters.getVkDevice());
+        vkDestroyDevice(m_vulkan_tutorial01_parameters.getVkDevice(), nullptr);
     }
 
-    if (m_vk_tutorial01_parameters.getVkDebugUtilsMessenger() !=
+    if (m_vulkan_tutorial01_parameters.getVkDebugUtilsMessenger() !=
         VK_NULL_HANDLE) {
         if (!destroyDebugMessenger()) {
             Logging::error(LOG_TAG,
@@ -101,12 +101,13 @@ Tutorial01::~Tutorial01() {
         }
     }
 
-    if (m_vk_tutorial01_parameters.getVkInstance() != VK_NULL_HANDLE) {
-        vkDestroyInstance(m_vk_tutorial01_parameters.getVkInstance(), nullptr);
+    if (m_vulkan_tutorial01_parameters.getVkInstance() != VK_NULL_HANDLE) {
+        vkDestroyInstance(m_vulkan_tutorial01_parameters.getVkInstance(),
+                          nullptr);
     }
 
-    if (m_vk_library_handle) {
-        dlclose(m_vk_library_handle);
+    if (m_vulkan_library_handle) {
+        dlclose(m_vulkan_library_handle);
     }
 }
 
@@ -143,9 +144,9 @@ bool Tutorial01::prepareVulkan() {
 }
 
 bool Tutorial01::loadVulkanLibrary() {
-    m_vk_library_handle = dlopen("libvulkan.so.1", RTLD_NOW);
+    m_vulkan_library_handle = dlopen("libvulkan.so.1", RTLD_NOW);
 
-    if (m_vk_library_handle == nullptr) {
+    if (m_vulkan_library_handle == nullptr) {
         Logging::error(LOG_TAG, "Could not load Vulkan library!");
         return false;
     }
@@ -155,14 +156,14 @@ bool Tutorial01::loadVulkanLibrary() {
 bool Tutorial01::loadExportedEntryPoints() {
 #define LoadProcAddress dlsym
 
-#define VK_EXPORTED_FUNCTION(fun)                                         \
-    if (m_enable_vk_debug) {                                              \
-        Logging::info(LOG_TAG, "Loading entry point", #fun, "...");       \
-    }                                                                     \
-    if (!(fun = (PFN_##fun)LoadProcAddress(m_vk_library_handle, #fun))) { \
-        Logging::error(                                                   \
-                LOG_TAG, "Could not load exported function:", #fun, "!"); \
-        return false;                                                     \
+#define VK_EXPORTED_FUNCTION(fun)                                             \
+    if (m_enable_vulkan_debug) {                                              \
+        Logging::info(LOG_TAG, "Loading entry point", #fun, "...");           \
+    }                                                                         \
+    if (!(fun = (PFN_##fun)LoadProcAddress(m_vulkan_library_handle, #fun))) { \
+        Logging::error(                                                       \
+                LOG_TAG, "Could not load exported function:", #fun, "!");     \
+        return false;                                                         \
     }
 
 #include "intel_vulkan/ListOfFunctions.inl"
@@ -172,7 +173,7 @@ bool Tutorial01::loadExportedEntryPoints() {
 
 bool Tutorial01::loadGlobalLevelEntryPoints() {
 #define VK_GLOBAL_LEVEL_FUNCTION(fun)                                         \
-    if (m_enable_vk_debug) {                                                  \
+    if (m_enable_vulkan_debug) {                                              \
         Logging::info(LOG_TAG, "Loading global", #fun, "...");                \
     }                                                                         \
     if (!(fun = (PFN_##fun)vkGetInstanceProcAddr(nullptr, #fun))) {           \
@@ -213,8 +214,8 @@ bool Tutorial01::createInstance() {
     application_info.apiVersion = vk_version;
 
     std::vector<const char*> vk_extensions =
-            (m_enable_vk_debug ? get_required_extensions()
-                               : std::vector<const char*>{});
+            (m_enable_vulkan_debug ? get_required_extensions()
+                                   : std::vector<const char*>{});
     Logging::info(LOG_TAG,
                   "Creating an instance with the following extensions",
                   vk_extensions);
@@ -226,7 +227,7 @@ bool Tutorial01::createInstance() {
     instance_create_info.pApplicationInfo = &application_info;
     instance_create_info.enabledLayerCount = 0;
     instance_create_info.ppEnabledLayerNames = nullptr;
-    if (m_enable_vk_debug.load()) {
+    if (m_enable_vulkan_debug.load()) {
         instance_create_info.enabledExtensionCount =
                 static_cast<std::uint32_t>(vk_extensions.size());
         instance_create_info.ppEnabledExtensionNames = vk_extensions.data();
@@ -237,7 +238,7 @@ bool Tutorial01::createInstance() {
 
     if (vkCreateInstance(&instance_create_info,
                          nullptr,
-                         &m_vk_tutorial01_parameters.getVkInstance()) !=
+                         &m_vulkan_tutorial01_parameters.getVkInstance()) !=
         VK_SUCCESS) {
         Logging::error(LOG_TAG, "Could not create Vulkan instance!");
         return false;
@@ -251,17 +252,17 @@ bool Tutorial01::createInstance() {
 }
 
 bool Tutorial01::loadInstanceLevelEntryPoints() {
-#define VK_INSTANCE_LEVEL_FUNCTION(fun)                                 \
-    if (m_enable_vk_debug) {                                            \
-        Logging::info(LOG_TAG, "Loading instance", #fun, "...");        \
-    }                                                                   \
-    if (!(fun = (PFN_##fun)vkGetInstanceProcAddr(                       \
-                  m_vk_tutorial01_parameters.getVkInstance(), #fun))) { \
-        Logging::error(LOG_TAG,                                         \
-                       "Could not load instance level function:",       \
-                       #fun,                                            \
-                       "!");                                            \
-        return false;                                                   \
+#define VK_INSTANCE_LEVEL_FUNCTION(fun)                                     \
+    if (m_enable_vulkan_debug) {                                            \
+        Logging::info(LOG_TAG, "Loading instance", #fun, "...");            \
+    }                                                                       \
+    if (!(fun = (PFN_##fun)vkGetInstanceProcAddr(                           \
+                  m_vulkan_tutorial01_parameters.getVkInstance(), #fun))) { \
+        Logging::error(LOG_TAG,                                             \
+                       "Could not load instance level function:",           \
+                       #fun,                                                \
+                       "!");                                                \
+        return false;                                                       \
     }
 
 #include "intel_vulkan/ListOfFunctions.inl"
@@ -271,9 +272,10 @@ bool Tutorial01::loadInstanceLevelEntryPoints() {
 
 bool Tutorial01::createDevice() {
     std::uint32_t num_devices = 0;
-    if ((vkEnumeratePhysicalDevices(m_vk_tutorial01_parameters.getVkInstance(),
-                                    &num_devices,
-                                    nullptr) != VK_SUCCESS) ||
+    if ((vkEnumeratePhysicalDevices(
+                 m_vulkan_tutorial01_parameters.getVkInstance(),
+                 &num_devices,
+                 nullptr) != VK_SUCCESS) ||
         (num_devices == 0)) {
         Logging::error(LOG_TAG,
                        "Error occurred during physical devices enumeration!");
@@ -281,9 +283,10 @@ bool Tutorial01::createDevice() {
     }
 
     std::vector<VkPhysicalDevice> vk_physical_devices(num_devices);
-    if (vkEnumeratePhysicalDevices(m_vk_tutorial01_parameters.getVkInstance(),
-                                   &num_devices,
-                                   vk_physical_devices.data()) != VK_SUCCESS) {
+    if (vkEnumeratePhysicalDevices(
+                m_vulkan_tutorial01_parameters.getVkInstance(),
+                &num_devices,
+                vk_physical_devices.data()) != VK_SUCCESS) {
         Logging::error(LOG_TAG,
                        "Error occurred during physical devices enumeration!");
         return false;
@@ -332,13 +335,13 @@ bool Tutorial01::createDevice() {
     if (vkCreateDevice(vk_physical_device,
                        &vk_device_create_info,
                        nullptr,
-                       &m_vk_tutorial01_parameters.getVkDevice()) !=
+                       &m_vulkan_tutorial01_parameters.getVkDevice()) !=
         VK_SUCCESS) {
         Logging::error(LOG_TAG, "Could not create Vulkan device!");
         return false;
     }
 
-    m_vk_tutorial01_parameters.setQueueFamilyIndex(
+    m_vulkan_tutorial01_parameters.setQueueFamilyIndex(
             selected_queue_family_index);
     return true;
 }
@@ -410,11 +413,11 @@ bool Tutorial01::checkPhysicalDeviceProperties(
 
 bool Tutorial01::loadDeviceLevelEntryPoints() {
 #define VK_DEVICE_LEVEL_FUNCTION(fun)                                         \
-    if (m_enable_vk_debug) {                                                  \
+    if (m_enable_vulkan_debug) {                                              \
         Logging::info(LOG_TAG, "Loading device", #fun, "...");                \
     }                                                                         \
     if (!(fun = (PFN_##fun)vkGetDeviceProcAddr(                               \
-                  m_vk_tutorial01_parameters.getVkDevice(), #fun))) {         \
+                  m_vulkan_tutorial01_parameters.getVkDevice(), #fun))) {     \
         Logging::error(                                                       \
                 LOG_TAG, "Could not load device level function:", #fun, "!"); \
         return false;                                                         \
@@ -426,10 +429,10 @@ bool Tutorial01::loadDeviceLevelEntryPoints() {
 }
 
 bool Tutorial01::getDeviceQueue() {
-    vkGetDeviceQueue(m_vk_tutorial01_parameters.getVkDevice(),
-                     m_vk_tutorial01_parameters.getQueueFamilyIndex(),
+    vkGetDeviceQueue(m_vulkan_tutorial01_parameters.getVkDevice(),
+                     m_vulkan_tutorial01_parameters.getQueueFamilyIndex(),
                      0,
-                     &m_vk_tutorial01_parameters.getVkQueue());
+                     &m_vulkan_tutorial01_parameters.getVkQueue());
     return true;
 }
 
@@ -491,7 +494,7 @@ debugCallback(VkDebugUtilsMessageSeverityFlagBitsEXT message_severity,
 
 bool Tutorial01::setupDebugMessenger() {
     bool response = false;
-    if (!m_enable_vk_debug.load()) {
+    if (!m_enable_vulkan_debug.load()) {
         response = true;
     } else {
         Logging::info(LOG_TAG, "Setting up Vulkan debugger...");
@@ -512,16 +515,16 @@ bool Tutorial01::setupDebugMessenger() {
 
         PFN_vkCreateDebugUtilsMessengerEXT func =
                 (PFN_vkCreateDebugUtilsMessengerEXT)vkGetInstanceProcAddr(
-                        m_vk_tutorial01_parameters.getVkInstance(),
+                        m_vulkan_tutorial01_parameters.getVkInstance(),
                         "vkCreateDebugUtilsMessengerEXT");
 
         VkResult vk_result = VK_SUCCESS;
         if (func != nullptr) {
-            vk_result = func(
-                    m_vk_tutorial01_parameters.getVkInstance(),
-                    &vk_debug_utils_messenger_create_info_ext,
-                    nullptr,
-                    &m_vk_tutorial01_parameters.getVkDebugUtilsMessenger());
+            vk_result = func(m_vulkan_tutorial01_parameters.getVkInstance(),
+                             &vk_debug_utils_messenger_create_info_ext,
+                             nullptr,
+                             &m_vulkan_tutorial01_parameters
+                                      .getVkDebugUtilsMessenger());
         } else {
             vk_result = VK_ERROR_EXTENSION_NOT_PRESENT;
         }
@@ -535,11 +538,11 @@ bool Tutorial01::setupDebugMessenger() {
 bool Tutorial01::destroyDebugMessenger() {
     bool response = false;
     auto func = (PFN_vkDestroyDebugUtilsMessengerEXT)vkGetInstanceProcAddr(
-            m_vk_tutorial01_parameters.getVkInstance(),
+            m_vulkan_tutorial01_parameters.getVkInstance(),
             "vkDestroyDebugUtilsMessengerEXT");
     if (func != nullptr) {
-        func(m_vk_tutorial01_parameters.getVkInstance(),
-             m_vk_tutorial01_parameters.getVkDebugUtilsMessenger(),
+        func(m_vulkan_tutorial01_parameters.getVkInstance(),
+             m_vulkan_tutorial01_parameters.getVkDebugUtilsMessenger(),
              nullptr);
         response = true;
     }

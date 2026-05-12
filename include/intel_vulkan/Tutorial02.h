@@ -175,8 +175,8 @@ private:
 
     os::LibraryHandle m_vulkan_library;
     os::WindowParameters m_window_parameters;
-    VulkanTutorial02Parameters m_vk_tutorial02_parameters;
-    std::atomic<bool> m_enable_vk_debug;
+    VulkanTutorial02Parameters m_vulkan_tutorial02_parameters;
+    std::atomic<bool> m_enable_vulkan_debug;
 };
 
 }  // namespace intel_vulkan

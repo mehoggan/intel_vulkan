@@ -1,21 +1,15 @@
-///////////////////////////////////////////////////////////////////////////////
-// Copyright 2017 Intel Corporation
+////////////////////////////////////////////////////////////////////////////
+// Copyright (c) 2026 intel_vulkan
+// All rights reserved.
 //
-// Licensed under the Apache License, Version 2.0 (the "License"); you may not
-// use this file except in compliance with the License.  You may obtain a copy
-// of the License at
+// Contact: mehoggan@gmail.com
 //
-// http://www.apache.org/licenses/LICENSE-2.0
-//
-// Unless required by applicable law or agreed to in writing, software
-// distributed under the License is distributed on an "AS IS" BASIS, WITHOUT
-// WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.  See the
-// License for the specific language governing permissions and limitations
-// under the License.
-///////////////////////////////////////////////////////////////////////////////
+// This software is licensed under the terms of the Your License.
+// See the LICENSE file in the top-level directory.
+/////////////////////////////////////////////////////////////////////////
 
-#if !defined(TOOLS_HEADER)
-#define TOOLS_HEADER
+#ifndef INTEL_VULKAN_TOOLS_H
+#define INTEL_VULKAN_TOOLS_H
 
 #include <array>
 #include <string>
@@ -23,14 +17,10 @@
 
 #include <vulkan/vulkan.h>
 
+// TODO (mehoggan@gmail.com): This file needs to be doccumented.
+
 namespace intel_vulkan::Tools {
 
-// ************************************************************ //
-// AutoDeleter                                                  //
-//                                                              //
-// Auto-deleter helper template class responsible for calling   //
-// provided function which deletes given object of type T       //
-// ************************************************************ //
 template <class T, class F> class AutoDeleter {
 public:
     AutoDeleter()
@@ -60,7 +50,7 @@ public:
         return *this;
     }
 
-    T Get() { return Object; }
+    T get() { return Object; }
 
     bool operator!() const { return Object == VK_NULL_HANDLE; }
 
@@ -72,41 +62,21 @@ private:
     VkDevice Device;
 };
 
-// ************************************************************ //
-// GetBinaryFileContents                                        //
-//                                                              //
-// Function reading binary contents of a file                   //
-// ************************************************************ //
-std::vector<char> GetBinaryFileContents(std::string const& filename);
+std::vector<char> getBinaryFileContents(std::string const& filename);
 
-// ************************************************************ //
-// GetImageData                                                 //
-//                                                              //
-// Function loading image (texture) data from a specified file  //
-// ************************************************************ //
-std::vector<char> GetImageData(std::string const& filename,
+std::vector<char> getImageData(std::string const& filename,
                                int requested_components,
                                int* width,
                                int* height,
                                int* components,
                                int* data_size);
 
-// ************************************************************ //
-// GetPerspectiveProjectionMatrix                               //
-//                                                              //
-// Function calculating perspective projection matrix           //
-// ************************************************************ //
-std::array<float, 16> GetPerspectiveProjectionMatrix(float const aspect_ratio,
+std::array<float, 16> getPerspectiveProjectionMatrix(float const aspect_ratio,
                                                      float const field_of_view,
                                                      float const near_clip,
                                                      float const far_clip);
 
-// ************************************************************ //
-// GetOrthographicsProjectionMatrix                             //
-//                                                              //
-// Function calculating orthographic projection matrix          //
-// ************************************************************ //
-std::array<float, 16> GetOrthographicProjectionMatrix(float const left_plane,
+std::array<float, 16> getOrthographicProjectionMatrix(float const left_plane,
                                                       float const right_plane,
                                                       float const top_plane,
                                                       float const bottom_plane,

@@ -24,9 +24,7 @@
 #define STB_IMAGE_IMPLEMENTATION
 #include "intel_vulkan/stb_image.h"
 
-namespace intel_vulkan {
-
-namespace Tools {
+namespace intel_vulkan::Tools {
 
 namespace {
 std::filesystem::path executableDir() {
@@ -46,12 +44,7 @@ std::filesystem::path executableDir() {
 }
 }  // namespace
 
-// ************************************************************ //
-// GetBinaryFileContents                                        //
-//                                                              //
-// Function reading binary contents of a file                   //
-// ************************************************************ //
-std::vector<char> GetBinaryFileContents(std::string const& filename) {
+std::vector<char> getBinaryFileContents(std::string const& filename) {
     std::filesystem::path path(filename);
     if (!std::filesystem::exists(path)) {
         path = executableDir() / filename;
@@ -81,13 +74,13 @@ std::vector<char> GetBinaryFileContents(std::string const& filename) {
 //                                                              //
 // Function loading image (texture) data from a specified file  //
 // ************************************************************ //
-std::vector<char> GetImageData(std::string const& filename,
+std::vector<char> getImageData(std::string const& filename,
                                int requested_components,
                                int* width,
                                int* height,
                                int* components,
                                int* data_size) {
-    std::vector<char> file_data = Tools::GetBinaryFileContents(filename);
+    std::vector<char> file_data = Tools::getBinaryFileContents(filename);
     if (file_data.size() == 0) {
         return std::vector<char>();
     }
@@ -134,20 +127,20 @@ std::vector<char> GetImageData(std::string const& filename,
 //                                                              //
 // Function calculating perspective projection matrix           //
 // ************************************************************ //
-std::array<float, 16> GetPerspectiveProjectionMatrix(float const aspect_ratio,
+std::array<float, 16> getPerspectiveProjectionMatrix(float const aspect_ratio,
                                                      float const field_of_view,
                                                      float const near_clip,
                                                      float const far_clip) {
-    float f = 1.0f / std::tan(field_of_view * 0.5f *
-                              0.01745329251994329576923690768489f);
+    float fov_value = 1.0f / std::tan(field_of_view * 0.5f *
+                                      0.01745329251994329576923690768489f);
 
-    return {f / aspect_ratio,
+    return {fov_value / aspect_ratio,
             0.0f,
             0.0f,
             0.0f,
 
             0.0f,
-            -f,
+            -fov_value,
             0.0f,
             0.0f,
 
@@ -162,12 +155,7 @@ std::array<float, 16> GetPerspectiveProjectionMatrix(float const aspect_ratio,
             0.0f};
 }
 
-// ************************************************************ //
-// GetOrthographicsProjectionMatrix                             //
-//                                                              //
-// Function calculating orthographic projection matrix          //
-// ************************************************************ //
-std::array<float, 16> GetOrthographicProjectionMatrix(float const left_plane,
+std::array<float, 16> getOrthographicProjectionMatrix(float const left_plane,
                                                       float const right_plane,
                                                       float const top_plane,
                                                       float const bottom_plane,
@@ -194,6 +182,4 @@ std::array<float, 16> GetOrthographicProjectionMatrix(float const left_plane,
             1.0f};
 }
 
-}  // namespace Tools
-
-}  // namespace intel_vulkan
+}  // namespace intel_vulkan::Tools

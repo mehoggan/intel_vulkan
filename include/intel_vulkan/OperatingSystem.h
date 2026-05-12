@@ -1,21 +1,15 @@
-///////////////////////////////////////////////////////////////////////////////
-// Copyright 2017 Intel Corporation
+////////////////////////////////////////////////////////////////////////////
+// Copyright (c) 2026 intel_vulkan
+// All rights reserved.
 //
-// Licensed under the Apache License, Version 2.0 (the "License"); you may not
-// use this file except in compliance with the License.  You may obtain a copy
-// of the License at
+// Contact: mehoggan@gmail.com
 //
-// http://www.apache.org/licenses/LICENSE-2.0
-//
-// Unless required by applicable law or agreed to in writing, software
-// distributed under the License is distributed on an "AS IS" BASIS, WITHOUT
-// WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.  See the
-// License for the specific language governing permissions and limitations
-// under the License.
-///////////////////////////////////////////////////////////////////////////////
+// This software is licensed under the terms of the Your License.
+// See the LICENSE file in the top-level directory.
+/////////////////////////////////////////////////////////////////////////
 
-#if !defined(OPERATING_SYSTEM_HEADER)
-#define OPERATING_SYSTEM_HEADER
+#ifndef INTEL_VULKAN_OPERATING_SYSTEM_H
+#define INTEL_VULKAN_OPERATING_SYSTEM_H
 
 #include <X11/Xlib.h>
 #include <X11/Xutil.h>
@@ -25,21 +19,16 @@
 #include <cstring>
 #include <string>
 
+// TODO (mehoggan@gmail.com): This file needs class and function documentation.
+// It is not clear what the purpose of this file is and how it should be used.
+// It seems to be a wrapper around X11 and Vulkan for cheating a window and
+// rendering to it, but it is not clear how it should be used in the context of
+// the rest of the codebase.
+
 namespace intel_vulkan::os {
 
-// ************************************************************ //
-// LibraryHandle                                                //
-//                                                              //
-// Dynamic Library OS dependent type                            //
-// ************************************************************ //
-//
 typedef void* LibraryHandle;
 
-// ************************************************************ //
-// ProjectBase                                                  //
-//                                                              //
-// Base class for handling window size changes and drawing      //
-// ************************************************************ //
 class ProjectBase {
 public:
     ProjectBase();
@@ -59,11 +48,6 @@ protected:
     bool m_can_render;
 };
 
-// ************************************************************ //
-// WindowParameters                                             //
-//                                                              //
-// OS dependent window parameters                               //
-// ************************************************************ //
 class WindowParameters {
 public:
     WindowParameters();
@@ -81,11 +65,6 @@ private:
     Window m_handle;
 };
 
-// ************************************************************ //
-// Window                                                       //
-//                                                              //
-// OS dependent window creation and destruction class           //
-// ************************************************************ //
 class Window {
 public:
     Window();

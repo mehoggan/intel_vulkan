@@ -1,5 +1,5 @@
 ////////////////////////////////////////////////////////////////////////////
-// Copyright (c) 2025 Directed Acyclic Graph Scheduler
+// Copyright (c) 2026 intel_vulkan
 // All rights reserved.
 //
 // Contact: mehoggan@gmail.com
@@ -7,10 +7,13 @@
 // This software is licensed under the terms of the Your License.
 // See the LICENSE file in the top-level directory.
 /////////////////////////////////////////////////////////////////////////
+
 #ifndef INTEL_VULKAN_LOGGING_H
 #define INTEL_VULKAN_LOGGING_H
 
 #define BOOST_LOG_DYN_LINK 1
+
+#include "intel_vulkan/LoggerHelpers.h"
 
 #include <gtest/gtest_prod.h>
 
@@ -25,8 +28,6 @@
 #include <sstream>
 #include <string>
 #include <unordered_map>
-
-#include "intel_vulkan/LoggerHelpers.h"
 
 #define INTEL_VULKAN_TRACE boost::log::trivial::severity_level::trace
 #define INTEL_VULKAN_DEBUG boost::log::trivial::severity_level::debug

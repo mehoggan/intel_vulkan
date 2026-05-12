@@ -237,7 +237,7 @@ bool Tutorial03::createPipeline() {
              nullptr,
              0,
              VK_SHADER_STAGE_VERTEX_BIT,
-             vertex_shader_module.Get(),
+             vertex_shader_module.get(),
              "main",
              nullptr},
             // Fragment shader
@@ -245,7 +245,7 @@ bool Tutorial03::createPipeline() {
              nullptr,
              0,
              VK_SHADER_STAGE_FRAGMENT_BIT,
-             fragment_shader_module.Get(),
+             fragment_shader_module.get(),
              "main",
              nullptr}};
 
@@ -346,7 +346,7 @@ bool Tutorial03::createPipeline() {
             nullptr,
             &color_blend_state_create_info,
             nullptr,
-            pipeline_layout.Get(),
+            pipeline_layout.get(),
             m_vulkan_tutorial03_parameters.getVkRenderPass(),
             0,
             VK_NULL_HANDLE,
@@ -596,7 +596,7 @@ bool Tutorial03::draw() {
 
 Tools::AutoDeleter<VkShaderModule, PFN_vkDestroyShaderModule>
 Tutorial03::createShaderModule(const char* filename) {
-    const std::vector<char> code = Tools::GetBinaryFileContents(filename);
+    const std::vector<char> code = Tools::getBinaryFileContents(filename);
     if (code.size() == 0) {
         return Tools::AutoDeleter<VkShaderModule, PFN_vkDestroyShaderModule>();
     }

@@ -1,5 +1,5 @@
 ////////////////////////////////////////////////////////////////////////////
-// Copyright (c) 2025 Directed Acyclic Graph Scheduler
+// Copyright (c) 2026 intel_vulkan
 // All rights reserved.
 //
 // Contact: mehoggan@gmail.com

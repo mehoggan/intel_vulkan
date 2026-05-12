@@ -203,15 +203,14 @@ bool Tutorial01::createInstance() {
     std::uint32_t vk_version = VK_MAKE_VERSION(1, 3, 0);
     std::uint32_t engine_version = VK_MAKE_VERSION(1, 0, 0);
 
-    VkApplicationInfo application_info{};
-    application_info.sType = VK_STRUCTURE_TYPE_APPLICATION_INFO;
-    application_info.pNext = nullptr;
-    application_info.pApplicationName =
-            "API without Secrets: Introduction to Vulkan";
-    application_info.applicationVersion = vk_version;
-    application_info.pEngineName = "Vulkan Tutorial by Intel";
-    application_info.engineVersion = engine_version;
-    application_info.apiVersion = vk_version;
+    VkApplicationInfo application_info{
+            .sType = VK_STRUCTURE_TYPE_APPLICATION_INFO,
+            .pNext = nullptr,
+            .pApplicationName = "API without Secrets: Introduction to Vulkan",
+            .applicationVersion = vk_version,
+            .pEngineName = "Vulkan Tutorial by Intel",
+            .engineVersion = engine_version,
+            .apiVersion = vk_version};
 
     std::vector<const char*> vk_extensions =
             (m_enable_vulkan_debug ? get_required_extensions()
@@ -220,13 +219,13 @@ bool Tutorial01::createInstance() {
                   "Creating an instance with the following extensions",
                   vk_extensions);
 
-    VkInstanceCreateInfo instance_create_info{};
-    instance_create_info.sType = VK_STRUCTURE_TYPE_INSTANCE_CREATE_INFO;
-    instance_create_info.pNext = nullptr;
-    instance_create_info.flags = 0;
-    instance_create_info.pApplicationInfo = &application_info;
-    instance_create_info.enabledLayerCount = 0;
-    instance_create_info.ppEnabledLayerNames = nullptr;
+    VkInstanceCreateInfo instance_create_info{
+            .sType = VK_STRUCTURE_TYPE_INSTANCE_CREATE_INFO,
+            .pNext = nullptr,
+            .flags = 0,
+            .pApplicationInfo = &application_info,
+            .enabledLayerCount = 0,
+            .ppEnabledLayerNames = nullptr};
     if (m_enable_vulkan_debug.load()) {
         instance_create_info.enabledExtensionCount =
                 static_cast<std::uint32_t>(vk_extensions.size());
@@ -311,26 +310,25 @@ bool Tutorial01::createDevice() {
 
     std::vector<float> queue_priorities = {1.0f};
 
-    VkDeviceQueueCreateInfo vk_queue_create_info{};
-    vk_queue_create_info.sType = VK_STRUCTURE_TYPE_DEVICE_QUEUE_CREATE_INFO;
-    vk_queue_create_info.pNext = nullptr;
-    vk_queue_create_info.flags = 0;
-    vk_queue_create_info.queueFamilyIndex = selected_queue_family_index;
-    vk_queue_create_info.queueCount =
-            static_cast<std::uint32_t>(queue_priorities.size());
-    vk_queue_create_info.pQueuePriorities = queue_priorities.data();
+    VkDeviceQueueCreateInfo vk_queue_create_info{
+            .sType = VK_STRUCTURE_TYPE_DEVICE_QUEUE_CREATE_INFO,
+            .pNext = nullptr,
+            .flags = 0,
+            .queueFamilyIndex = selected_queue_family_index,
+            .queueCount = static_cast<std::uint32_t>(queue_priorities.size()),
+            .pQueuePriorities = queue_priorities.data()};
 
-    VkDeviceCreateInfo vk_device_create_info{};
-    vk_device_create_info.sType = VK_STRUCTURE_TYPE_DEVICE_CREATE_INFO;
-    vk_device_create_info.pNext = nullptr;
-    vk_device_create_info.flags = 0;
-    vk_device_create_info.queueCreateInfoCount = 1;
-    vk_device_create_info.pQueueCreateInfos = &vk_queue_create_info;
-    vk_device_create_info.enabledLayerCount = 0;
-    vk_device_create_info.ppEnabledLayerNames = nullptr;
-    vk_device_create_info.enabledExtensionCount = 0;
-    vk_device_create_info.ppEnabledExtensionNames = nullptr;
-    vk_device_create_info.pEnabledFeatures = nullptr;
+    VkDeviceCreateInfo vk_device_create_info{
+            .sType = VK_STRUCTURE_TYPE_DEVICE_CREATE_INFO,
+            .pNext = nullptr,
+            .flags = 0,
+            .queueCreateInfoCount = 1,
+            .pQueueCreateInfos = &vk_queue_create_info,
+            .enabledLayerCount = 0,
+            .ppEnabledLayerNames = nullptr,
+            .enabledExtensionCount = 0,
+            .ppEnabledExtensionNames = nullptr,
+            .pEnabledFeatures = nullptr};
 
     if (vkCreateDevice(vk_physical_device,
                        &vk_device_create_info,
@@ -498,20 +496,17 @@ bool Tutorial01::setupDebugMessenger() {
         response = true;
     } else {
         Logging::info(LOG_TAG, "Setting up Vulkan debugger...");
-        VkDebugUtilsMessengerCreateInfoEXT
-                vk_debug_utils_messenger_create_info_ext{};
-        vk_debug_utils_messenger_create_info_ext.sType =
-                VK_STRUCTURE_TYPE_DEBUG_UTILS_MESSENGER_CREATE_INFO_EXT;
-        vk_debug_utils_messenger_create_info_ext.messageSeverity =
-                VK_DEBUG_UTILS_MESSAGE_SEVERITY_VERBOSE_BIT_EXT |
-                VK_DEBUG_UTILS_MESSAGE_SEVERITY_WARNING_BIT_EXT |
-                VK_DEBUG_UTILS_MESSAGE_SEVERITY_ERROR_BIT_EXT;
-        vk_debug_utils_messenger_create_info_ext.messageType =
-                VK_DEBUG_UTILS_MESSAGE_TYPE_GENERAL_BIT_EXT |
-                VK_DEBUG_UTILS_MESSAGE_TYPE_VALIDATION_BIT_EXT |
-                VK_DEBUG_UTILS_MESSAGE_TYPE_PERFORMANCE_BIT_EXT;
-        vk_debug_utils_messenger_create_info_ext.pfnUserCallback =
-                debugCallback;
+        VkDebugUtilsMessengerCreateInfoEXT vk_debug_utils_messenger_create_info_ext{
+                .sType =
+                        VK_STRUCTURE_TYPE_DEBUG_UTILS_MESSENGER_CREATE_INFO_EXT,
+                .messageSeverity =
+                        VK_DEBUG_UTILS_MESSAGE_SEVERITY_VERBOSE_BIT_EXT |
+                        VK_DEBUG_UTILS_MESSAGE_SEVERITY_WARNING_BIT_EXT |
+                        VK_DEBUG_UTILS_MESSAGE_SEVERITY_ERROR_BIT_EXT,
+                .messageType = VK_DEBUG_UTILS_MESSAGE_TYPE_GENERAL_BIT_EXT |
+                               VK_DEBUG_UTILS_MESSAGE_TYPE_VALIDATION_BIT_EXT |
+                               VK_DEBUG_UTILS_MESSAGE_TYPE_PERFORMANCE_BIT_EXT,
+                .pfnUserCallback = debugCallback};
 
         PFN_vkCreateDebugUtilsMessengerEXT func =
                 (PFN_vkCreateDebugUtilsMessengerEXT)vkGetInstanceProcAddr(

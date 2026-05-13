@@ -993,10 +993,9 @@ bool Tutorial02::getDeviceQueue() {
 
 bool Tutorial02::createSemaphores() {
     VkSemaphoreCreateInfo semaphore_create_info = {
-            VK_STRUCTURE_TYPE_SEMAPHORE_CREATE_INFO,  // VkStructureType sType
-            nullptr,  // const void*              pNext
-            0         // VkSemaphoreCreateFlags   flags
-    };
+            .sType = VK_STRUCTURE_TYPE_SEMAPHORE_CREATE_INFO,
+            .pNext = nullptr,
+            .flags = 0};
 
     if ((vkCreateSemaphore(m_vulkan_tutorial02_parameters.getVkDevice(),
                            &semaphore_create_info,
@@ -1038,7 +1037,7 @@ bool Tutorial02::recordCommandBuffers() {
             .flags = VK_COMMAND_BUFFER_USAGE_SIMULTANEOUS_USE_BIT,
             .pInheritanceInfo = nullptr};
 
-    VkClearColorValue clear_color = {{1.0f, 0.8f, 0.4f, 0.0f}};
+    VkClearColorValue clear_color = {.float32 = {1.0f, 0.8f, 0.4f, 0.0f}};
 
     VkImageSubresourceRange image_subresource_range = {
             .aspectMask = VK_IMAGE_ASPECT_COLOR_BIT,
@@ -1069,7 +1068,7 @@ bool Tutorial02::recordCommandBuffers() {
                 .newLayout = VK_IMAGE_LAYOUT_PRESENT_SRC_KHR,
                 .srcQueueFamilyIndex = VK_QUEUE_FAMILY_IGNORED,
                 .dstQueueFamilyIndex = VK_QUEUE_FAMILY_IGNORED,
-                .image = swap_chain_images[i],  // VkImage image
+                .image = swap_chain_images[i],
                 .subresourceRange = image_subresource_range};
 
         vkBeginCommandBuffer(m_vulkan_tutorial02_parameters
@@ -1323,7 +1322,7 @@ VkExtent2D Tutorial02::getSwapChainExtent(
     // defined confines
     if (surface_capabilities.currentExtent.width ==
         std::numeric_limits<std::uint32_t>::max()) {
-        VkExtent2D swap_chain_extent = {640, 480};
+        VkExtent2D swap_chain_extent = {.width = 640, .height = 480};
         if (swap_chain_extent.width <
             surface_capabilities.minImageExtent.width) {
             swap_chain_extent.width =

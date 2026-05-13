@@ -1077,14 +1077,13 @@ bool TutorialBase::createSwapChainImageViews() {
          ++i) {
         VkImageViewCreateInfo image_view_create_info = {
                 .sType = VK_STRUCTURE_TYPE_IMAGE_VIEW_CREATE_INFO,
-                .pNext = nullptr,  // const void                    *pNext
-                .flags = 0,        // VkImageViewCreateFlags         flags
+                .pNext = nullptr,
+                .flags = 0,
                 .image = m_vulkan_common_parameters.getSwapchainParameters()
                                  .getImageParameters()[i]
                                  .getVkImage(),
-                .viewType = VK_IMAGE_VIEW_TYPE_2D,  // VkImageViewType viewType
-                .format = getSwapchainParameters()
-                                  .getVkFormat(),  // VkFormat format
+                .viewType = VK_IMAGE_VIEW_TYPE_2D,
+                .format = getSwapchainParameters().getVkFormat(),
                 .components =
                         VkComponentMapping{.r = VK_COMPONENT_SWIZZLE_IDENTITY,
                                            .g = VK_COMPONENT_SWIZZLE_IDENTITY,
@@ -1170,7 +1169,7 @@ VkExtent2D TutorialBase::getSwapChainExtent(
     // defined confines
     if (static_cast<std::int32_t>(surface_capabilities.currentExtent.width) ==
         -1) {
-        VkExtent2D swap_chain_extent = {640, 480};
+        VkExtent2D swap_chain_extent = {.width = 640, .height = 480};
         if (swap_chain_extent.width <
             surface_capabilities.minImageExtent.width) {
             swap_chain_extent.width =
@@ -1310,7 +1309,8 @@ bool TutorialBase::checkValidationLayerSupport() const {
         std::vector<VkLayerProperties>::iterator layer_it = std::find_if(
                 vk_layer_properties.begin(),
                 vk_layer_properties.end(),
-                [&layer_name](const VkLayerProperties& vk_layer_property) {
+                [&layer_name](
+                        const VkLayerProperties& vk_layer_property) -> bool {
                     return strcmp(layer_name, vk_layer_property.layerName) ==
                            0;
                 });
@@ -1366,21 +1366,18 @@ bool TutorialBase::setupDebugMessenger() {
         response = true;
     } else {
         Logging::error(LOG_TAG, "Setting up Vulkan debugger...");
-        VkDebugUtilsMessengerCreateInfoEXT
-                vk_debug_utils_messenger_create_info_ext{};
-        vk_debug_utils_messenger_create_info_ext.sType =
-                VK_STRUCTURE_TYPE_DEBUG_UTILS_MESSENGER_CREATE_INFO_EXT;
-        vk_debug_utils_messenger_create_info_ext.messageSeverity =
-                VK_DEBUG_UTILS_MESSAGE_SEVERITY_VERBOSE_BIT_EXT |
-                VK_DEBUG_UTILS_MESSAGE_SEVERITY_INFO_BIT_EXT |
-                VK_DEBUG_UTILS_MESSAGE_SEVERITY_WARNING_BIT_EXT |
-                VK_DEBUG_UTILS_MESSAGE_SEVERITY_ERROR_BIT_EXT;
-        vk_debug_utils_messenger_create_info_ext.messageType =
-                VK_DEBUG_UTILS_MESSAGE_TYPE_GENERAL_BIT_EXT |
-                VK_DEBUG_UTILS_MESSAGE_TYPE_VALIDATION_BIT_EXT |
-                VK_DEBUG_UTILS_MESSAGE_TYPE_PERFORMANCE_BIT_EXT;
-        vk_debug_utils_messenger_create_info_ext.pfnUserCallback =
-                debugCallback;
+        VkDebugUtilsMessengerCreateInfoEXT vk_debug_utils_messenger_create_info_ext{
+                .sType =
+                        VK_STRUCTURE_TYPE_DEBUG_UTILS_MESSENGER_CREATE_INFO_EXT,
+                .messageSeverity =
+                        VK_DEBUG_UTILS_MESSAGE_SEVERITY_VERBOSE_BIT_EXT |
+                        VK_DEBUG_UTILS_MESSAGE_SEVERITY_INFO_BIT_EXT |
+                        VK_DEBUG_UTILS_MESSAGE_SEVERITY_WARNING_BIT_EXT |
+                        VK_DEBUG_UTILS_MESSAGE_SEVERITY_ERROR_BIT_EXT,
+                .messageType = VK_DEBUG_UTILS_MESSAGE_TYPE_GENERAL_BIT_EXT |
+                               VK_DEBUG_UTILS_MESSAGE_TYPE_VALIDATION_BIT_EXT |
+                               VK_DEBUG_UTILS_MESSAGE_TYPE_PERFORMANCE_BIT_EXT,
+                .pfnUserCallback = debugCallback};
 
         PFN_vkCreateDebugUtilsMessengerEXT func =
                 (PFN_vkCreateDebugUtilsMessengerEXT)vkGetInstanceProcAddr(

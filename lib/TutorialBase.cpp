@@ -1366,7 +1366,8 @@ bool TutorialBase::setupDebugMessenger() {
         response = true;
     } else {
         Logging::error(LOG_TAG, "Setting up Vulkan debugger...");
-        VkDebugUtilsMessengerCreateInfoEXT vk_debug_utils_messenger_create_info_ext{
+        VkDebugUtilsMessengerCreateInfoEXT
+                vk_debug_utils_messenger_create_info_ext = {
                 .sType =
                         VK_STRUCTURE_TYPE_DEBUG_UTILS_MESSENGER_CREATE_INFO_EXT,
                 .messageSeverity =

@@ -432,7 +432,7 @@ bool Tutorial03::recordCommandBuffers() {
     VkImageSubresourceRange image_subresource_range = {
             VK_IMAGE_ASPECT_COLOR_BIT, 0, 1, 0, 1};
 
-    VkClearValue clear_value{{1.0f, 0.8f, 0.4f, 0.0f}};
+    VkClearValue clear_value = {{1.0f, 0.8f, 0.4f, 0.0f}};
 
     const std::vector<ImageParameters>& swap_chain_images =
             getSwapchainParameters().getImageParameters();

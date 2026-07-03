@@ -203,7 +203,7 @@ bool Tutorial01::createInstance() {
     std::uint32_t vk_version = VK_MAKE_VERSION(1, 3, 0);
     std::uint32_t engine_version = VK_MAKE_VERSION(1, 0, 0);
 
-    VkApplicationInfo application_info{
+    VkApplicationInfo application_info = {
             .sType = VK_STRUCTURE_TYPE_APPLICATION_INFO,
             .pNext = nullptr,
             .pApplicationName = "API without Secrets: Introduction to Vulkan",
@@ -219,7 +219,7 @@ bool Tutorial01::createInstance() {
                   "Creating an instance with the following extensions",
                   vk_extensions);
 
-    VkInstanceCreateInfo instance_create_info{
+    VkInstanceCreateInfo instance_create_info = {
             .sType = VK_STRUCTURE_TYPE_INSTANCE_CREATE_INFO,
             .pNext = nullptr,
             .flags = 0,
@@ -310,7 +310,7 @@ bool Tutorial01::createDevice() {
 
     std::vector<float> queue_priorities = {1.0f};
 
-    VkDeviceQueueCreateInfo vk_queue_create_info{
+    VkDeviceQueueCreateInfo vk_queue_create_info = {
             .sType = VK_STRUCTURE_TYPE_DEVICE_QUEUE_CREATE_INFO,
             .pNext = nullptr,
             .flags = 0,
@@ -318,7 +318,7 @@ bool Tutorial01::createDevice() {
             .queueCount = static_cast<std::uint32_t>(queue_priorities.size()),
             .pQueuePriorities = queue_priorities.data()};
 
-    VkDeviceCreateInfo vk_device_create_info{
+    VkDeviceCreateInfo vk_device_create_info = {
             .sType = VK_STRUCTURE_TYPE_DEVICE_CREATE_INFO,
             .pNext = nullptr,
             .flags = 0,
@@ -496,7 +496,8 @@ bool Tutorial01::setupDebugMessenger() {
         response = true;
     } else {
         Logging::info(LOG_TAG, "Setting up Vulkan debugger...");
-        VkDebugUtilsMessengerCreateInfoEXT vk_debug_utils_messenger_create_info_ext{
+        VkDebugUtilsMessengerCreateInfoEXT
+                vk_debug_utils_messenger_create_info_ext = {
                 .sType =
                         VK_STRUCTURE_TYPE_DEBUG_UTILS_MESSENGER_CREATE_INFO_EXT,
                 .messageSeverity =

@@ -157,7 +157,7 @@ bool Tutorial01::loadExportedEntryPoints() {
 #define LoadProcAddress dlsym
 
 #define VK_EXPORTED_FUNCTION(fun)                                             \
-    if (m_enable_vulkan_debug) {                                              \
+    if (m_enable_vulkan_debug.load()) {                                       \
         Logging::info(LOG_TAG, "Loading entry point", #fun, "...");           \
     }                                                                         \
     if (!(fun = (PFN_##fun)LoadProcAddress(m_vulkan_library_handle, #fun))) { \
@@ -173,7 +173,7 @@ bool Tutorial01::loadExportedEntryPoints() {
 
 bool Tutorial01::loadGlobalLevelEntryPoints() {
 #define VK_GLOBAL_LEVEL_FUNCTION(fun)                                         \
-    if (m_enable_vulkan_debug) {                                              \
+    if (m_enable_vulkan_debug.load()) {                                       \
         Logging::info(LOG_TAG, "Loading global", #fun, "...");                \
     }                                                                         \
     if (!(fun = (PFN_##fun)vkGetInstanceProcAddr(nullptr, #fun))) {           \
@@ -213,8 +213,8 @@ bool Tutorial01::createInstance() {
             .apiVersion = vk_version};
 
     std::vector<const char*> vk_extensions =
-            (m_enable_vulkan_debug ? get_required_extensions()
-                                   : std::vector<const char*>{});
+            (m_enable_vulkan_debug.load() ? get_required_extensions()
+                                          : std::vector<const char*>{});
     Logging::info(LOG_TAG,
                   "Creating an instance with the following extensions",
                   vk_extensions);
@@ -252,7 +252,7 @@ bool Tutorial01::createInstance() {
 
 bool Tutorial01::loadInstanceLevelEntryPoints() {
 #define VK_INSTANCE_LEVEL_FUNCTION(fun)                                     \
-    if (m_enable_vulkan_debug) {                                            \
+    if (m_enable_vulkan_debug.load()) {                                     \
         Logging::info(LOG_TAG, "Loading instance", #fun, "...");            \
     }                                                                       \
     if (!(fun = (PFN_##fun)vkGetInstanceProcAddr(                           \
@@ -345,7 +345,8 @@ bool Tutorial01::createDevice() {
 }
 
 bool Tutorial01::checkPhysicalDeviceProperties(
-        VkPhysicalDevice vk_physical_device, uint32_t& queue_family_index) {
+        VkPhysicalDevice vk_physical_device,
+        std::uint32_t& queue_family_index) {
     VkPhysicalDeviceProperties vk_physical_device_properties;
     VkPhysicalDeviceFeatures vk_physical_device_features;
 
@@ -366,7 +367,7 @@ bool Tutorial01::checkPhysicalDeviceProperties(
         return false;
     }
 
-    uint32_t queue_families_count = 0;
+    std::uint32_t queue_families_count = 0;
     vkGetPhysicalDeviceQueueFamilyProperties(
             vk_physical_device, &queue_families_count, nullptr);
     if (queue_families_count == 0) {
@@ -411,7 +412,7 @@ bool Tutorial01::checkPhysicalDeviceProperties(
 
 bool Tutorial01::loadDeviceLevelEntryPoints() {
 #define VK_DEVICE_LEVEL_FUNCTION(fun)                                         \
-    if (m_enable_vulkan_debug) {                                              \
+    if (m_enable_vulkan_debug.load()) {                                       \
         Logging::info(LOG_TAG, "Loading device", #fun, "...");                \
     }                                                                         \
     if (!(fun = (PFN_##fun)vkGetDeviceProcAddr(                               \
@@ -496,18 +497,18 @@ bool Tutorial01::setupDebugMessenger() {
         response = true;
     } else {
         Logging::info(LOG_TAG, "Setting up Vulkan debugger...");
-        VkDebugUtilsMessengerCreateInfoEXT
-                vk_debug_utils_messenger_create_info_ext = {
-                .sType =
-                        VK_STRUCTURE_TYPE_DEBUG_UTILS_MESSENGER_CREATE_INFO_EXT,
-                .messageSeverity =
-                        VK_DEBUG_UTILS_MESSAGE_SEVERITY_VERBOSE_BIT_EXT |
-                        VK_DEBUG_UTILS_MESSAGE_SEVERITY_WARNING_BIT_EXT |
-                        VK_DEBUG_UTILS_MESSAGE_SEVERITY_ERROR_BIT_EXT,
-                .messageType = VK_DEBUG_UTILS_MESSAGE_TYPE_GENERAL_BIT_EXT |
-                               VK_DEBUG_UTILS_MESSAGE_TYPE_VALIDATION_BIT_EXT |
-                               VK_DEBUG_UTILS_MESSAGE_TYPE_PERFORMANCE_BIT_EXT,
-                .pfnUserCallback = debugCallback};
+        VkDebugUtilsMessengerCreateInfoEXT vk_debug_utils_messenger_create_info_ext =
+                {.sType =
+                         VK_STRUCTURE_TYPE_DEBUG_UTILS_MESSENGER_CREATE_INFO_EXT,
+                 .messageSeverity =
+                         VK_DEBUG_UTILS_MESSAGE_SEVERITY_VERBOSE_BIT_EXT |
+                         VK_DEBUG_UTILS_MESSAGE_SEVERITY_WARNING_BIT_EXT |
+                         VK_DEBUG_UTILS_MESSAGE_SEVERITY_ERROR_BIT_EXT,
+                 .messageType =
+                         VK_DEBUG_UTILS_MESSAGE_TYPE_GENERAL_BIT_EXT |
+                         VK_DEBUG_UTILS_MESSAGE_TYPE_VALIDATION_BIT_EXT |
+                         VK_DEBUG_UTILS_MESSAGE_TYPE_PERFORMANCE_BIT_EXT,
+                 .pfnUserCallback = debugCallback};
 
         PFN_vkCreateDebugUtilsMessengerEXT func =
                 (PFN_vkCreateDebugUtilsMessengerEXT)vkGetInstanceProcAddr(

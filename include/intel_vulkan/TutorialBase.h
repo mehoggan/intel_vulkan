@@ -14,8 +14,8 @@
 // under the License.
 ////////////////////////////////////////////////////////////////////////////////
 
-#if !defined(VULKAN_COMMON_HEADER)
-#define VULKAN_COMMON_HEADER
+#ifndef INTEL_VULKAN_TUTORIALBASE_H
+#define INTEL_VULKAN_TUTORIALBASE_H
 
 #include <atomic>
 #include <cstdint>
@@ -240,9 +240,10 @@ protected:
     bool loadInstanceLevelEntryPoints();
     bool createPresentationSurface();
     bool createDevice();
-    bool checkPhysicalDeviceProperties(VkPhysicalDevice physical_device,
-                                       uint32_t& graphics_queue_family_index,
-                                       uint32_t& present_queue_family_index);
+    bool checkPhysicalDeviceProperties(
+            VkPhysicalDevice physical_device,
+            std::uint32_t& graphics_queue_family_index,
+            std::uint32_t& present_queue_family_index);
     bool loadDeviceLevelEntryPoints();
     bool getDeviceQueue();
     bool createSwapChain();
@@ -251,7 +252,7 @@ protected:
     bool checkExtensionAvailability(
             const char* extension_name,
             const std::vector<VkExtensionProperties>& available_extensions);
-    uint32_t getSwapChainNumImages(
+    std::uint32_t getSwapChainNumImages(
             VkSurfaceCapabilitiesKHR& surface_capabilities);
     VkSurfaceFormatKHR getSwapChainFormat(
             std::vector<VkSurfaceFormatKHR>& surface_formats);
@@ -279,4 +280,4 @@ protected:
 
 }  // namespace intel_vulkan
 
-#endif  // VULKAN_COMMON_HEADER
+#endif  // INTEL_VULKAN_TUTORIALBASE_H

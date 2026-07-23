@@ -344,8 +344,8 @@ bool Tutorial03::createPipeline() {
             .sType = VK_STRUCTURE_TYPE_GRAPHICS_PIPELINE_CREATE_INFO,
             .pNext = nullptr,
             .flags = 0,
-            .stageCount =
-                    static_cast<uint32_t>(shader_stage_create_infos.size()),
+            .stageCount = static_cast<std::uint32_t>(
+                    shader_stage_create_infos.size()),
             .pStages = shader_stage_create_infos.data(),
             .pVertexInputState = &vertex_input_state_create_info,
             .pInputAssemblyState = &input_assembly_state_create_info,
@@ -378,7 +378,9 @@ bool Tutorial03::createPipeline() {
 
 bool Tutorial03::createSemaphores() {
     VkSemaphoreCreateInfo semaphore_create_info = {
-            VK_STRUCTURE_TYPE_SEMAPHORE_CREATE_INFO, nullptr, 0};
+            .sType = VK_STRUCTURE_TYPE_SEMAPHORE_CREATE_INFO,
+            .pNext = nullptr,
+            .flags = 0};
 
     if ((vkCreateSemaphore(getVkDevice(),
                            &semaphore_create_info,
@@ -407,7 +409,7 @@ bool Tutorial03::createCommandBuffers() {
         return false;
     }
 
-    uint32_t image_count = static_cast<uint32_t>(
+    std::uint32_t image_count = static_cast<std::uint32_t>(
             getSwapchainParameters().getImageParameters().size());
     m_vulkan_tutorial03_parameters.setVkCommandBuffers(
             std::vector<VkCommandBuffer>(image_count, VK_NULL_HANDLE));
@@ -424,15 +426,20 @@ bool Tutorial03::createCommandBuffers() {
 
 bool Tutorial03::recordCommandBuffers() {
     VkCommandBufferBeginInfo graphics_command_buffer_begin_info = {
-            VK_STRUCTURE_TYPE_COMMAND_BUFFER_BEGIN_INFO,
-            nullptr,
-            VK_COMMAND_BUFFER_USAGE_SIMULTANEOUS_USE_BIT,
-            nullptr};
+            .sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_BEGIN_INFO,
+            .pNext = nullptr,
+            .flags = VK_COMMAND_BUFFER_USAGE_SIMULTANEOUS_USE_BIT,
+            .pInheritanceInfo = nullptr};
 
     VkImageSubresourceRange image_subresource_range = {
-            VK_IMAGE_ASPECT_COLOR_BIT, 0, 1, 0, 1};
+            .aspectMask = VK_IMAGE_ASPECT_COLOR_BIT,
+            .baseMipLevel = 0,
+            .levelCount = 1,
+            .baseArrayLayer = 0,
+            .layerCount = 1};
 
-    VkClearValue clear_value = {{1.0f, 0.8f, 0.4f, 0.0f}};
+    VkClearValue clear_value = {
+            .color = {.float32 = {1.0f, 0.8f, 0.4f, 0.0f}}};
 
     const std::vector<ImageParameters>& swap_chain_images =
             getSwapchainParameters().getImageParameters();
@@ -447,16 +454,18 @@ bool Tutorial03::recordCommandBuffers() {
         if (getPresentQueueParameters().getVkQueue() !=
             getGraphicsQueueParameters().getVkQueue()) {
             VkImageMemoryBarrier barrier_from_present_to_draw = {
-                    VK_STRUCTURE_TYPE_IMAGE_MEMORY_BARRIER,
-                    nullptr,
-                    VK_ACCESS_MEMORY_READ_BIT,
-                    VK_ACCESS_COLOR_ATTACHMENT_WRITE_BIT,
-                    VK_IMAGE_LAYOUT_UNDEFINED,
-                    VK_IMAGE_LAYOUT_PRESENT_SRC_KHR,
-                    getPresentQueueParameters().getFamilyIndex(),
-                    getGraphicsQueueParameters().getFamilyIndex(),
-                    swap_chain_images[i].getVkImage(),
-                    image_subresource_range};
+                    .sType = VK_STRUCTURE_TYPE_IMAGE_MEMORY_BARRIER,
+                    .pNext = nullptr,
+                    .srcAccessMask = VK_ACCESS_MEMORY_READ_BIT,
+                    .dstAccessMask = VK_ACCESS_COLOR_ATTACHMENT_WRITE_BIT,
+                    .oldLayout = VK_IMAGE_LAYOUT_UNDEFINED,
+                    .newLayout = VK_IMAGE_LAYOUT_PRESENT_SRC_KHR,
+                    .srcQueueFamilyIndex =
+                            getPresentQueueParameters().getFamilyIndex(),
+                    .dstQueueFamilyIndex =
+                            getGraphicsQueueParameters().getFamilyIndex(),
+                    .image = swap_chain_images[i].getVkImage(),
+                    .subresourceRange = image_subresource_range};
             vkCmdPipelineBarrier(
                     m_vulkan_tutorial03_parameters.getVkCommandBuffers()[i],
                     VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT,
@@ -471,13 +480,15 @@ bool Tutorial03::recordCommandBuffers() {
         }
 
         VkRenderPassBeginInfo render_pass_begin_info = {
-                VK_STRUCTURE_TYPE_RENDER_PASS_BEGIN_INFO,
-                nullptr,
-                m_vulkan_tutorial03_parameters.getVkRenderPass(),
-                m_vulkan_tutorial03_parameters.getVkFramebuffers()[i],
-                {{0, 0}, {300, 300}},
-                1,
-                &clear_value};
+                .sType = VK_STRUCTURE_TYPE_RENDER_PASS_BEGIN_INFO,
+                .pNext = nullptr,
+                .renderPass = m_vulkan_tutorial03_parameters.getVkRenderPass(),
+                .framebuffer =
+                        m_vulkan_tutorial03_parameters.getVkFramebuffers()[i],
+                .renderArea = {.offset = {.x = 0, .y = 0},
+                               .extent = {.width = 300, .height = 300}},
+                .clearValueCount = 1,
+                .pClearValues = &clear_value};
 
         vkCmdBeginRenderPass(
                 m_vulkan_tutorial03_parameters.getVkCommandBuffers()[i],
@@ -501,16 +512,18 @@ bool Tutorial03::recordCommandBuffers() {
         if (getGraphicsQueueParameters().getVkQueue() !=
             getPresentQueueParameters().getVkQueue()) {
             VkImageMemoryBarrier barrier_from_draw_to_present = {
-                    VK_STRUCTURE_TYPE_IMAGE_MEMORY_BARRIER,
-                    nullptr,
-                    VK_ACCESS_COLOR_ATTACHMENT_WRITE_BIT,
-                    VK_ACCESS_MEMORY_READ_BIT,
-                    VK_IMAGE_LAYOUT_PRESENT_SRC_KHR,
-                    VK_IMAGE_LAYOUT_PRESENT_SRC_KHR,
-                    getGraphicsQueueParameters().getFamilyIndex(),
-                    getPresentQueueParameters().getFamilyIndex(),
-                    swap_chain_images[i].getVkImage(),
-                    image_subresource_range};
+                    .sType = VK_STRUCTURE_TYPE_IMAGE_MEMORY_BARRIER,
+                    .pNext = nullptr,
+                    .srcAccessMask = VK_ACCESS_COLOR_ATTACHMENT_WRITE_BIT,
+                    .dstAccessMask = VK_ACCESS_MEMORY_READ_BIT,
+                    .oldLayout = VK_IMAGE_LAYOUT_PRESENT_SRC_KHR,
+                    .newLayout = VK_IMAGE_LAYOUT_PRESENT_SRC_KHR,
+                    .srcQueueFamilyIndex =
+                            getGraphicsQueueParameters().getFamilyIndex(),
+                    .dstQueueFamilyIndex =
+                            getPresentQueueParameters().getFamilyIndex(),
+                    .image = swap_chain_images[i].getVkImage(),
+                    .subresourceRange = image_subresource_range};
             vkCmdPipelineBarrier(
                     m_vulkan_tutorial03_parameters.getVkCommandBuffers()[i],
                     VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT,
@@ -535,7 +548,7 @@ bool Tutorial03::recordCommandBuffers() {
 
 bool Tutorial03::draw() {
     VkSwapchainKHR swap_chain = getSwapchainParameters().getVkSwapchainKhr();
-    uint32_t image_index;
+    std::uint32_t image_index;
 
     VkResult result = vkAcquireNextImageKHR(
             getVkDevice(),
@@ -560,15 +573,18 @@ bool Tutorial03::draw() {
     VkPipelineStageFlags wait_dst_stage_mask =
             VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT;
     VkSubmitInfo submit_info = {
-            VK_STRUCTURE_TYPE_SUBMIT_INFO,
-            nullptr,
-            1,
-            &m_vulkan_tutorial03_parameters.getImageAvailableVkSemaphore(),
-            &wait_dst_stage_mask,
-            1,
-            &m_vulkan_tutorial03_parameters.getVkCommandBuffers()[image_index],
-            1,
-            &m_vulkan_tutorial03_parameters.getRenderingFinishedVkSemaphore()};
+            .sType = VK_STRUCTURE_TYPE_SUBMIT_INFO,
+            .pNext = nullptr,
+            .waitSemaphoreCount = 1,
+            .pWaitSemaphores = &m_vulkan_tutorial03_parameters
+                                        .getImageAvailableVkSemaphore(),
+            .pWaitDstStageMask = &wait_dst_stage_mask,
+            .commandBufferCount = 1,
+            .pCommandBuffers = &m_vulkan_tutorial03_parameters
+                                        .getVkCommandBuffers()[image_index],
+            .signalSemaphoreCount = 1,
+            .pSignalSemaphores = &m_vulkan_tutorial03_parameters
+                                          .getRenderingFinishedVkSemaphore()};
 
     if (vkQueueSubmit(getGraphicsQueueParameters().getVkQueue(),
                       1,
@@ -578,14 +594,15 @@ bool Tutorial03::draw() {
     }
 
     VkPresentInfoKHR present_info = {
-            VK_STRUCTURE_TYPE_PRESENT_INFO_KHR,
-            nullptr,
-            1,
-            &m_vulkan_tutorial03_parameters.getRenderingFinishedVkSemaphore(),
-            1,
-            &swap_chain,
-            &image_index,
-            nullptr};
+            .sType = VK_STRUCTURE_TYPE_PRESENT_INFO_KHR,
+            .pNext = nullptr,
+            .waitSemaphoreCount = 1,
+            .pWaitSemaphores = &m_vulkan_tutorial03_parameters
+                                        .getRenderingFinishedVkSemaphore(),
+            .swapchainCount = 1,
+            .pSwapchains = &swap_chain,
+            .pImageIndices = &image_index,
+            .pResults = nullptr};
     result = vkQueuePresentKHR(getPresentQueueParameters().getVkQueue(),
                                &present_info);
 
@@ -612,11 +629,11 @@ Tutorial03::createShaderModule(const char* filename) {
     }
 
     VkShaderModuleCreateInfo shader_module_create_info = {
-            VK_STRUCTURE_TYPE_SHADER_MODULE_CREATE_INFO,
-            nullptr,
-            0,
-            code.size(),
-            reinterpret_cast<const uint32_t*>(code.data())};
+            .sType = VK_STRUCTURE_TYPE_SHADER_MODULE_CREATE_INFO,
+            .pNext = nullptr,
+            .flags = 0,
+            .codeSize = code.size(),
+            .pCode = reinterpret_cast<const std::uint32_t*>(code.data())};
 
     VkShaderModule shader_module;
     if (vkCreateShaderModule(getVkDevice(),
@@ -637,13 +654,13 @@ Tutorial03::createShaderModule(const char* filename) {
 Tools::AutoDeleter<VkPipelineLayout, PFN_vkDestroyPipelineLayout>
 Tutorial03::createPipelineLayout() {
     VkPipelineLayoutCreateInfo layout_create_info = {
-            VK_STRUCTURE_TYPE_PIPELINE_LAYOUT_CREATE_INFO,
-            nullptr,
-            0,
-            0,
-            nullptr,
-            0,
-            nullptr};
+            .sType = VK_STRUCTURE_TYPE_PIPELINE_LAYOUT_CREATE_INFO,
+            .pNext = nullptr,
+            .flags = 0,
+            .setLayoutCount = 0,
+            .pSetLayouts = nullptr,
+            .pushConstantRangeCount = 0,
+            .pPushConstantRanges = nullptr};
 
     VkPipelineLayout pipeline_layout;
     if (vkCreatePipelineLayout(getVkDevice(),
@@ -659,13 +676,13 @@ Tutorial03::createPipelineLayout() {
             pipeline_layout, vkDestroyPipelineLayout, getVkDevice());
 }
 
-bool Tutorial03::createCommandPool(uint32_t queue_family_index,
+bool Tutorial03::createCommandPool(std::uint32_t queue_family_index,
                                    VkCommandPool* pool) {
     VkCommandPoolCreateInfo cmd_pool_create_info = {
-            VK_STRUCTURE_TYPE_COMMAND_POOL_CREATE_INFO,
-            nullptr,
-            0,
-            queue_family_index};
+            .sType = VK_STRUCTURE_TYPE_COMMAND_POOL_CREATE_INFO,
+            .pNext = nullptr,
+            .flags = 0,
+            .queueFamilyIndex = queue_family_index};
 
     if (vkCreateCommandPool(
                 getVkDevice(), &cmd_pool_create_info, nullptr, pool) !=
@@ -676,14 +693,14 @@ bool Tutorial03::createCommandPool(uint32_t queue_family_index,
 }
 
 bool Tutorial03::allocateCommandBuffers(VkCommandPool pool,
-                                        uint32_t count,
+                                        std::uint32_t count,
                                         VkCommandBuffer* command_buffers) {
     VkCommandBufferAllocateInfo command_buffer_allocate_info = {
-            VK_STRUCTURE_TYPE_COMMAND_BUFFER_ALLOCATE_INFO,
-            nullptr,
-            pool,
-            VK_COMMAND_BUFFER_LEVEL_PRIMARY,
-            count};
+            .sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_ALLOCATE_INFO,
+            .pNext = nullptr,
+            .commandPool = pool,
+            .level = VK_COMMAND_BUFFER_LEVEL_PRIMARY,
+            .commandBufferCount = count};
 
     if (vkAllocateCommandBuffers(getVkDevice(),
                                  &command_buffer_allocate_info,
@@ -698,15 +715,15 @@ void Tutorial03::childClear() {
         vkDeviceWaitIdle(getVkDevice());
 
         if ((m_vulkan_tutorial03_parameters.getVkCommandBuffers().size() >
-             0) &&
+             0ull) &&
             (m_vulkan_tutorial03_parameters.getVkCommandBuffers()[0] !=
              VK_NULL_HANDLE)) {
             vkFreeCommandBuffers(
                     getVkDevice(),
                     m_vulkan_tutorial03_parameters.getVkCommandPool(),
-                    static_cast<uint32_t>(m_vulkan_tutorial03_parameters
-                                                  .getVkCommandBuffers()
-                                                  .size()),
+                    static_cast<std::uint32_t>(m_vulkan_tutorial03_parameters
+                                                       .getVkCommandBuffers()
+                                                       .size()),
                     m_vulkan_tutorial03_parameters.getVkCommandBuffers()
                             .data());
             m_vulkan_tutorial03_parameters.getVkCommandBuffers().clear();

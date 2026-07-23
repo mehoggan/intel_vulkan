@@ -1,19 +1,3 @@
-////////////////////////////////////////////////////////////////////////////////
-// Copyright 2017 Intel Corporation
-//
-// Licensed under the Apache License, Version 2.0 (the "License"); you may not
-// use this file except in compliance with the License.  You may obtain a copy
-// of the License at
-//
-// http://www.apache.org/licenses/LICENSE-2.0
-//
-// Unless required by applicable law or agreed to in writing, software
-// distributed under the License is distributed on an "AS IS" BASIS, WITHOUT
-// WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.  See the
-// License for the specific language governing permissions and limitations
-// under the License.
-////////////////////////////////////////////////////////////////////////////////
-
 #include "intel_vulkan/Tutorial03.h"
 
 #include <vulkan/vulkan_core.h>
@@ -204,8 +188,8 @@ bool Tutorial03::createFramebuffers() {
                 .renderPass = m_vulkan_tutorial03_parameters.getVkRenderPass(),
                 .attachmentCount = 1,
                 .pAttachments = &swap_chain_images[i].getVkImageView(),
-                .width = 300,
-                .height = 300,
+                .width = getSwapchainParameters().getVkExtent2d().width,
+                .height = getSwapchainParameters().getVkExtent2d().height,
                 .layers = 1};
 
         if (vkCreateFramebuffer(
@@ -266,15 +250,23 @@ bool Tutorial03::createPipeline() {
             .topology = VK_PRIMITIVE_TOPOLOGY_TRIANGLE_LIST,
             .primitiveRestartEnable = VK_FALSE};
 
-    VkViewport viewport = {.x = 0.0f,
-                           .y = 0.0f,
-                           .width = 300.0f,
-                           .height = 300.0f,
-                           .minDepth = 0.0f,
-                           .maxDepth = 1.0f};
+    VkViewport viewport = {
+            .x = 0.0f,
+            .y = 0.0f,
+            .width =
+                    static_cast<float>(getSwapchainParameters()
+                                               .getVkExtent2d()
+                                               .width),
+            .height =
+                    static_cast<float>(getSwapchainParameters()
+                                               .getVkExtent2d()
+                                               .height),
+            .minDepth = 0.0f,
+            .maxDepth = 1.0f};
 
-    VkRect2D scissor = {.offset = {.x = 0, .y = 0},
-                        .extent = {.width = 300, .height = 300}};
+    VkRect2D scissor = {
+            .offset = {.x = 0, .y = 0},
+            .extent = getSwapchainParameters().getVkExtent2d()};
 
     VkPipelineViewportStateCreateInfo viewport_state_create_info = {
             .sType = VK_STRUCTURE_TYPE_PIPELINE_VIEWPORT_STATE_CREATE_INFO,
@@ -486,7 +478,9 @@ bool Tutorial03::recordCommandBuffers() {
                 .framebuffer =
                         m_vulkan_tutorial03_parameters.getVkFramebuffers()[i],
                 .renderArea = {.offset = {.x = 0, .y = 0},
-                               .extent = {.width = 300, .height = 300}},
+                               .extent =
+                                       getSwapchainParameters()
+                                               .getVkExtent2d()},
                 .clearValueCount = 1,
                 .pClearValues = &clear_value};
 

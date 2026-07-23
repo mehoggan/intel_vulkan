@@ -1,12 +1,3 @@
-////////////////////////////////////////////////////////////////////////////
-// Copyright (c) 2025 Directed Acyclic Graph Scheduler
-// All rights reserved.
-//
-// Contact: mehoggan@gmail.com
-//
-// This software is licensed under the terms of the Your License.
-// See the LICENSE file in the top-level directory.
-/////////////////////////////////////////////////////////////////////////
 #include "intel_vulkan/Logging.h"
 
 #include <boost/core/null_deleter.hpp>

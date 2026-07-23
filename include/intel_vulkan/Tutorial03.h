@@ -17,6 +17,7 @@
 #ifndef INTEL_VULKAN_TUTORIAL03_H
 #define INTEL_VULKAN_TUTORIAL03_H
 
+#include <cstdint>
 #include <vector>
 
 #include <vulkan/vulkan.h>
@@ -99,9 +100,10 @@ private:
     createShaderModule(const char* filename);
     Tools::AutoDeleter<VkPipelineLayout, PFN_vkDestroyPipelineLayout>
     createPipelineLayout();
-    bool createCommandPool(uint32_t queue_family_index, VkCommandPool* pool);
+    bool createCommandPool(std::uint32_t queue_family_index,
+                           VkCommandPool* pool);
     bool allocateCommandBuffers(VkCommandPool pool,
-                                uint32_t count,
+                                std::uint32_t count,
                                 VkCommandBuffer* command_buffers);
 
     void childClear() override;
@@ -112,4 +114,4 @@ private:
 
 }  // namespace intel_vulkan
 
-#endif  // TUTORIAL_03_HEADER
+#endif  // INTEL_VULKAN_TUTORIAL03_H

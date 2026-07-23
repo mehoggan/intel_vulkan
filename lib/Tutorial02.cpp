@@ -15,6 +15,7 @@
 ///////////////////////////////////////////////////////////////////////////////
 
 #include "intel_vulkan/Tutorial02.h"
+
 #include <vulkan/vulkan_core.h>
 
 #include <algorithm>
@@ -318,7 +319,7 @@ bool Tutorial02::createSwapChain() {
         return false;
     }
 
-    uint32_t formats_count;
+    std::uint32_t formats_count;
     if ((vkGetPhysicalDeviceSurfaceFormatsKHR(
                  m_vulkan_tutorial02_parameters.getVkPhysicalDevice(),
                  m_vulkan_tutorial02_parameters.getPresentVkSurfaceKHR(),
@@ -343,7 +344,7 @@ bool Tutorial02::createSwapChain() {
         return false;
     }
 
-    uint32_t present_modes_count;
+    std::uint32_t present_modes_count;
     if ((vkGetPhysicalDeviceSurfacePresentModesKHR(
                  m_vulkan_tutorial02_parameters.getVkPhysicalDevice(),
                  m_vulkan_tutorial02_parameters.getPresentVkSurfaceKHR(),
@@ -370,7 +371,7 @@ bool Tutorial02::createSwapChain() {
         return false;
     }
 
-    uint32_t desired_number_of_images =
+    std::uint32_t desired_number_of_images =
             getSwapChainNumImages(surface_capabilities);
     VkSurfaceFormatKHR desired_format = getSwapChainFormat(surface_formats);
     VkExtent2D desired_extent = getSwapChainExtent(surface_capabilities);
@@ -467,7 +468,7 @@ bool Tutorial02::createCommandBuffers() {
         return false;
     }
 
-    uint32_t image_count = 0;
+    std::uint32_t image_count = 0;
     if ((vkGetSwapchainImagesKHR(
                  m_vulkan_tutorial02_parameters.getVkDevice(),
                  m_vulkan_tutorial02_parameters.getVkSwapchainKHR(),
@@ -506,7 +507,7 @@ bool Tutorial02::createCommandBuffers() {
 }
 
 bool Tutorial02::draw() {
-    uint32_t image_index;
+    std::uint32_t image_index;
     VkResult result = vkAcquireNextImageKHR(
             m_vulkan_tutorial02_parameters.getVkDevice(),
             m_vulkan_tutorial02_parameters.getVkSwapchainKHR(),
@@ -625,7 +626,7 @@ bool Tutorial02::createInstance() {
                        "validation layers.");
     }
 
-    uint32_t extensions_count = 0;
+    std::uint32_t extensions_count = 0;
     if ((vkEnumerateInstanceExtensionProperties(
                  nullptr, &extensions_count, nullptr) != VK_SUCCESS) ||
         (extensions_count == 0)) {
@@ -677,7 +678,8 @@ bool Tutorial02::createInstance() {
             .pApplicationInfo = &application_info,
             .enabledLayerCount = 0,
             .ppEnabledLayerNames = nullptr,
-            .enabledExtensionCount = static_cast<uint32_t>(extensions.size()),
+            .enabledExtensionCount =
+                    static_cast<std::uint32_t>(extensions.size()),
             .ppEnabledExtensionNames = extensions.data()};
 
     if (vkCreateInstance(&instance_create_info,
@@ -731,7 +733,7 @@ bool Tutorial02::createPresentationSurface() {
 }
 
 bool Tutorial02::createDevice() {
-    uint32_t num_devices = 0;
+    std::uint32_t num_devices = 0;
     if ((vkEnumeratePhysicalDevices(
                  m_vulkan_tutorial02_parameters.getVkInstance(),
                  &num_devices,
@@ -752,10 +754,10 @@ bool Tutorial02::createDevice() {
         return false;
     }
 
-    uint32_t selected_graphics_queue_family_index = UINT32_MAX;
-    uint32_t selected_present_queue_family_index = UINT32_MAX;
+    std::uint32_t selected_graphics_queue_family_index = UINT32_MAX;
+    std::uint32_t selected_present_queue_family_index = UINT32_MAX;
 
-    for (uint32_t i = 0; i < num_devices; ++i) {
+    for (std::uint32_t i = 0; i < num_devices; ++i) {
         if (checkPhysicalDeviceProperties(
                     physical_devices[i],
                     selected_graphics_queue_family_index,
@@ -781,7 +783,7 @@ bool Tutorial02::createDevice() {
             .pNext = nullptr,
             .flags = 0,
             .queueFamilyIndex = selected_graphics_queue_family_index,
-            .queueCount = static_cast<uint32_t>(queue_priorities.size()),
+            .queueCount = static_cast<std::uint32_t>(queue_priorities.size()),
             .pQueuePriorities = queue_priorities.data()});
 
     if (selected_graphics_queue_family_index !=
@@ -791,7 +793,8 @@ bool Tutorial02::createDevice() {
                 .pNext = nullptr,
                 .flags = 0,
                 .queueFamilyIndex = selected_present_queue_family_index,
-                .queueCount = static_cast<uint32_t>(queue_priorities.size()),
+                .queueCount =
+                        static_cast<std::uint32_t>(queue_priorities.size()),
                 .pQueuePriorities = queue_priorities.data()});
     }
 
@@ -802,11 +805,12 @@ bool Tutorial02::createDevice() {
             .pNext = nullptr,
             .flags = 0,  // VkDeviceCreateFlags                flags
             .queueCreateInfoCount =
-                    static_cast<uint32_t>(queue_create_infos.size()),
+                    static_cast<std::uint32_t>(queue_create_infos.size()),
             .pQueueCreateInfos = queue_create_infos.data(),
             .enabledLayerCount = 0,
             .ppEnabledLayerNames = nullptr,
-            .enabledExtensionCount = static_cast<uint32_t>(extensions.size()),
+            .enabledExtensionCount =
+                    static_cast<std::uint32_t>(extensions.size()),
             .ppEnabledExtensionNames = extensions.data(),
             .pEnabledFeatures = nullptr};
 
@@ -828,9 +832,9 @@ bool Tutorial02::createDevice() {
 
 bool Tutorial02::checkPhysicalDeviceProperties(
         VkPhysicalDevice physical_device,
-        uint32_t& selected_graphics_queue_family_index,
-        uint32_t& selected_present_queue_family_index) {
-    uint32_t extensions_count = 0;
+        std::uint32_t& selected_graphics_queue_family_index,
+        std::uint32_t& selected_present_queue_family_index) {
+    std::uint32_t extensions_count = 0;
     if ((vkEnumerateDeviceExtensionProperties(
                  physical_device, nullptr, &extensions_count, nullptr) !=
          VK_SUCCESS) ||
@@ -877,7 +881,8 @@ bool Tutorial02::checkPhysicalDeviceProperties(
     vkGetPhysicalDeviceProperties(physical_device, &device_properties);
     vkGetPhysicalDeviceFeatures(physical_device, &device_features);
 
-    uint32_t major_version = VK_VERSION_MAJOR(device_properties.apiVersion);
+    std::uint32_t major_version =
+            VK_VERSION_MAJOR(device_properties.apiVersion);
 
     if ((major_version < 1) ||
         (device_properties.limits.maxImageDimension2D < 4096)) {
@@ -888,7 +893,7 @@ bool Tutorial02::checkPhysicalDeviceProperties(
         return false;
     }
 
-    uint32_t queue_families_count = 0;
+    std::uint32_t queue_families_count = 0;
     vkGetPhysicalDeviceQueueFamilyProperties(
             physical_device, &queue_families_count, nullptr);
     if (queue_families_count == 0) {
@@ -907,10 +912,10 @@ bool Tutorial02::checkPhysicalDeviceProperties(
                                              &queue_families_count,
                                              queue_family_properties.data());
 
-    uint32_t graphics_queue_family_index = UINT32_MAX;
-    uint32_t present_queue_family_index = UINT32_MAX;
+    std::uint32_t graphics_queue_family_index = UINT32_MAX;
+    std::uint32_t present_queue_family_index = UINT32_MAX;
 
-    for (uint32_t i = 0; i < queue_families_count; ++i) {
+    for (std::uint32_t i = 0; i < queue_families_count; ++i) {
         vkGetPhysicalDeviceSurfaceSupportKHR(
                 physical_device,
                 i,
@@ -936,7 +941,7 @@ bool Tutorial02::checkPhysicalDeviceProperties(
 
     // We don't have queue that supports both graphics and present so we have
     // to use separate queues
-    for (uint32_t i = 0; i < queue_families_count; ++i) {
+    for (std::uint32_t i = 0; i < queue_families_count; ++i) {
         if (queue_present_support[i]) {
             present_queue_family_index = i;
             break;
@@ -1017,7 +1022,7 @@ bool Tutorial02::createSemaphores() {
 }
 
 bool Tutorial02::recordCommandBuffers() {
-    uint32_t image_count = static_cast<uint32_t>(
+    std::uint32_t image_count = static_cast<std::uint32_t>(
             m_vulkan_tutorial02_parameters.getPresentQueueVkCommandBuffers()
                     .size());
 
@@ -1046,7 +1051,7 @@ bool Tutorial02::recordCommandBuffers() {
             .baseArrayLayer = 0,
             .layerCount = 1};
 
-    for (uint32_t i = 0; i < image_count; ++i) {
+    for (std::uint32_t i = 0; i < image_count; ++i) {
         VkImageMemoryBarrier barrier_from_present_to_clear = {
                 .sType = VK_STRUCTURE_TYPE_IMAGE_MEMORY_BARRIER,
                 .pNext = nullptr,
@@ -1130,7 +1135,7 @@ void Tutorial02::clear() {
                     m_vulkan_tutorial02_parameters.getVkDevice(),
                     m_vulkan_tutorial02_parameters
                             .getPresentQueueVkCommandPool(),
-                    static_cast<uint32_t>(
+                    static_cast<std::uint32_t>(
                             m_vulkan_tutorial02_parameters
                                     .getPresentQueueVkCommandBuffers()
                                     .size()),
@@ -1215,20 +1220,18 @@ bool Tutorial02::setupDebugMessenger() {
         response = true;
     } else {
         Logging::info(LOG_TAG, "Setting up Vulkan debugger...");
-        VkDebugUtilsMessengerCreateInfoEXT
-                vk_debug_utils_messenger_create_info_ext{};
-        vk_debug_utils_messenger_create_info_ext.sType =
-                VK_STRUCTURE_TYPE_DEBUG_UTILS_MESSENGER_CREATE_INFO_EXT;
-        vk_debug_utils_messenger_create_info_ext.messageSeverity =
-                VK_DEBUG_UTILS_MESSAGE_SEVERITY_VERBOSE_BIT_EXT |
-                VK_DEBUG_UTILS_MESSAGE_SEVERITY_WARNING_BIT_EXT |
-                VK_DEBUG_UTILS_MESSAGE_SEVERITY_ERROR_BIT_EXT;
-        vk_debug_utils_messenger_create_info_ext.messageType =
-                VK_DEBUG_UTILS_MESSAGE_TYPE_GENERAL_BIT_EXT |
-                VK_DEBUG_UTILS_MESSAGE_TYPE_VALIDATION_BIT_EXT |
-                VK_DEBUG_UTILS_MESSAGE_TYPE_PERFORMANCE_BIT_EXT;
-        vk_debug_utils_messenger_create_info_ext.pfnUserCallback =
-                debugCallback;
+        VkDebugUtilsMessengerCreateInfoEXT vk_debug_utils_messenger_create_info_ext =
+                {.sType =
+                         VK_STRUCTURE_TYPE_DEBUG_UTILS_MESSENGER_CREATE_INFO_EXT,
+                 .messageSeverity =
+                         VK_DEBUG_UTILS_MESSAGE_SEVERITY_VERBOSE_BIT_EXT |
+                         VK_DEBUG_UTILS_MESSAGE_SEVERITY_WARNING_BIT_EXT |
+                         VK_DEBUG_UTILS_MESSAGE_SEVERITY_ERROR_BIT_EXT,
+                 .messageType =
+                         VK_DEBUG_UTILS_MESSAGE_TYPE_GENERAL_BIT_EXT |
+                         VK_DEBUG_UTILS_MESSAGE_TYPE_VALIDATION_BIT_EXT |
+                         VK_DEBUG_UTILS_MESSAGE_TYPE_PERFORMANCE_BIT_EXT,
+                 .pfnUserCallback = debugCallback};
 
         PFN_vkCreateDebugUtilsMessengerEXT func =
                 (PFN_vkCreateDebugUtilsMessengerEXT)vkGetInstanceProcAddr(
@@ -1279,13 +1282,13 @@ bool Tutorial02::checkExtensionAvailability(
     return false;
 }
 
-uint32_t Tutorial02::getSwapChainNumImages(
+std::uint32_t Tutorial02::getSwapChainNumImages(
         VkSurfaceCapabilitiesKHR& surface_capabilities) {
     // Set of images defined in a swap chain may not always be available for
     // application to render to: One may be displayed and one may wait in a
     // queue to be presented If application wants to use more images at the
     // same time it must ask for more images
-    uint32_t image_count = surface_capabilities.minImageCount + 1;
+    std::uint32_t image_count = surface_capabilities.minImageCount + 1;
     if ((surface_capabilities.maxImageCount > 0) &&
         (image_count > surface_capabilities.maxImageCount)) {
         image_count = surface_capabilities.maxImageCount;

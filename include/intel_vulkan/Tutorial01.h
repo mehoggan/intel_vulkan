@@ -1,12 +1,18 @@
-////////////////////////////////////////////////////////////////////////////
-// Copyright (c) 2026 intel_vulkan
-// All rights reserved.
+///////////////////////////////////////////////////////////////////////////////
+// Copyright 2017 Intel Corporation
 //
-// Contact: mehoggan@gmail.com
+// Licensed under the Apache License, Version 2.0 (the "License"); you may not
+// use this file except in compliance with the License.  You may obtain a copy
+// of the License at
 //
-// This software is licensed under the terms of the Your License.
-// See the LICENSE file in the top-level directory.
-/////////////////////////////////////////////////////////////////////////
+// http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS, WITHOUT
+// WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.  See the
+// License for the specific language governing permissions and limitations
+// under the License.
+///////////////////////////////////////////////////////////////////////////////
 
 #ifndef INTEL_VULKAN_TUTORIAL01_H
 #define INTEL_VULKAN_TUTORIAL01_H
@@ -19,10 +25,13 @@
 #include "intel_vulkan/LoggedClass.hpp"
 #include "intel_vulkan/OperatingSystem.h"
 
-// TODO (mehoggan@gmail.com): This file needs to be doccumented.
-
 namespace intel_vulkan {
 
+// ************************************************************ //
+// VulkanTutorial01Parameters                                   //
+//                                                              //
+// Vulkan specific parameters                                   //
+// ************************************************************ //
 class VulkanTutorial01Parameters {
 public:
     VulkanTutorial01Parameters();
@@ -55,6 +64,11 @@ private:
     VkDebugUtilsMessengerEXT m_vk_debug_utils_messenger;
 };
 
+// ************************************************************ //
+// Tutorial01                                                   //
+//                                                              //
+// Class for presenting Vulkan usage topics                     //
+// ************************************************************ //
 class Tutorial01 : public os::ProjectBase, public LoggedClass<Tutorial01> {
 public:
     explicit Tutorial01(bool enable_vk_debug = false);
@@ -73,7 +87,7 @@ private:
     bool loadInstanceLevelEntryPoints();
     bool createDevice();
     bool checkPhysicalDeviceProperties(VkPhysicalDevice physical_device,
-                                       uint32_t& queue_family_index);
+                                       std::uint32_t& queue_family_index);
     bool loadDeviceLevelEntryPoints();
     bool getDeviceQueue();
 
@@ -91,4 +105,4 @@ private:
 
 }  // namespace intel_vulkan
 
-#endif
+#endif  // INTEL_VULKAN_TUTORIAL01_H

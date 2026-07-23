@@ -181,4 +181,4 @@ private:
 
 }  // namespace intel_vulkan
 
-#endif
+#endif  // INTEL_VULKAN_TUTORIAL02_H

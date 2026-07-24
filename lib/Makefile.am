@@ -10,6 +10,7 @@ libintel_vulkan_la_SOURCES = ./LoggerHelpers.cpp \
 															./Tutorial01.cpp \
 															./Tutorial02.cpp \
 															./Tutorial03.cpp \
+															./Tutorial04.cpp \
 															./TutorialBase.cpp \
 															./VulkanFunctions.cpp
 

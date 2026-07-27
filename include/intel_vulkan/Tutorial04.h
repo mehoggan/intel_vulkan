@@ -1,10 +1,17 @@
-#if !defined(TUTORIAL_04_HEADER)
-#define TUTORIAL_04_HEADER
+#ifndef INTEL_VULKAN_TUTORIAL04_H
+#define INTEL_VULKAN_TUTORIAL04_H
 
-#include "Tools.h"
-#include "VulkanCommon.h"
+#include <cstddef>
+#include <cstdint>
+#include <vector>
 
-namespace ApiWithoutSecrets {
+#include <vulkan/vulkan.h>
+#include <vulkan/vulkan_core.h>
+
+#include "intel_vulkan/Tools.h"
+#include "intel_vulkan/TutorialBase.h"
+
+namespace intel_vulkan {
 
 // ************************************************************ //
 // VertexData                                                   //
@@ -12,28 +19,45 @@ namespace ApiWithoutSecrets {
 // Struct describing data type and format of vertex attributes  //
 // ************************************************************ //
 struct VertexData {
-  float x, y, z, w;
-  float r, g, b, a;
+    float x, y, z, w;
+    float r, g, b, a;
 };
 
 // ************************************************************ //
-// RenderingResourcesData                                       //
+// RenderingResourceParameters                                  //
 //                                                              //
-// Struct containing data used during rendering process         //
+// Container class for the resources used during a single frame //
 // ************************************************************ //
-struct RenderingResourcesData {
-  VkFramebuffer Framebuffer;
-  VkCommandBuffer CommandBuffer;
-  VkSemaphore ImageAvailableSemaphore;
-  VkSemaphore FinishedRenderingSemaphore;
-  VkFence Fence;
+class RenderingResourceParameters {
+public:
+    RenderingResourceParameters();
 
-  RenderingResourcesData()
-      : Framebuffer(VK_NULL_HANDLE),
-        CommandBuffer(VK_NULL_HANDLE),
-        ImageAvailableSemaphore(VK_NULL_HANDLE),
-        FinishedRenderingSemaphore(VK_NULL_HANDLE),
-        Fence(VK_NULL_HANDLE) {}
+    const VkFramebuffer& getVkFramebuffer() const;
+    VkFramebuffer& getVkFramebuffer();
+    void setVkFramebuffer(const VkFramebuffer& vk_framebuffer);
+
+    const VkCommandBuffer& getVkCommandBuffer() const;
+    VkCommandBuffer& getVkCommandBuffer();
+    void setVkCommandBuffer(const VkCommandBuffer& vk_command_buffer);
+
+    const VkSemaphore& getImageAvailableVkSemaphore() const;
+    VkSemaphore& getImageAvailableVkSemaphore();
+    void setImageAvailableVkSemaphore(const VkSemaphore& vk_semaphore);
+
+    const VkSemaphore& getFinishedRenderingVkSemaphore() const;
+    VkSemaphore& getFinishedRenderingVkSemaphore();
+    void setFinishedRenderingVkSemaphore(const VkSemaphore& vk_semaphore);
+
+    const VkFence& getVkFence() const;
+    VkFence& getVkFence();
+    void setVkFence(const VkFence& vk_fence);
+
+private:
+    VkFramebuffer m_vk_framebuffer;
+    VkCommandBuffer m_vk_command_buffer;
+    VkSemaphore m_image_available_vk_semaphore;
+    VkSemaphore m_finished_rendering_vk_semaphore;
+    VkFence m_vk_fence;
 };
 
 // ************************************************************ //
@@ -42,20 +66,39 @@ struct RenderingResourcesData {
 // Vulkan specific parameters                                   //
 // ************************************************************ //
 struct VulkanTutorial04Parameters {
-  VkRenderPass RenderPass;
-  VkPipeline GraphicsPipeline;
-  BufferParameters VertexBuffer;
-  VkCommandPool CommandPool;
-  std::vector<RenderingResourcesData> RenderingResources;
+public:
+    static const std::size_t resources_count = 3;
 
-  static const size_t ResourcesCount = 3;
+    VulkanTutorial04Parameters();
 
-  VulkanTutorial04Parameters()
-      : RenderPass(VK_NULL_HANDLE),
-        GraphicsPipeline(VK_NULL_HANDLE),
-        VertexBuffer(),
-        CommandPool(VK_NULL_HANDLE),
-        RenderingResources(ResourcesCount) {}
+    const VkRenderPass& getVkRenderPass() const;
+    VkRenderPass& getVkRenderPass();
+    void setVkRenderPass(const VkRenderPass& vk_render_pass);
+
+    const VkPipeline& getVkGraphicsPipeline() const;
+    VkPipeline& getVkGraphicsPipeline();
+    void setVkGraphicsPipeline(const VkPipeline& vk_graphics_pipeline);
+
+    const BufferParameters& getVertexBufferParameters() const;
+    BufferParameters& getVertexBufferParameters();
+    void setVertexBufferParameters(const BufferParameters& vertex_buffer);
+
+    const VkCommandPool& getVkCommandPool() const;
+    VkCommandPool& getVkCommandPool();
+    void setVkCommandPool(const VkCommandPool& vk_command_pool);
+
+    const std::vector<RenderingResourceParameters>& getRenderingResources()
+            const;
+    std::vector<RenderingResourceParameters>& getRenderingResources();
+    void setRenderingResources(const std::vector<RenderingResourceParameters>&
+                                       rendering_resources);
+
+private:
+    VkRenderPass m_vk_render_pass;
+    VkPipeline m_vk_graphics_pipeline;
+    BufferParameters m_vertex_buffer;
+    VkCommandPool m_vk_command_pool;
+    std::vector<RenderingResourceParameters> m_rendering_resources;
 };
 
 // ************************************************************ //
@@ -63,41 +106,43 @@ struct VulkanTutorial04Parameters {
 //                                                              //
 // Class for presenting Vulkan usage topics                     //
 // ************************************************************ //
-class Tutorial04 : public VulkanCommon {
- public:
-  Tutorial04();
-  ~Tutorial04();
+class Tutorial04 : public TutorialBase {
+public:
+    Tutorial04();
+    ~Tutorial04() override;
 
-  bool CreateRenderPass();
-  bool CreatePipeline();
-  bool CreateVertexBuffer();
-  bool CreateRenderingResources();
+    bool createRenderPass();
+    bool createPipeline();
+    bool createVertexBuffer();
+    bool createRenderingResources();
 
-  bool Draw() override;
+    bool draw() override;
 
- private:
-  VulkanTutorial04Parameters Vulkan;
+private:
+    Tools::AutoDeleter<VkShaderModule, PFN_vkDestroyShaderModule>
+    createShaderModule(const char* filename);
+    Tools::AutoDeleter<VkPipelineLayout, PFN_vkDestroyPipelineLayout>
+    createPipelineLayout();
+    bool allocateBufferMemory(VkBuffer buffer, VkDeviceMemory* memory);
+    bool createCommandPool(std::uint32_t queue_family_index,
+                           VkCommandPool* pool);
+    bool allocateCommandBuffers(VkCommandPool pool,
+                                std::uint32_t count,
+                                VkCommandBuffer* command_buffers);
+    bool createCommandBuffers();
+    bool createSemaphores();
+    bool createFences();
+    bool prepareFrame(VkCommandBuffer command_buffer,
+                      const ImageParameters& image_parameters,
+                      VkFramebuffer& framebuffer);
+    bool createFramebuffer(VkFramebuffer& framebuffer, VkImageView image_view);
 
-  Tools::AutoDeleter<VkShaderModule, PFN_vkDestroyShaderModule>
-  CreateShaderModule(const char *filename);
-  Tools::AutoDeleter<VkPipelineLayout, PFN_vkDestroyPipelineLayout>
-  CreatePipelineLayout();
-  bool AllocateBufferMemory(VkBuffer buffer, VkDeviceMemory *memory);
-  bool CreateCommandPool(uint32_t queue_family_index, VkCommandPool *pool);
-  bool AllocateCommandBuffers(VkCommandPool pool, uint32_t count,
-                              VkCommandBuffer *command_buffers);
-  bool CreateCommandBuffers();
-  bool CreateSemaphores();
-  bool CreateFences();
-  bool PrepareFrame(VkCommandBuffer command_buffer,
-                    const ImageParameters &image_parameters,
-                    VkFramebuffer &framebuffer);
-  bool CreateFramebuffer(VkFramebuffer &framebuffer, VkImageView image_view);
+    void childClear() override;
+    bool childOnWindowSizeChanged() override;
 
-  void ChildClear() override;
-  bool ChildOnWindowSizeChanged() override;
+    VulkanTutorial04Parameters m_vulkan_tutorial04_parameters;
 };
 
-}  // namespace ApiWithoutSecrets
+}  // namespace intel_vulkan
 
-#endif  // TUTORIAL_04_HEADER
+#endif  // INTEL_VULKAN_TUTORIAL04_H

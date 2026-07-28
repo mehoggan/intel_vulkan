@@ -126,6 +126,73 @@ void DescriptorSetParameters::setVkDescriptorSet(
 }
 
 // ************************************************************ //
+// RenderingResourceParameters                                  //
+//                                                              //
+// Container class for the resources used during a single frame //
+// ************************************************************ //
+RenderingResourceParameters::RenderingResourceParameters()
+        : m_vk_framebuffer(VK_NULL_HANDLE)
+        , m_vk_command_buffer(VK_NULL_HANDLE)
+        , m_image_available_vk_semaphore(VK_NULL_HANDLE)
+        , m_finished_rendering_vk_semaphore(VK_NULL_HANDLE)
+        , m_vk_fence(VK_NULL_HANDLE) {}
+
+const VkFramebuffer& RenderingResourceParameters::getVkFramebuffer() const {
+    return m_vk_framebuffer;
+}
+VkFramebuffer& RenderingResourceParameters::getVkFramebuffer() {
+    return m_vk_framebuffer;
+}
+void RenderingResourceParameters::setVkFramebuffer(
+        const VkFramebuffer& vk_framebuffer) {
+    m_vk_framebuffer = vk_framebuffer;
+}
+
+const VkCommandBuffer& RenderingResourceParameters::getVkCommandBuffer()
+        const {
+    return m_vk_command_buffer;
+}
+VkCommandBuffer& RenderingResourceParameters::getVkCommandBuffer() {
+    return m_vk_command_buffer;
+}
+void RenderingResourceParameters::setVkCommandBuffer(
+        const VkCommandBuffer& vk_command_buffer) {
+    m_vk_command_buffer = vk_command_buffer;
+}
+
+const VkSemaphore& RenderingResourceParameters::getImageAvailableVkSemaphore()
+        const {
+    return m_image_available_vk_semaphore;
+}
+VkSemaphore& RenderingResourceParameters::getImageAvailableVkSemaphore() {
+    return m_image_available_vk_semaphore;
+}
+void RenderingResourceParameters::setImageAvailableVkSemaphore(
+        const VkSemaphore& vk_semaphore) {
+    m_image_available_vk_semaphore = vk_semaphore;
+}
+
+const VkSemaphore&
+RenderingResourceParameters::getFinishedRenderingVkSemaphore() const {
+    return m_finished_rendering_vk_semaphore;
+}
+VkSemaphore& RenderingResourceParameters::getFinishedRenderingVkSemaphore() {
+    return m_finished_rendering_vk_semaphore;
+}
+void RenderingResourceParameters::setFinishedRenderingVkSemaphore(
+        const VkSemaphore& vk_semaphore) {
+    m_finished_rendering_vk_semaphore = vk_semaphore;
+}
+
+const VkFence& RenderingResourceParameters::getVkFence() const {
+    return m_vk_fence;
+}
+VkFence& RenderingResourceParameters::getVkFence() { return m_vk_fence; }
+void RenderingResourceParameters::setVkFence(const VkFence& vk_fence) {
+    m_vk_fence = vk_fence;
+}
+
+// ************************************************************ //
 // SwapChainParameters                                          //
 //                                                              //
 // Vulkan SwapChain's parameters container class                //

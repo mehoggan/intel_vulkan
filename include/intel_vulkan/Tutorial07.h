@@ -1,10 +1,18 @@
-#if !defined(TUTORIAL_07_HEADER)
-#define TUTORIAL_07_HEADER
+#ifndef INTEL_VULKAN_TUTORIAL07_H
+#define INTEL_VULKAN_TUTORIAL07_H
 
-#include "Tools.h"
-#include "VulkanCommon.h"
+#include <array>
+#include <cstddef>
+#include <cstdint>
+#include <vector>
 
-namespace ApiWithoutSecrets {
+#include <vulkan/vulkan.h>
+#include <vulkan/vulkan_core.h>
+
+#include "intel_vulkan/Tools.h"
+#include "intel_vulkan/TutorialBase.h"
+
+namespace intel_vulkan {
 
 // ************************************************************ //
 // VertexData                                                   //
@@ -12,124 +20,147 @@ namespace ApiWithoutSecrets {
 // Struct describing data type and format of vertex attributes  //
 // ************************************************************ //
 struct VertexData {
-  float x, y, z, w;
-  float u, v;
+    float x, y, z, w;
+    float u, v;
 };
 
 // ************************************************************ //
-// RenderingResourcesData                                       //
-//                                                              //
-// Struct containing data used during rendering process         //
-// ************************************************************ //
-struct RenderingResourcesData {
-  VkFramebuffer Framebuffer;
-  VkCommandBuffer CommandBuffer;
-  VkSemaphore ImageAvailableSemaphore;
-  VkSemaphore FinishedRenderingSemaphore;
-  VkFence Fence;
-
-  RenderingResourcesData()
-      : Framebuffer(VK_NULL_HANDLE),
-        CommandBuffer(VK_NULL_HANDLE),
-        ImageAvailableSemaphore(VK_NULL_HANDLE),
-        FinishedRenderingSemaphore(VK_NULL_HANDLE),
-        Fence(VK_NULL_HANDLE) {}
-};
-
-// ************************************************************ //
-// VulkanTutorial04Parameters                                   //
+// VulkanTutorial07Parameters                                   //
 //                                                              //
 // Vulkan specific parameters                                   //
 // ************************************************************ //
 struct VulkanTutorial07Parameters {
-  VkRenderPass RenderPass;
-  ImageParameters Image;
-  BufferParameters UniformBuffer;
-  DescriptorSetParameters DescriptorSet;
-  VkPipelineLayout PipelineLayout;
-  VkPipeline GraphicsPipeline;
-  BufferParameters VertexBuffer;
-  BufferParameters StagingBuffer;
-  VkCommandPool CommandPool;
-  std::vector<RenderingResourcesData> RenderingResources;
+public:
+    static const std::size_t resources_count = 3;
 
-  static const size_t ResourcesCount = 3;
+    VulkanTutorial07Parameters();
 
-  VulkanTutorial07Parameters()
-      : RenderPass(VK_NULL_HANDLE),
-        Image(),
-        UniformBuffer(),
-        DescriptorSet(),
-        PipelineLayout(),
-        GraphicsPipeline(VK_NULL_HANDLE),
-        VertexBuffer(),
-        StagingBuffer(),
-        CommandPool(VK_NULL_HANDLE),
-        RenderingResources(ResourcesCount) {}
+    const VkRenderPass& getVkRenderPass() const;
+    VkRenderPass& getVkRenderPass();
+    void setVkRenderPass(const VkRenderPass& vk_render_pass);
+
+    const ImageParameters& getImageParameters() const;
+    ImageParameters& getImageParameters();
+    void setImageParameters(const ImageParameters& image_parameters);
+
+    const BufferParameters& getUniformBufferParameters() const;
+    BufferParameters& getUniformBufferParameters();
+    void setUniformBufferParameters(const BufferParameters& uniform_buffer);
+
+    const DescriptorSetParameters& getDescriptorSetParameters() const;
+    DescriptorSetParameters& getDescriptorSetParameters();
+    void setDescriptorSetParameters(
+            const DescriptorSetParameters& descriptor_set_parameters);
+
+    const VkPipelineLayout& getVkPipelineLayout() const;
+    VkPipelineLayout& getVkPipelineLayout();
+    void setVkPipelineLayout(const VkPipelineLayout& vk_pipeline_layout);
+
+    const VkPipeline& getVkGraphicsPipeline() const;
+    VkPipeline& getVkGraphicsPipeline();
+    void setVkGraphicsPipeline(const VkPipeline& vk_graphics_pipeline);
+
+    const BufferParameters& getVertexBufferParameters() const;
+    BufferParameters& getVertexBufferParameters();
+    void setVertexBufferParameters(const BufferParameters& vertex_buffer);
+
+    const BufferParameters& getStagingBufferParameters() const;
+    BufferParameters& getStagingBufferParameters();
+    void setStagingBufferParameters(const BufferParameters& staging_buffer);
+
+    const VkCommandPool& getVkCommandPool() const;
+    VkCommandPool& getVkCommandPool();
+    void setVkCommandPool(const VkCommandPool& vk_command_pool);
+
+    const std::vector<RenderingResourceParameters>& getRenderingResources()
+            const;
+    std::vector<RenderingResourceParameters>& getRenderingResources();
+    void setRenderingResources(const std::vector<RenderingResourceParameters>&
+                                       rendering_resources);
+
+private:
+    VkRenderPass m_vk_render_pass;
+    ImageParameters m_image_parameters;
+    BufferParameters m_uniform_buffer;
+    DescriptorSetParameters m_descriptor_set_parameters;
+    VkPipelineLayout m_vk_pipeline_layout;
+    VkPipeline m_vk_graphics_pipeline;
+    BufferParameters m_vertex_buffer;
+    BufferParameters m_staging_buffer;
+    VkCommandPool m_vk_command_pool;
+    std::vector<RenderingResourceParameters> m_rendering_resources;
 };
 
 // ************************************************************ //
-// Tutorial04                                                   //
+// Tutorial07                                                   //
 //                                                              //
 // Class for presenting Vulkan usage topics                     //
 // ************************************************************ //
-class Tutorial07 : public VulkanCommon {
- public:
-  Tutorial07();
-  ~Tutorial07();
+class Tutorial07 : public TutorialBase {
+public:
+    Tutorial07();
+    ~Tutorial07() override;
 
-  bool CreateRenderingResources();
-  bool CreateStagingBuffer();
-  bool CreateTexture();
-  bool CreateUniformBuffer();
-  bool CreateDescriptorSetLayout();
-  bool CreateDescriptorPool();
-  bool AllocateDescriptorSet();
-  bool UpdateDescriptorSet();
-  bool CreateRenderPass();
-  bool CreatePipelineLayout();
-  bool CreatePipeline();
-  bool CreateVertexBuffer();
+    bool createRenderingResources();
+    bool createStagingBuffer();
+    bool createTexture();
+    bool createUniformBuffer();
+    bool createDescriptorSetLayout();
+    bool createDescriptorPool();
+    bool allocateDescriptorSet();
+    bool updateDescriptorSet();
+    bool createRenderPass();
+    bool createPipelineLayout();
+    bool createPipeline();
+    bool createVertexBuffer();
 
-  bool Draw() override;
+    bool draw() override;
 
- private:
-  VulkanTutorial07Parameters Vulkan;
+private:
+    bool createCommandBuffers();
+    bool createCommandPool(std::uint32_t queue_family_index,
+                           VkCommandPool* pool);
+    bool allocateCommandBuffers(VkCommandPool pool,
+                                std::uint32_t count,
+                                VkCommandBuffer* command_buffers);
+    bool createSemaphores();
+    bool createFences();
+    bool createBuffer(VkBufferUsageFlags usage,
+                      VkMemoryPropertyFlags memory_property,
+                      BufferParameters& buffer);
+    bool allocateBufferMemory(VkBuffer buffer,
+                              VkMemoryPropertyFlags property,
+                              VkDeviceMemory* memory);
+    bool createImage(std::uint32_t width,
+                     std::uint32_t height,
+                     VkImage* image);
+    bool allocateImageMemory(VkImage image,
+                             VkMemoryPropertyFlags property,
+                             VkDeviceMemory* memory);
+    bool createImageView();
+    bool createSampler(VkSampler* sampler);
+    bool copyTextureData(char* texture_data,
+                         std::uint32_t data_size,
+                         std::uint32_t width,
+                         std::uint32_t height);
+    std::array<float, 16> getUniformBufferData() const;
+    bool copyUniformBufferData();
+    Tools::AutoDeleter<VkShaderModule, PFN_vkDestroyShaderModule>
+    createShaderModule(const char* filename);
+    const std::vector<float>& getVertexData() const;
+    bool copyVertexData();
+    bool prepareFrame(VkCommandBuffer command_buffer,
+                      const ImageParameters& image_parameters,
+                      VkFramebuffer& framebuffer);
+    bool createFramebuffer(VkFramebuffer& framebuffer, VkImageView image_view);
+    void destroyBuffer(BufferParameters& buffer);
 
-  bool CreateCommandBuffers();
-  bool CreateCommandPool(uint32_t queue_family_index, VkCommandPool *pool);
-  bool AllocateCommandBuffers(VkCommandPool pool, uint32_t count,
-                              VkCommandBuffer *command_buffers);
-  bool CreateSemaphores();
-  bool CreateFences();
-  bool CreateBuffer(VkBufferUsageFlags usage,
-                    VkMemoryPropertyFlagBits memoryProperty,
-                    BufferParameters &buffer);
-  bool AllocateBufferMemory(VkBuffer buffer, VkMemoryPropertyFlagBits property,
-                            VkDeviceMemory *memory);
-  bool CreateImage(uint32_t width, uint32_t height, VkImage *image);
-  bool AllocateImageMemory(VkImage image, VkMemoryPropertyFlagBits property,
-                           VkDeviceMemory *memory);
-  bool CreateImageView(ImageParameters &image_parameters);
-  bool CreateSampler(VkSampler *sampler);
-  bool CopyTextureData(char *texture_data, uint32_t data_size, uint32_t width,
-                       uint32_t height);
-  const std::array<float, 16> GetUniformBufferData() const;
-  bool CopyUniformBufferData();
-  Tools::AutoDeleter<VkShaderModule, PFN_vkDestroyShaderModule>
-  CreateShaderModule(const char *filename);
-  const std::vector<float> &GetVertexData() const;
-  bool CopyVertexData();
-  bool PrepareFrame(VkCommandBuffer command_buffer,
-                    const ImageParameters &image_parameters,
-                    VkFramebuffer &framebuffer);
-  bool CreateFramebuffer(VkFramebuffer &framebuffer, VkImageView image_view);
-  void DestroyBuffer(BufferParameters &buffer);
+    bool childOnWindowSizeChanged() override;
+    void childClear() override;
 
-  bool ChildOnWindowSizeChanged() override;
-  void ChildClear() override;
+    VulkanTutorial07Parameters m_vulkan_tutorial07_parameters;
 };
 
-}  // namespace ApiWithoutSecrets
+}  // namespace intel_vulkan
 
-#endif  // TUTORIAL_07_HEADER
+#endif  // INTEL_VULKAN_TUTORIAL07_H

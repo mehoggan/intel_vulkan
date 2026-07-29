@@ -24,43 +24,6 @@ struct VertexData {
 };
 
 // ************************************************************ //
-// RenderingResourceParameters                                  //
-//                                                              //
-// Container class for the resources used during a single frame //
-// ************************************************************ //
-class RenderingResourceParameters {
-public:
-    RenderingResourceParameters();
-
-    const VkFramebuffer& getVkFramebuffer() const;
-    VkFramebuffer& getVkFramebuffer();
-    void setVkFramebuffer(const VkFramebuffer& vk_framebuffer);
-
-    const VkCommandBuffer& getVkCommandBuffer() const;
-    VkCommandBuffer& getVkCommandBuffer();
-    void setVkCommandBuffer(const VkCommandBuffer& vk_command_buffer);
-
-    const VkSemaphore& getImageAvailableVkSemaphore() const;
-    VkSemaphore& getImageAvailableVkSemaphore();
-    void setImageAvailableVkSemaphore(const VkSemaphore& vk_semaphore);
-
-    const VkSemaphore& getFinishedRenderingVkSemaphore() const;
-    VkSemaphore& getFinishedRenderingVkSemaphore();
-    void setFinishedRenderingVkSemaphore(const VkSemaphore& vk_semaphore);
-
-    const VkFence& getVkFence() const;
-    VkFence& getVkFence();
-    void setVkFence(const VkFence& vk_fence);
-
-private:
-    VkFramebuffer m_vk_framebuffer;
-    VkCommandBuffer m_vk_command_buffer;
-    VkSemaphore m_image_available_vk_semaphore;
-    VkSemaphore m_finished_rendering_vk_semaphore;
-    VkFence m_vk_fence;
-};
-
-// ************************************************************ //
 // VulkanTutorial04Parameters                                   //
 //                                                              //
 // Vulkan specific parameters                                   //

@@ -1,5 +1,5 @@
 bin_PROGRAMS = tutorial01_runner tutorial02_runner tutorial03_runner \
-    tutorial04_runner
+    tutorial04_runner tutorial05_runner tutorial06_runner tutorial07_runner
 
 # Tutorial 01 Binary
 tutorial01_runner_SOURCES = ./tutorial01_main.cpp
@@ -32,6 +32,30 @@ tutorial04_runner_CPPFLAGS = -Werror -Wall -pedantic \
 tutorial04_runner_LDADD = \
     $(abs_top_builddir)/lib/libintel_vulkan.la $(VULKAN_LIBS) $(X11_LIBS)
 tutorial04_runner_LDFLAGS = -pthread
+
+# Tutorial 05 Binary
+tutorial05_runner_SOURCES = ./tutorial05_main.cpp
+tutorial05_runner_CPPFLAGS = -Werror -Wall -pedantic \
+    -I$(abs_top_srcdir)/include
+tutorial05_runner_LDADD = \
+    $(abs_top_builddir)/lib/libintel_vulkan.la $(VULKAN_LIBS) $(X11_LIBS)
+tutorial05_runner_LDFLAGS = -pthread
+
+# Tutorial 06 Binary
+tutorial06_runner_SOURCES = ./tutorial06_main.cpp
+tutorial06_runner_CPPFLAGS = -Werror -Wall -pedantic \
+    -I$(abs_top_srcdir)/include
+tutorial06_runner_LDADD = \
+    $(abs_top_builddir)/lib/libintel_vulkan.la $(VULKAN_LIBS) $(X11_LIBS)
+tutorial06_runner_LDFLAGS = -pthread
+
+# Tutorial 07 Binary
+tutorial07_runner_SOURCES = ./tutorial07_main.cpp
+tutorial07_runner_CPPFLAGS = -Werror -Wall -pedantic \
+    -I$(abs_top_srcdir)/include
+tutorial07_runner_LDADD = \
+    $(abs_top_builddir)/lib/libintel_vulkan.la $(VULKAN_LIBS) $(X11_LIBS)
+tutorial07_runner_LDFLAGS = -pthread
 pkgdatadir = $(bindir)
 
 # --- Shader Copying Logic ---
@@ -39,13 +63,33 @@ tutorial03_vert = $(top_srcdir)/resources/03/Data/shader.vert.03.spv
 tutorial03_frag = $(top_srcdir)/resources/03/Data/shader.frag.03.spv
 tutorial04_vert = $(top_srcdir)/resources/04/Data/shader.vert.04.spv
 tutorial04_frag = $(top_srcdir)/resources/04/Data/shader.frag.04.spv
+tutorial05_vert = $(top_srcdir)/resources/05/Data/shader.vert.05.spv
+tutorial05_frag = $(top_srcdir)/resources/05/Data/shader.frag.05.spv
+tutorial06_vert = $(top_srcdir)/resources/06/Data/shader.vert.06.spv
+tutorial06_frag = $(top_srcdir)/resources/06/Data/shader.frag.06.spv
+tutorial06_texture = $(top_srcdir)/resources/06/Data/texture.06.png
+tutorial07_vert = $(top_srcdir)/resources/07/Data/shader.vert.07.spv
+tutorial07_frag = $(top_srcdir)/resources/07/Data/shader.frag.07.spv
+tutorial07_texture = $(top_srcdir)/resources/07/Data/texture.07.png
 
 all-local: $(tutorial03_vert) $(tutorial03_frag) $(tutorial04_vert) \
-    $(tutorial04_frag)
+    $(tutorial04_frag) $(tutorial05_vert) $(tutorial05_frag) \
+    $(tutorial06_vert) $(tutorial06_frag) $(tutorial06_texture) \
+    $(tutorial07_vert) $(tutorial07_frag) $(tutorial07_texture)
 	cp $(tutorial03_vert) $(builddir)/shader.03.vert.spv
 	cp $(tutorial03_frag) $(builddir)/shader.03.frag.spv
 	cp $(tutorial04_vert) $(builddir)/shader.04.vert.spv
 	cp $(tutorial04_frag) $(builddir)/shader.04.frag.spv
+	cp $(tutorial05_vert) $(builddir)/shader.05.vert.spv
+	cp $(tutorial05_frag) $(builddir)/shader.05.frag.spv
+	cp $(tutorial06_vert) $(builddir)/shader.06.vert.spv
+	cp $(tutorial06_frag) $(builddir)/shader.06.frag.spv
+	cp $(tutorial06_texture) $(builddir)/texture.06.png
+	cp $(tutorial07_vert) $(builddir)/shader.07.vert.spv
+	cp $(tutorial07_frag) $(builddir)/shader.07.frag.spv
+	cp $(tutorial07_texture) $(builddir)/texture.07.png
 
 CLEANFILES = shader.03.vert.spv shader.03.frag.spv shader.04.vert.spv \
-    shader.04.frag.spv
+    shader.04.frag.spv shader.05.vert.spv shader.05.frag.spv \
+    shader.06.vert.spv shader.06.frag.spv texture.06.png \
+    shader.07.vert.spv shader.07.frag.spv texture.07.png

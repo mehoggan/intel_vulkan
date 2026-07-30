@@ -41,7 +41,7 @@ flowchart TD
     DIV1{{"⬦ Divergence Point 1"}}
 
     DIV1 -->|"Tutorial01 only"| T01_DEV
-    DIV1 -->|"Tutorial02 + Tutorial03"| T0203_SURF
+    DIV1 -->|"Tutorial02 + Tutorial03–07"| T0203_SURF
 
     %% ─── TUTORIAL 01 BRANCH ───
     T01_DEV["**createDevice**
@@ -87,7 +87,7 @@ flowchart TD
     DIV2{{"⬦ Divergence Point 2"}}
 
     DIV2 -->|"Tutorial02 only"| T02_SC
-    DIV2 -->|"Tutorial03 only"| T03_SC
+    DIV2 -->|"Tutorial03–07 (via TutorialBase)"| T03_SC
 
     %% ─── TUTORIAL 02 BRANCH ───
     T02_SC["**createSwapChain**
@@ -123,7 +123,7 @@ flowchart TD
     ✓ Tutorial02 COMPLETE
     Renders solid clear color"])
 
-    %% ─── TUTORIAL 03 BRANCH ───
+    %% ─── TUTORIAL 03–07 SHARED TRUNK (TutorialBase) ───
     T03_SC["**createSwapChain** (via TutorialBase)
     vkGetPhysicalDeviceSurfaceCapabilitiesKHR
     vkGetPhysicalDeviceSurfaceFormatsKHR
@@ -143,7 +143,15 @@ flowchart TD
     T03_FB["**createFramebuffers**
     vkCreateFramebuffer × N
     Binds each VkImageView as color attachment
-    Tied to the render pass"] --> T03_PL
+    Tied to the render pass"] --> DIV3
+
+    DIV3{{"⬦ Divergence Point 3"}}
+
+    DIV3 -->|"Tutorial03 only"| T03_PL
+    DIV3 -->|"Tutorial04"| T04_PL
+    DIV3 -->|"Tutorial05"| T05_PL
+    DIV3 -->|"Tutorial06"| T06_DSL
+    DIV3 -->|"Tutorial07"| T07_DSL
 
     T03_PL["**createPipeline**
     ┌─ vkCreateShaderModule × 2 (vert + frag SPIR-V)
@@ -184,15 +192,201 @@ flowchart TD
     ✓ Tutorial03 COMPLETE
     Renders shader-driven triangle"])
 
+    %% ─── TUTORIAL 04 BRANCH ───
+    T04_PL["**createPipeline**
+    VkVertexInputBindingDescription × 1
+    VkVertexInputAttributeDescription × 2 (position, color)
+    topology = TRIANGLE_STRIP
+    PipelineLayout: empty (no descriptors)"] --> T04_VB
+
+    T04_VB["**createVertexBuffer**
+    vkCreateBuffer (VERTEX_BUFFER_BIT)
+    HOST_VISIBLE memory · vkAllocateMemory · vkBindBufferMemory
+    vkMapMemory → memcpy → vkFlushMappedMemoryRanges → vkUnmapMemory
+    ⚠ Direct host-visible upload, no staging"] --> T04_CP
+
+    T04_CP["**createCommandPool**
+    vkCreateCommandPool
+    ✓ On GRAPHICS queue family"] --> T04_ACB
+
+    T04_ACB["**allocateCommandBuffers**
+    1× primary buffer per swapchain image"] --> T04_RCB
+
+    T04_RCB["**recordCommandBuffers**
+    vkCmdBeginRenderPass → vkCmdBindPipeline
+    vkCmdBindVertexBuffers ← NEW
+    vkCmdDraw(4, 1, 0, 0) ← quad, not triangle
+    vkCmdEndRenderPass"] --> T04_DRAW
+
+    T04_DRAW(["**draw() loop**
+    (acquire/submit/present same pattern as Tutorial03)
+    ─────────────────────
+    ✓ Tutorial04 COMPLETE
+    Renders vertex-buffer-driven colored quad"])
+
+    %% ─── TUTORIAL 05 BRANCH ───
+    T05_PL["**createPipeline**
+    Same vertex input / layout as Tutorial04"] --> T05_VB
+
+    T05_VB["**createVertexBuffer**
+    vkCreateBuffer (VERTEX_BUFFER_BIT | TRANSFER_DST_BIT)
+    DEVICE_LOCAL memory ← NEW (fast GPU-local, not host-visible)"] --> T05_STG
+
+    T05_STG["**createStagingBuffer**
+    vkCreateBuffer (TRANSFER_SRC_BIT)
+    HOST_VISIBLE memory"] --> T05_COPY
+
+    T05_COPY["**copyVertexData**
+    map/memcpy/flush staging buffer
+    vkCmdCopyBuffer (staging → vertex) ← NEW
+    VkBufferMemoryBarrier: TRANSFER_WRITE → VERTEX_ATTRIBUTE_READ
+    one-off vkQueueSubmit + vkDeviceWaitIdle"] --> T05_CP
+
+    T05_CP["**createCommandPool**
+    vkCreateCommandPool
+    ✓ On GRAPHICS queue family"] --> T05_ACB
+
+    T05_ACB["**allocateCommandBuffers**
+    1× primary buffer per swapchain image"] --> T05_RCB
+
+    T05_RCB["**recordCommandBuffers**
+    vkCmdBindVertexBuffers
+    vkCmdDraw(4, 1, 0, 0)"] --> T05_DRAW
+
+    T05_DRAW(["**draw() loop**
+    (same pattern as Tutorial04)
+    ─────────────────────
+    ✓ Tutorial05 COMPLETE
+    Same quad, now via staging→device-local upload"])
+
+    %% ─── TUTORIAL 06 BRANCH ───
+    T06_DSL["**createDescriptorSetLayout** ← NEW
+    vkCreateDescriptorSetLayout
+    1 binding: COMBINED_IMAGE_SAMPLER (fragment stage)"] --> T06_DP
+
+    T06_DP["**createDescriptorPool + allocateDescriptorSet**
+    vkCreateDescriptorPool (1× COMBINED_IMAGE_SAMPLER, maxSets=1)
+    vkAllocateDescriptorSets"] --> T06_TEX
+
+    T06_TEX["**createTexture**
+    Load PNG (Tools::getImageData)
+    vkCreateImage (TILING_OPTIMAL, TRANSFER_DST | SAMPLED)
+    DEVICE_LOCAL memory · vkBindImageMemory
+    vkCreateImageView + vkCreateSampler (LINEAR, CLAMP_TO_EDGE)"] --> T06_COPY
+
+    T06_COPY["**copyTextureData**
+    staging buffer upload
+    vkCmdCopyBufferToImage
+    VkImageMemoryBarrier ×2:
+      UNDEFINED → TRANSFER_DST_OPTIMAL
+      TRANSFER_DST_OPTIMAL → SHADER_READ_ONLY_OPTIMAL"] --> T06_UDS
+
+    T06_UDS["**updateDescriptorSet**
+    VkDescriptorImageInfo + VkWriteDescriptorSet
+    vkUpdateDescriptorSets"] --> T06_PL
+
+    T06_PL["**createPipeline**
+    Vertex input: position + texcoord (u, v)
+    PipelineLayout ← references descriptor set layout (NEW)
+    RenderPass: initial/finalLayout = COLOR_ATTACHMENT_OPTIMAL
+    ⚠ 0 subpass dependencies (barriers moved to per-frame)"] --> T06_VB
+
+    T06_VB["**createVertexBuffer**
+    Device-local via staging (pos + uv attributes)"] --> T06_CP
+
+    T06_CP["**createCommandPool**
+    vkCreateCommandPool
+    ✓ On GRAPHICS queue family"] --> T06_ACB
+
+    T06_ACB["**allocateCommandBuffers**
+    1× primary buffer per swapchain image"] --> T06_RCB
+
+    T06_RCB["**recordCommandBuffers / prepareFrame**
+    Per-frame VkImageMemoryBarrier (no subpass deps)
+    vkCmdBindVertexBuffers
+    vkCmdBindDescriptorSets ← NEW
+    vkCmdDraw(4, 1, 0, 0)"] --> T06_DRAW
+
+    T06_DRAW(["**draw() loop**
+    ─────────────────────
+    ✓ Tutorial06 COMPLETE
+    Renders a textured quad (image + sampler)"])
+
+    %% ─── TUTORIAL 07 BRANCH ───
+    T07_DSL["**createDescriptorSetLayout**
+    vkCreateDescriptorSetLayout
+    binding 0: COMBINED_IMAGE_SAMPLER (fragment)
+    binding 1: UNIFORM_BUFFER (vertex) ← NEW"] --> T07_DP
+
+    T07_DP["**createDescriptorPool + allocateDescriptorSet**
+    Sized for 2 descriptor types"] --> T07_TEX
+
+    T07_TEX["**createTexture + copyTextureData**
+    (identical to Tutorial06)"] --> T07_UBO
+
+    T07_UBO["**createUniformBuffer** ← NEW
+    vkCreateBuffer (UNIFORM_BUFFER_BIT | TRANSFER_DST_BIT)
+    size = 16 × sizeof(float) (mat4)
+    DEVICE_LOCAL memory"] --> T07_COPYU
+
+    T07_COPYU["**copyUniformBufferData**
+    Tools::getOrthographicProjectionMatrix(swapchain extent)
+    staging upload → vkCmdCopyBuffer
+    VkBufferMemoryBarrier: TRANSFER_WRITE → UNIFORM_READ_BIT
+    stage: TRANSFER_BIT → VERTEX_SHADER_BIT"] --> T07_UDS
+
+    T07_UDS["**updateDescriptorSet**
+    2× VkWriteDescriptorSet (image info + buffer info)"] --> T07_PL
+
+    T07_PL["**createPipeline**
+    Vertex input: position (pixel-space) + texcoord
+    PipelineLayout: descriptor set (sampler + UBO)"] --> T07_VB
+
+    T07_VB["**createVertexBuffer**
+    Device-local via staging"] --> T07_CP
+
+    T07_CP["**createCommandPool**
+    vkCreateCommandPool
+    ✓ On GRAPHICS queue family"] --> T07_ACB
+
+    T07_ACB["**allocateCommandBuffers**
+    1× primary buffer per swapchain image"] --> T07_RCB
+
+    T07_RCB["**recordCommandBuffers / prepareFrame**
+    vkCmdBindVertexBuffers
+    vkCmdBindDescriptorSets (sampler + UBO)
+    vkCmdDraw(4, 1, 0, 0)"] --> T07_DRAW
+
+    T07_DRAW(["**draw() loop**
+    ─────────────────────
+    ✓ Tutorial07 COMPLETE
+    Textured quad transformed by projection matrix"])
+
+    T07_DRAW -.->|"on window resize"| T07_RESIZE["**childOnWindowSizeChanged()** ← NEW
+    vkDeviceWaitIdle
+    + re-run copyUniformBufferData()
+    (recompute projection matrix for new extent)"]
+
     %% ─── STYLES ───
     style DIV1 fill:#7b4f00,color:#fff,stroke:#c47d00
     style DIV2 fill:#7b4f00,color:#fff,stroke:#c47d00
+    style DIV3 fill:#7b4f00,color:#fff,stroke:#c47d00
     style T01_DONE fill:#3a3a3a,color:#fff,stroke:#888
     style T02_DRAW fill:#0d5c7a,color:#fff,stroke:#0a90bf
     style T03_DRAW fill:#0d6b35,color:#fff,stroke:#0aab50
     style T02_RCB  fill:#103d52,color:#ddf,stroke:#0a90bf
     style T03_RCB  fill:#0d4222,color:#ddf,stroke:#0aab50
     style T03_PL   fill:#2a1a4a,color:#ddf,stroke:#8855cc
+    style T04_DRAW fill:#7a4a0d,color:#fff,stroke:#bf8a0a
+    style T04_VB   fill:#3a2a10,color:#ddf,stroke:#bf8a0a
+    style T05_DRAW fill:#7a0d4a,color:#fff,stroke:#bf0a7a
+    style T05_COPY fill:#3a0a2a,color:#ddf,stroke:#bf0a7a
+    style T06_DRAW fill:#0d3a7a,color:#fff,stroke:#0a5abf
+    style T06_TEX  fill:#0a1e3a,color:#ddf,stroke:#0a5abf
+    style T06_PL   fill:#0a1e3a,color:#ddf,stroke:#0a5abf
+    style T07_DRAW fill:#4a0d7a,color:#fff,stroke:#7a0abf
+    style T07_UBO  fill:#2a0a3a,color:#ddf,stroke:#7a0abf
+    style T07_RESIZE fill:#2a0a3a,color:#ddf,stroke:#7a0abf
 ```
 
 ---
@@ -569,24 +763,36 @@ Per buffer:
 
 ## Key Differences Summary
 
-| Concept | Tutorial01 | Tutorial02 | Tutorial03 |
-|---|:---:|:---:|:---:|
-| `VkInstance` | Yes | Yes | Yes (TutorialBase) |
-| `VkDevice` | Yes (no exts) | Yes (`VK_KHR_swapchain`) | Yes (TutorialBase) |
-| Debug messenger | Optional | Optional | Optional |
-| `VkSurfaceKHR` | No | Yes (Xlib) | Yes (TutorialBase) |
-| `VkSwapchainKHR` | No | Yes | Yes (TutorialBase) |
-| `VkImageView` per image | No | **No** | **Yes** |
-| Present queue | No | Yes | Yes |
-| `VkSemaphore` | No | 2 | 2 |
-| `VkCommandPool` family | — | Present | **Graphics** |
-| `VkRenderPass` | No | **No** | **Yes** |
-| `VkFramebuffer` | No | No | **Yes** |
-| `VkShaderModule` | No | No | **Yes** (vert + frag) |
-| `VkPipelineLayout` | No | No | **Yes** (empty) |
-| `VkPipeline` | No | No | **Yes** |
-| Clear method | N/A | `vkCmdClearColorImage` (transfer) | Render pass `loadOp = CLEAR` |
-| Draw call | N/A | None | `vkCmdDraw(3,1,0,0)` |
-| Vertex source | N/A | N/A | Shader (`gl_VertexIndex`) |
-| Submit queue | — | Present queue | **Graphics queue** |
-| Submit wait stage | — | `TRANSFER_BIT` | `COLOR_ATTACHMENT_OUTPUT_BIT` |
+| Concept | Tutorial01 | Tutorial02 | Tutorial03 | Tutorial04 | Tutorial05 | Tutorial06 | Tutorial07 |
+|---|:---:|:---:|:---:|:---:|:---:|:---:|:---:|
+| `VkInstance` | Yes | Yes | Yes (TutorialBase) | Yes (TutorialBase) | Yes (TutorialBase) | Yes (TutorialBase) | Yes (TutorialBase) |
+| `VkDevice` | Yes (no exts) | Yes (`VK_KHR_swapchain`) | Yes (TutorialBase) | Yes (TutorialBase) | Yes (TutorialBase) | Yes (TutorialBase) | Yes (TutorialBase) |
+| Debug messenger | Optional | Optional | Optional | Optional | Optional | Optional | Optional |
+| `VkSurfaceKHR` | No | Yes (Xlib) | Yes (TutorialBase) | Yes (TutorialBase) | Yes (TutorialBase) | Yes (TutorialBase) | Yes (TutorialBase) |
+| `VkSwapchainKHR` | No | Yes | Yes (TutorialBase) | Yes (TutorialBase) | Yes (TutorialBase) | Yes (TutorialBase) | Yes (TutorialBase) |
+| `VkImageView` per image | No | **No** | **Yes** | Yes | Yes | Yes | Yes |
+| Present queue | No | Yes | Yes | Yes | Yes | Yes | Yes |
+| `VkSemaphore` | No | 2 | 2 | 2 | 2 | 2 | 2 |
+| `VkCommandPool` family | — | Present | **Graphics** | Graphics | Graphics | Graphics | Graphics |
+| `VkRenderPass` | No | **No** | **Yes** | Yes | Yes | Yes (0 subpass deps) | Yes (0 subpass deps) |
+| `VkFramebuffer` | No | No | **Yes** | Yes | Yes | Yes | Yes |
+| `VkShaderModule` | No | No | **Yes** (vert + frag) | Yes (vert + frag) | Yes (vert + frag) | Yes (vert + frag) | Yes (vert + frag) |
+| `VkPipelineLayout` | No | No | **Yes** (empty) | Yes (empty) | Yes (empty) | **Yes** (1 descriptor set) | Yes (1 descriptor set) |
+| `VkPipeline` | No | No | **Yes** | Yes | Yes | Yes | Yes |
+| `VkBuffer` / vertex | No | No | No | **Yes** (host-visible, mapped) | **Yes** (device-local) | Yes (device-local) | Yes (device-local) |
+| `VkBuffer` / staging | No | No | No | No | **Yes** (vertex upload) | Yes (vertex + texture upload) | Yes (vertex + texture + UBO upload) |
+| `VkBuffer` / uniform | No | No | No | No | No | No | **Yes** (mat4 projection) |
+| Descriptor set layout | No | No | No | No | No | **Yes** (1 binding: sampler) | **Yes** (2 bindings: sampler + UBO) |
+| Descriptor pool / set | No | No | No | No | No | **Yes** | Yes (2 descriptor types) |
+| Texture image + sampler | No | No | No | No | No | **Yes** | Yes |
+| Depth buffer | No | No | No | No | No | No | No |
+| Push constants | No | No | No | No | No | No | No |
+| Vertex attributes | N/A (shader-gen) | N/A | N/A (shader-gen) | position + color | position + color | position + texcoord | position (pixel-space) + texcoord |
+| `vkCmdBindVertexBuffers` | No | No | No | **Yes** | Yes | Yes | Yes |
+| `vkCmdBindDescriptorSets` | No | No | No | No | No | **Yes** | Yes |
+| Clear method | N/A | `vkCmdClearColorImage` (transfer) | Render pass `loadOp = CLEAR` | Render pass `loadOp = CLEAR` | Render pass `loadOp = CLEAR` | Render pass `loadOp = CLEAR` | Render pass `loadOp = CLEAR` |
+| Draw call | N/A | None | `vkCmdDraw(3,1,0,0)` | `vkCmdDraw(4,1,0,0)` | `vkCmdDraw(4,1,0,0)` | `vkCmdDraw(4,1,0,0)` | `vkCmdDraw(4,1,0,0)` |
+| Vertex source | N/A | N/A | Shader (`gl_VertexIndex`) | Vertex buffer | Vertex buffer | Vertex buffer | Vertex buffer |
+| Resize behavior | N/A | Swapchain recreate | Swapchain recreate | Swapchain recreate | Swapchain recreate | Swapchain recreate | Swapchain recreate **+ re-upload UBO** |
+| Submit queue | — | Present queue | **Graphics queue** | Graphics queue | Graphics queue | Graphics queue | Graphics queue |
+| Submit wait stage | — | `TRANSFER_BIT` | `COLOR_ATTACHMENT_OUTPUT_BIT` | `COLOR_ATTACHMENT_OUTPUT_BIT` | `COLOR_ATTACHMENT_OUTPUT_BIT` | `COLOR_ATTACHMENT_OUTPUT_BIT` | `COLOR_ATTACHMENT_OUTPUT_BIT` |

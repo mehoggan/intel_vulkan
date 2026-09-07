@@ -1,7 +1,7 @@
 #ifndef INTEL_VULKAN_LINE_HPP
 #define INTEL_VULKAN_LINE_HPP
 
-#include "intel_vulkan/MathTypes.hpp"
+#include "intel_vulkan/Math/MathTypes.hpp"
 
 namespace intel_vulkan::Math {
 

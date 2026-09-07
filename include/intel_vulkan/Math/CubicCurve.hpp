@@ -7,8 +7,8 @@
 #include <limits>
 #include <vector>
 
-#include "intel_vulkan/CurveSample3D.hpp"
-#include "intel_vulkan/MathTypes.hpp"
+#include "intel_vulkan/Math/CurveSample3D.hpp"
+#include "intel_vulkan/Math/MathTypes.hpp"
 
 namespace intel_vulkan::Math {
 

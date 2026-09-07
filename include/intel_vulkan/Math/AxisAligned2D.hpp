@@ -4,7 +4,7 @@
 #include <limits>
 #include <utility>
 
-#include "intel_vulkan/MathTypes.hpp"
+#include "intel_vulkan/Math/MathTypes.hpp"
 
 namespace intel_vulkan::Math {
 

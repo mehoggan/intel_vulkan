@@ -6,11 +6,11 @@
 #include <unordered_map>
 #include <vector>
 
-#include "intel_vulkan/Geometry.hpp"
-#include "intel_vulkan/Line.hpp"
-#include "intel_vulkan/MathTypes.hpp"
-#include "intel_vulkan/TessellationTypes.hpp"
-#include "intel_vulkan/Triangle.hpp"
+#include "intel_vulkan/Math/Geometry.hpp"
+#include "intel_vulkan/Math/Line.hpp"
+#include "intel_vulkan/Math/MathTypes.hpp"
+#include "intel_vulkan/Math/TessellationTypes.hpp"
+#include "intel_vulkan/Math/Triangle.hpp"
 
 namespace std {
 

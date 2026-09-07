@@ -5,8 +5,8 @@
 #include <utility>
 #include <vector>
 
-#include "intel_vulkan/AttributeTraits.hpp"
-#include "intel_vulkan/InterleavedDatum.hpp"
+#include "intel_vulkan/VertexTypes/AttributeTraits.hpp"
+#include "intel_vulkan/VertexTypes/InterleavedDatum.hpp"
 
 namespace intel_vulkan::VertexTypes {
 

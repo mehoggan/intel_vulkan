@@ -12,6 +12,14 @@ fi
 
 PKG_CHECK_MODULES([VULKAN], [vulkan])
 PKG_CHECK_MODULES([X11], [x11])
+PKG_CHECK_MODULES([GLM], [glm])
+
+PKG_CHECK_MODULES([GTEST], [gtest gtest_main],
+  [have_gtest=yes], [have_gtest=no])
+AM_CONDITIONAL([HAVE_GTEST], [test "x$have_gtest" = "xyes"])
+if test "x$have_gtest" = "xno"; then
+  AC_MSG_WARN([gtest/gtest_main not found via pkg-config, tests/ will not build])
+fi
 
 # Conditionals
 AC_CANONICAL_HOST()
@@ -52,6 +60,7 @@ AC_CONFIG_FILES([
   Makefile
   lib/Makefile
   bin/Makefile
+  tests/Makefile
 ])
 
 AC_OUTPUT

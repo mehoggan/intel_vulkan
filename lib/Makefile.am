@@ -1,7 +1,7 @@
 lib_LTLIBRARIES = libintel_vulkan.la
 
 libintel_vulkan_la_CPPFLAGS = -Werror -Wall -pedantic \
-		-I$(abs_top_srcdir)/include
+		-I$(abs_top_srcdir)/include $(GLM_CFLAGS)
 
 libintel_vulkan_la_SOURCES = ./LoggerHelpers.cpp \
 															./Logging.cpp \

@@ -6,15 +6,11 @@ namespace intel_vulkan::os {
 
 ProjectBase::ProjectBase() : m_can_render(false) {}
 
-ProjectBase::~ProjectBase() {}
+ProjectBase::~ProjectBase() = default;
 
-ProjectBase::ProjectBase(const ProjectBase& other)
-        : m_can_render(other.m_can_render) {}
+ProjectBase::ProjectBase(const ProjectBase& other) = default;
 
-ProjectBase& ProjectBase::operator=(const ProjectBase& other) {
-    m_can_render = other.m_can_render;
-    return (*this);
-}
+ProjectBase& ProjectBase::operator=(const ProjectBase& other) = default;
 
 bool ProjectBase::readyToDraw() const { return m_can_render; }
 
@@ -32,7 +28,7 @@ void WindowParameters::setDisplayPtr(Display*& display_ptr) {
 
 void WindowParameters::setWindowHandle(::Window& handle) { m_handle = handle; }
 
-Window::Window() : m_parameters() {}
+Window::Window() = default;
 
 Window::~Window() {
     XDestroyWindow(m_parameters.getDisplayPtr(),

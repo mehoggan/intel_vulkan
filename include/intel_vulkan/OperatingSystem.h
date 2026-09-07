@@ -1,5 +1,5 @@
-#ifndef INTEL_VULKAN_OPERATING_SYSTEM_H
-#define INTEL_VULKAN_OPERATING_SYSTEM_H
+#ifndef INTEL_VULKAN_OPERATINGSYSTEM_H
+#define INTEL_VULKAN_OPERATINGSYSTEM_H
 
 #include <X11/Xlib.h>
 #include <X11/Xutil.h>
@@ -17,7 +17,7 @@
 
 namespace intel_vulkan::os {
 
-typedef void* LibraryHandle;
+using LibraryHandle = void*;
 
 class ProjectBase {
 public:

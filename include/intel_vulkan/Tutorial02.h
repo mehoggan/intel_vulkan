@@ -81,7 +81,7 @@ public:
     const VkDebugUtilsMessengerEXT& getVkDebugUtilsMessenger() const;
     VkDebugUtilsMessengerEXT& getVkDebugUtilsMessenger();
     void setVkDebugUtilsMessenger(
-            const VkDebugUtilsMessengerEXT& vk_debug_messenger);
+            const VkDebugUtilsMessengerEXT& vk_debug_utils_messenger);
 
 private:
     VkInstance m_vk_instance;

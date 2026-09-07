@@ -68,7 +68,6 @@ void VulkanTutorial01Parameters::setVkDebugUtilsMessenger(
 Tutorial01::Tutorial01(bool enable_debug)
         : LoggedClass<Tutorial01>(*this)
         , m_vulkan_library_handle()
-        , m_vulkan_tutorial01_parameters()
         , m_enable_vulkan_debug(enable_debug) {}
 
 Tutorial01::~Tutorial01() {
@@ -140,14 +139,15 @@ bool Tutorial01::loadVulkanLibrary() {
 bool Tutorial01::loadExportedEntryPoints() {
 #define LoadProcAddress dlsym
 
-#define VK_EXPORTED_FUNCTION(fun)                                             \
-    if (m_enable_vulkan_debug.load()) {                                       \
-        Logging::info(LOG_TAG, "Loading entry point", #fun, "...");           \
-    }                                                                         \
-    if (!(fun = (PFN_##fun)LoadProcAddress(m_vulkan_library_handle, #fun))) { \
-        Logging::error(                                                       \
-                LOG_TAG, "Could not load exported function:", #fun, "!");     \
-        return false;                                                         \
+#define VK_EXPORTED_FUNCTION(fun)                                         \
+    if (m_enable_vulkan_debug.load()) {                                   \
+        Logging::info(LOG_TAG, "Loading entry point", #fun, "...");       \
+    }                                                                     \
+    if (!((fun) = (PFN_##fun)LoadProcAddress(m_vulkan_library_handle,     \
+                                             #fun))) {                    \
+        Logging::error(                                                   \
+                LOG_TAG, "Could not load exported function:", #fun, "!"); \
+        return false;                                                     \
     }
 
 #include "intel_vulkan/ListOfFunctions.inl"
@@ -160,7 +160,7 @@ bool Tutorial01::loadGlobalLevelEntryPoints() {
     if (m_enable_vulkan_debug.load()) {                                       \
         Logging::info(LOG_TAG, "Loading global", #fun, "...");                \
     }                                                                         \
-    if (!(fun = (PFN_##fun)vkGetInstanceProcAddr(nullptr, #fun))) {           \
+    if (!((fun) = (PFN_##fun)vkGetInstanceProcAddr(nullptr, #fun))) {         \
         Logging::error(                                                       \
                 LOG_TAG, "Could not load global level function:", #fun, "!"); \
         return false;                                                         \
@@ -239,7 +239,7 @@ bool Tutorial01::loadInstanceLevelEntryPoints() {
     if (m_enable_vulkan_debug.load()) {                                     \
         Logging::info(LOG_TAG, "Loading instance", #fun, "...");            \
     }                                                                       \
-    if (!(fun = (PFN_##fun)vkGetInstanceProcAddr(                           \
+    if (!((fun) = (PFN_##fun)vkGetInstanceProcAddr(                         \
                   m_vulkan_tutorial01_parameters.getVkInstance(), #fun))) { \
         Logging::error(LOG_TAG,                                             \
                        "Could not load instance level function:",           \
@@ -399,7 +399,7 @@ bool Tutorial01::loadDeviceLevelEntryPoints() {
     if (m_enable_vulkan_debug.load()) {                                       \
         Logging::info(LOG_TAG, "Loading device", #fun, "...");                \
     }                                                                         \
-    if (!(fun = (PFN_##fun)vkGetDeviceProcAddr(                               \
+    if (!((fun) = (PFN_##fun)vkGetDeviceProcAddr(                             \
                   m_vulkan_tutorial01_parameters.getVkDevice(), #fun))) {     \
         Logging::error(                                                       \
                 LOG_TAG, "Could not load device level function:", #fun, "!"); \
@@ -456,11 +456,11 @@ bool Tutorial01::checkValidationLayerSupport() const {
 }
 
 static VKAPI_ATTR VkBool32 VKAPI_CALL
-debugCallback(VkDebugUtilsMessageSeverityFlagBitsEXT message_severity,
-              VkDebugUtilsMessageTypeFlagsEXT message_type,
+debugCallback(VkDebugUtilsMessageSeverityFlagBitsEXT /*message_severity*/,
+              VkDebugUtilsMessageTypeFlagsEXT /*message_type*/,
               const VkDebugUtilsMessengerCallbackDataEXT*
                       vk_debug_utils_messenger_callback_data_ext,
-              void* p_user_data) {
+              void* /*p_user_data*/) {
     static LogTag debug_log_tag("DebugCallback");
     static std::atomic<bool> log_tag_created(false);
     if (!log_tag_created.load()) {
@@ -495,9 +495,10 @@ bool Tutorial01::setupDebugMessenger() {
                  .pfnUserCallback = debugCallback};
 
         PFN_vkCreateDebugUtilsMessengerEXT func =
-                (PFN_vkCreateDebugUtilsMessengerEXT)vkGetInstanceProcAddr(
-                        m_vulkan_tutorial01_parameters.getVkInstance(),
-                        "vkCreateDebugUtilsMessengerEXT");
+                reinterpret_cast<PFN_vkCreateDebugUtilsMessengerEXT>(
+                        vkGetInstanceProcAddr(
+                                m_vulkan_tutorial01_parameters.getVkInstance(),
+                                "vkCreateDebugUtilsMessengerEXT"));
 
         VkResult vk_result = VK_SUCCESS;
         if (func != nullptr) {
@@ -518,9 +519,10 @@ bool Tutorial01::setupDebugMessenger() {
 
 bool Tutorial01::destroyDebugMessenger() {
     bool response = false;
-    auto func = (PFN_vkDestroyDebugUtilsMessengerEXT)vkGetInstanceProcAddr(
-            m_vulkan_tutorial01_parameters.getVkInstance(),
-            "vkDestroyDebugUtilsMessengerEXT");
+    auto func = reinterpret_cast<PFN_vkDestroyDebugUtilsMessengerEXT>(
+            vkGetInstanceProcAddr(
+                    m_vulkan_tutorial01_parameters.getVkInstance(),
+                    "vkDestroyDebugUtilsMessengerEXT"));
     if (func != nullptr) {
         func(m_vulkan_tutorial01_parameters.getVkInstance(),
              m_vulkan_tutorial01_parameters.getVkDebugUtilsMessenger(),

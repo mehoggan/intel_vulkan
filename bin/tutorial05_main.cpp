@@ -1,7 +1,7 @@
 #include "intel_vulkan/Tutorial05.h"
 #include "intel_vulkan/TutorialBase.h"
 
-int main(int argc, char** argv) {
+int main(int /*argc*/, char** /*argv*/) {
     intel_vulkan::os::Window window;
     std::shared_ptr<intel_vulkan::TutorialBase> tutorial =
             std::make_shared<intel_vulkan::Tutorial05>();

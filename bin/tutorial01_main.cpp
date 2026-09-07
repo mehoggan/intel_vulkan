@@ -1,6 +1,6 @@
 #include "intel_vulkan/Tutorial01.h"
 
-int main(int argc, char** argv) {
+int main(int /*argc*/, char** /*argv*/) {
     intel_vulkan::os::Window window;
     intel_vulkan::Tutorial01 tutorial01(true);
 

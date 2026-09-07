@@ -96,7 +96,7 @@ void VulkanTutorial03Parameters::setVkCommandBuffers(
     m_vk_command_buffers = vk_command_buffers;
 }
 
-Tutorial03::Tutorial03() {}
+Tutorial03::Tutorial03() = default;
 
 Tutorial03::~Tutorial03() {
     childClear();
@@ -253,20 +253,15 @@ bool Tutorial03::createPipeline() {
     VkViewport viewport = {
             .x = 0.0f,
             .y = 0.0f,
-            .width =
-                    static_cast<float>(getSwapchainParameters()
-                                               .getVkExtent2d()
-                                               .width),
-            .height =
-                    static_cast<float>(getSwapchainParameters()
-                                               .getVkExtent2d()
-                                               .height),
+            .width = static_cast<float>(
+                    getSwapchainParameters().getVkExtent2d().width),
+            .height = static_cast<float>(
+                    getSwapchainParameters().getVkExtent2d().height),
             .minDepth = 0.0f,
             .maxDepth = 1.0f};
 
-    VkRect2D scissor = {
-            .offset = {.x = 0, .y = 0},
-            .extent = getSwapchainParameters().getVkExtent2d()};
+    VkRect2D scissor = {.offset = {.x = 0, .y = 0},
+                        .extent = getSwapchainParameters().getVkExtent2d()};
 
     VkPipelineViewportStateCreateInfo viewport_state_create_info = {
             .sType = VK_STRUCTURE_TYPE_PIPELINE_VIEWPORT_STATE_CREATE_INFO,
@@ -477,10 +472,9 @@ bool Tutorial03::recordCommandBuffers() {
                 .renderPass = m_vulkan_tutorial03_parameters.getVkRenderPass(),
                 .framebuffer =
                         m_vulkan_tutorial03_parameters.getVkFramebuffers()[i],
-                .renderArea = {.offset = {.x = 0, .y = 0},
-                               .extent =
-                                       getSwapchainParameters()
-                                               .getVkExtent2d()},
+                .renderArea =
+                        {.offset = {.x = 0, .y = 0},
+                         .extent = getSwapchainParameters().getVkExtent2d()},
                 .clearValueCount = 1,
                 .pClearValues = &clear_value};
 
@@ -618,7 +612,7 @@ bool Tutorial03::draw() {
 Tools::AutoDeleter<VkShaderModule, PFN_vkDestroyShaderModule>
 Tutorial03::createShaderModule(const char* filename) {
     const std::vector<char> code = Tools::getBinaryFileContents(filename);
-    if (code.size() == 0) {
+    if (code.empty()) {
         return Tools::AutoDeleter<VkShaderModule, PFN_vkDestroyShaderModule>();
     }
 
@@ -678,12 +672,9 @@ bool Tutorial03::createCommandPool(std::uint32_t queue_family_index,
             .flags = 0,
             .queueFamilyIndex = queue_family_index};
 
-    if (vkCreateCommandPool(
-                getVkDevice(), &cmd_pool_create_info, nullptr, pool) !=
-        VK_SUCCESS) {
-        return false;
-    }
-    return true;
+    return vkCreateCommandPool(
+                   getVkDevice(), &cmd_pool_create_info, nullptr, pool) ==
+           VK_SUCCESS;
 }
 
 bool Tutorial03::allocateCommandBuffers(VkCommandPool pool,
@@ -696,20 +687,16 @@ bool Tutorial03::allocateCommandBuffers(VkCommandPool pool,
             .level = VK_COMMAND_BUFFER_LEVEL_PRIMARY,
             .commandBufferCount = count};
 
-    if (vkAllocateCommandBuffers(getVkDevice(),
-                                 &command_buffer_allocate_info,
-                                 command_buffers) != VK_SUCCESS) {
-        return false;
-    }
-    return true;
+    return vkAllocateCommandBuffers(getVkDevice(),
+                                    &command_buffer_allocate_info,
+                                    command_buffers) == VK_SUCCESS;
 }
 
 void Tutorial03::childClear() {
     if (getVkDevice() != VK_NULL_HANDLE) {
         vkDeviceWaitIdle(getVkDevice());
 
-        if ((m_vulkan_tutorial03_parameters.getVkCommandBuffers().size() >
-             0ull) &&
+        if ((!m_vulkan_tutorial03_parameters.getVkCommandBuffers().empty()) &&
             (m_vulkan_tutorial03_parameters.getVkCommandBuffers()[0] !=
              VK_NULL_HANDLE)) {
             vkFreeCommandBuffers(

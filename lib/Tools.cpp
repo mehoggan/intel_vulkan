@@ -40,14 +40,14 @@ std::vector<char> getBinaryFileContents(std::string const& filename) {
         return std::vector<char>();
     }
 
-    std::streampos begin, end;
-    begin = file.tellg();
+    std::streampos begin_pos, end_pos;
+    begin_pos = file.tellg();
     file.seekg(0, std::ios::end);
-    end = file.tellg();
+    end_pos = file.tellg();
 
-    std::vector<char> result(static_cast<size_t>(end - begin));
+    std::vector<char> result(static_cast<size_t>(end_pos - begin_pos));
     file.seekg(0, std::ios::beg);
-    file.read(&result[0], end - begin);
+    file.read(&result[0], end_pos - begin_pos);
     file.close();
 
     return result;
@@ -65,7 +65,7 @@ std::vector<char> getImageData(std::string const& filename,
                                int* components,
                                int* data_size) {
     std::vector<char> file_data = Tools::getBinaryFileContents(filename);
-    if (file_data.size() == 0) {
+    if (file_data.empty()) {
         return std::vector<char>();
     }
 

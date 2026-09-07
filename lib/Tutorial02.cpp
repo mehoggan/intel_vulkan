@@ -178,10 +178,7 @@ void VulkanTutorial02Parameters::setVkDebugUtilsMessenger(
 }
 
 Tutorial02::Tutorial02()
-        : LoggedClass<Tutorial02>(*this)
-        , m_vulkan_library()
-        , m_window_parameters()
-        , m_vulkan_tutorial02_parameters() {}
+        : LoggedClass<Tutorial02>(*this), m_vulkan_library() {}
 
 Tutorial02::~Tutorial02() {
     clear();
@@ -280,10 +277,7 @@ bool Tutorial02::prepareVulkan(os::WindowParameters parameters) {
         return false;
     }
     Logging::info(LOG_TAG, "createSemaphores()");
-    if (!createSemaphores()) {
-        return false;
-    }
-    return true;
+    return createSemaphores();
 }
 
 bool Tutorial02::createSwapChain() {
@@ -577,7 +571,7 @@ bool Tutorial02::loadExportedEntryPoints() {
 #define LoadProcAddress dlsym
 
 #define VK_EXPORTED_FUNCTION(fun)                                         \
-    if (!(fun = (PFN_##fun)LoadProcAddress(m_vulkan_library, #fun))) {    \
+    if (!((fun) = (PFN_##fun)LoadProcAddress(m_vulkan_library, #fun))) {  \
         Logging::error(                                                   \
                 LOG_TAG, "Could not load exported function:", #fun, "!"); \
         return false;                                                     \
@@ -589,13 +583,13 @@ bool Tutorial02::loadExportedEntryPoints() {
 }
 
 bool Tutorial02::loadGlobalLevelEntryPoints() {
-#define VK_GLOBAL_LEVEL_FUNCTION(fun)                               \
-    if (!(fun = (PFN_##fun)vkGetInstanceProcAddr(nullptr, #fun))) { \
-        Logging::error(LOG_TAG,                                     \
-                       "Could not load global level function: ",    \
-                       #fun,                                        \
-                       "!");                                        \
-        return false;                                               \
+#define VK_GLOBAL_LEVEL_FUNCTION(fun)                                 \
+    if (!((fun) = (PFN_##fun)vkGetInstanceProcAddr(nullptr, #fun))) { \
+        Logging::error(LOG_TAG,                                       \
+                       "Could not load global level function: ",      \
+                       #fun,                                          \
+                       "!");                                          \
+        return false;                                                 \
     }
 
 #include "intel_vulkan/ListOfFunctions.inl"
@@ -682,7 +676,7 @@ bool Tutorial02::createInstance() {
 
 bool Tutorial02::loadInstanceLevelEntryPoints() {
 #define VK_INSTANCE_LEVEL_FUNCTION(fun)                                     \
-    if (!(fun = (PFN_##fun)vkGetInstanceProcAddr(                           \
+    if (!((fun) = (PFN_##fun)vkGetInstanceProcAddr(                         \
                   m_vulkan_tutorial02_parameters.getVkInstance(), #fun))) { \
         Logging::error(LOG_TAG,                                             \
                        "Could not load instance level function:",           \
@@ -952,7 +946,7 @@ bool Tutorial02::checkPhysicalDeviceProperties(
 
 bool Tutorial02::loadDeviceLevelEntryPoints() {
 #define VK_DEVICE_LEVEL_FUNCTION(fun)                                     \
-    if (!(fun = (PFN_##fun)vkGetDeviceProcAddr(                           \
+    if (!((fun) = (PFN_##fun)vkGetDeviceProcAddr(                         \
                   m_vulkan_tutorial02_parameters.getVkDevice(), #fun))) { \
         Logging::error(LOG_TAG,                                           \
                        "Could not load device level function: ",          \
@@ -1110,8 +1104,8 @@ void Tutorial02::clear() {
     if (m_vulkan_tutorial02_parameters.getVkDevice() != VK_NULL_HANDLE) {
         vkDeviceWaitIdle(m_vulkan_tutorial02_parameters.getVkDevice());
 
-        if ((m_vulkan_tutorial02_parameters.getPresentQueueVkCommandBuffers()
-                     .size() > 0ull) &&
+        if ((!m_vulkan_tutorial02_parameters.getPresentQueueVkCommandBuffers()
+                      .empty()) &&
             (m_vulkan_tutorial02_parameters
                      .getPresentQueueVkCommandBuffers()[0] !=
              VK_NULL_HANDLE)) {
@@ -1179,11 +1173,11 @@ bool Tutorial02::checkValidationLayerSupport() const {
 }
 
 static VKAPI_ATTR VkBool32 VKAPI_CALL
-debugCallback(VkDebugUtilsMessageSeverityFlagBitsEXT message_severity,
-              VkDebugUtilsMessageTypeFlagsEXT message_type,
+debugCallback(VkDebugUtilsMessageSeverityFlagBitsEXT /*message_severity*/,
+              VkDebugUtilsMessageTypeFlagsEXT /*message_type*/,
               const VkDebugUtilsMessengerCallbackDataEXT*
                       vk_debug_utils_messenger_callback_data_ext,
-              void* p_user_data) {
+              void* /*p_user_data*/) {
     static LogTag debug_log_tag("DebugCallback");
     static std::atomic<bool> log_tag_created(false);
     if (!log_tag_created.load()) {
@@ -1218,9 +1212,10 @@ bool Tutorial02::setupDebugMessenger() {
                  .pfnUserCallback = debugCallback};
 
         PFN_vkCreateDebugUtilsMessengerEXT func =
-                (PFN_vkCreateDebugUtilsMessengerEXT)vkGetInstanceProcAddr(
-                        m_vulkan_tutorial02_parameters.getVkInstance(),
-                        "vkCreateDebugUtilsMessengerEXT");
+                reinterpret_cast<PFN_vkCreateDebugUtilsMessengerEXT>(
+                        vkGetInstanceProcAddr(
+                                m_vulkan_tutorial02_parameters.getVkInstance(),
+                                "vkCreateDebugUtilsMessengerEXT"));
 
         VkResult vk_result = VK_SUCCESS;
         if (func != nullptr) {
@@ -1241,9 +1236,10 @@ bool Tutorial02::setupDebugMessenger() {
 
 bool Tutorial02::destroyDebugMessenger() {
     bool response = false;
-    auto func = (PFN_vkDestroyDebugUtilsMessengerEXT)vkGetInstanceProcAddr(
-            m_vulkan_tutorial02_parameters.getVkInstance(),
-            "vkDestroyDebugUtilsMessengerEXT");
+    auto func = reinterpret_cast<PFN_vkDestroyDebugUtilsMessengerEXT>(
+            vkGetInstanceProcAddr(
+                    m_vulkan_tutorial02_parameters.getVkInstance(),
+                    "vkDestroyDebugUtilsMessengerEXT"));
     if (func != nullptr) {
         func(m_vulkan_tutorial02_parameters.getVkInstance(),
              m_vulkan_tutorial02_parameters.getVkDebugUtilsMessenger(),

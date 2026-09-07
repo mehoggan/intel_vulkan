@@ -38,7 +38,7 @@ public:
     const VkDebugUtilsMessengerEXT& getVkDebugUtilsMessenger() const;
     VkDebugUtilsMessengerEXT& getVkDebugUtilsMessenger();
     void setVkDebugUtilsMessenger(
-            const VkDebugUtilsMessengerEXT& vk_debug_messenger);
+            const VkDebugUtilsMessengerEXT& vk_debug_utils_messenger);
 
 private:
     VkInstance m_vk_instance;
@@ -55,7 +55,7 @@ private:
 // ************************************************************ //
 class Tutorial01 : public os::ProjectBase, public LoggedClass<Tutorial01> {
 public:
-    explicit Tutorial01(bool enable_vk_debug = false);
+    explicit Tutorial01(bool enable_debug = false);
     ~Tutorial01() override;
 
     bool onWindowSizeChanged() override;

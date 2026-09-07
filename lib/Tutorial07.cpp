@@ -11,13 +11,8 @@ namespace intel_vulkan {
 
 VulkanTutorial07Parameters::VulkanTutorial07Parameters()
         : m_vk_render_pass(VK_NULL_HANDLE)
-        , m_image_parameters()
-        , m_uniform_buffer()
-        , m_descriptor_set_parameters()
         , m_vk_pipeline_layout(VK_NULL_HANDLE)
         , m_vk_graphics_pipeline(VK_NULL_HANDLE)
-        , m_vertex_buffer()
-        , m_staging_buffer()
         , m_vk_command_pool(VK_NULL_HANDLE)
         , m_rendering_resources(resources_count) {}
 
@@ -139,7 +134,7 @@ void VulkanTutorial07Parameters::setRenderingResources(
     m_rendering_resources = rendering_resources;
 }
 
-Tutorial07::Tutorial07() {}
+Tutorial07::Tutorial07() = default;
 
 Tutorial07::~Tutorial07() { childClear(); }
 
@@ -601,7 +596,7 @@ bool Tutorial07::createTexture() {
     int width = 0, height = 0, data_size = 0;
     std::vector<char> texture_data = Tools::getImageData(
             "texture.07.png", 4, &width, &height, nullptr, &data_size);
-    if (texture_data.size() == 0) {
+    if (texture_data.empty()) {
         return false;
     }
 
@@ -1010,7 +1005,7 @@ bool Tutorial07::createPipelineLayout() {
 Tools::AutoDeleter<VkShaderModule, PFN_vkDestroyShaderModule>
 Tutorial07::createShaderModule(const char* filename) {
     const std::vector<char> code = Tools::getBinaryFileContents(filename);
-    if (code.size() == 0) {
+    if (code.empty()) {
         return Tools::AutoDeleter<VkShaderModule, PFN_vkDestroyShaderModule>();
     }
 

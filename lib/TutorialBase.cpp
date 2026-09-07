@@ -200,7 +200,6 @@ void RenderingResourceParameters::setVkFence(const VkFence& vk_fence) {
 SwapChainParameters::SwapChainParameters()
         : m_vk_swapchain_khr(VK_NULL_HANDLE)
         , m_vk_format(VK_FORMAT_UNDEFINED)
-        , m_image_parameters{}
         , m_vk_extent_2d() {}
 
 const VkSwapchainKHR& SwapChainParameters::getVkSwapchainKhr() const {
@@ -248,10 +247,7 @@ TutorialBaseParameters::TutorialBaseParameters()
         : m_vk_instance(VK_NULL_HANDLE)
         , m_vk_physical_device(VK_NULL_HANDLE)
         , m_vk_device(VK_NULL_HANDLE)
-        , m_graphics_queue_parameters()
-        , m_present_queue_parameters()
-        , m_vk_surface_khr(VK_NULL_HANDLE)
-        , m_swapchain_parameters() {}
+        , m_vk_surface_khr(VK_NULL_HANDLE) {}
 
 const VkInstance& TutorialBaseParameters::getVkInstance() const {
     return m_vk_instance;
@@ -348,8 +344,6 @@ void TutorialBaseParameters::setVkDebugUtilsMessenger(
 TutorialBase::TutorialBase()
         : LoggedClass<TutorialBase>(*this)
         , m_vulkan_library_handle()
-        , m_window_parameters()
-        , m_vulkan_common_parameters()
         , m_enable_vk_debug(true) {}
 
 TutorialBase::~TutorialBase() {
@@ -448,10 +442,7 @@ bool TutorialBase::prepareVulkan(os::WindowParameters parameters) {
         return false;
     }
     Logging::info(LOG_TAG, "createSwapChain()");
-    if (!createSwapChain()) {
-        return false;
-    }
-    return true;
+    return createSwapChain();
 }
 
 bool TutorialBase::onWindowSizeChanged() {
@@ -512,11 +503,12 @@ bool TutorialBase::loadVulkanLibrary() {
 bool TutorialBase::loadExportedEntryPoints() {
 #define LoadProcAddress dlsym
 
-#define VK_EXPORTED_FUNCTION(fun)                                             \
-    if (!(fun = (PFN_##fun)LoadProcAddress(m_vulkan_library_handle, #fun))) { \
-        Logging::error(                                                       \
-                LOG_TAG, "Could not load exported function:", #fun, "!");     \
-        return false;                                                         \
+#define VK_EXPORTED_FUNCTION(fun)                                         \
+    if (!((fun) = (PFN_##fun)LoadProcAddress(m_vulkan_library_handle,     \
+                                             #fun))) {                    \
+        Logging::error(                                                   \
+                LOG_TAG, "Could not load exported function:", #fun, "!"); \
+        return false;                                                     \
     }
 
 #include "intel_vulkan/ListOfFunctions.inl"
@@ -525,13 +517,13 @@ bool TutorialBase::loadExportedEntryPoints() {
 }
 
 bool TutorialBase::loadGlobalLevelEntryPoints() {
-#define VK_GLOBAL_LEVEL_FUNCTION(fun)                               \
-    if (!(fun = (PFN_##fun)vkGetInstanceProcAddr(nullptr, #fun))) { \
-        Logging::error(LOG_TAG,                                     \
-                       "Could not load global level function: ",    \
-                       #fun,                                        \
-                       "!");                                        \
-        return false;                                               \
+#define VK_GLOBAL_LEVEL_FUNCTION(fun)                                 \
+    if (!((fun) = (PFN_##fun)vkGetInstanceProcAddr(nullptr, #fun))) { \
+        Logging::error(LOG_TAG,                                       \
+                       "Could not load global level function: ",      \
+                       #fun,                                          \
+                       "!");                                          \
+        return false;                                                 \
     }
 
 #include "intel_vulkan/ListOfFunctions.inl"
@@ -624,7 +616,7 @@ bool TutorialBase::createInstance() {
 
 bool TutorialBase::loadInstanceLevelEntryPoints() {
 #define VK_INSTANCE_LEVEL_FUNCTION(fun)                                 \
-    if (!(fun = (PFN_##fun)vkGetInstanceProcAddr(                       \
+    if (!((fun) = (PFN_##fun)vkGetInstanceProcAddr(                     \
                   m_vulkan_common_parameters.getVkInstance(), #fun))) { \
         Logging::error(LOG_TAG,                                         \
                        "Could not load instance level function:",       \
@@ -889,7 +881,7 @@ bool TutorialBase::checkPhysicalDeviceProperties(
 
 bool TutorialBase::loadDeviceLevelEntryPoints() {
 #define VK_DEVICE_LEVEL_FUNCTION(fun)                                         \
-    if (!(fun = (PFN_##fun)vkGetDeviceProcAddr(                               \
+    if (!((fun) = (PFN_##fun)vkGetDeviceProcAddr(                             \
                   m_vulkan_common_parameters.getVkDevice(), #fun))) {         \
         Logging::error(                                                       \
                 LOG_TAG, "Could not load device level function:", #fun, "!"); \
@@ -1375,10 +1367,10 @@ bool TutorialBase::checkValidationLayerSupport() const {
 
 static VKAPI_ATTR VkBool32 VKAPI_CALL
 debugCallback(VkDebugUtilsMessageSeverityFlagBitsEXT message_severity,
-              VkDebugUtilsMessageTypeFlagsEXT message_type,
+              VkDebugUtilsMessageTypeFlagsEXT /*message_type*/,
               const VkDebugUtilsMessengerCallbackDataEXT*
                       vk_debug_utils_messenger_callback_data_ext,
-              void* p_user_data) {
+              void* /*p_user_data*/) {
     static LogTag debug_log_tag("DebugCallback");
     static std::atomic<bool> log_tag_created(false);
     if (!log_tag_created.load()) {
@@ -1426,9 +1418,10 @@ bool TutorialBase::setupDebugMessenger() {
                  .pfnUserCallback = debugCallback};
 
         PFN_vkCreateDebugUtilsMessengerEXT func =
-                (PFN_vkCreateDebugUtilsMessengerEXT)vkGetInstanceProcAddr(
-                        m_vulkan_common_parameters.getVkInstance(),
-                        "vkCreateDebugUtilsMessengerEXT");
+                reinterpret_cast<PFN_vkCreateDebugUtilsMessengerEXT>(
+                        vkGetInstanceProcAddr(
+                                m_vulkan_common_parameters.getVkInstance(),
+                                "vkCreateDebugUtilsMessengerEXT"));
 
         VkResult vk_result = VK_SUCCESS;
         if (func != nullptr) {
@@ -1449,9 +1442,9 @@ bool TutorialBase::setupDebugMessenger() {
 
 bool TutorialBase::destroyDebugMessenger() {
     bool response = false;
-    auto func = (PFN_vkDestroyDebugUtilsMessengerEXT)vkGetInstanceProcAddr(
-            m_vulkan_common_parameters.getVkInstance(),
-            "vkDestroyDebugUtilsMessengerEXT");
+    auto func = reinterpret_cast<PFN_vkDestroyDebugUtilsMessengerEXT>(
+            vkGetInstanceProcAddr(m_vulkan_common_parameters.getVkInstance(),
+                                  "vkDestroyDebugUtilsMessengerEXT"));
     if (func != nullptr) {
         func(m_vulkan_common_parameters.getVkInstance(),
              m_vulkan_common_parameters.getVkDebugUtilsMessenger(),

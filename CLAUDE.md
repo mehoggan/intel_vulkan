@@ -96,10 +96,20 @@ This compiles `.vert` and `.frag` files to `.spv` format in the Data folder.
 ### Clang-Tidy
 
 Enabled checks focus on:
-- Bug detection (argument comments, uninitialized constructors, use-after-move)
-- Modern C++ practices (nullptr, override, move constructors)
-- Performance (range-based for loops, unnecessary copies)
-- Readability (const return types, identifier naming)
+- Bug detection (argument comments, uninitialized constructors, use-after-move,
+  dangling handles, swapped arguments, macro parentheses, unused return
+  values, throw-by-value/catch-by-reference)
+- Modern C++ practices (nullptr, override, move constructors, `using` over
+  `typedef`, `= default`/`= delete`, emplace over insert)
+- Performance (range-based for loops, unnecessary copies, inefficient vector
+  operations, non-noexcept move constructors)
+- Readability (const return types, identifier naming/length, container
+  `empty()` over `size() == 0`, redundant string `c_str()`, C-style casts)
+
+Not enabled: `cppcoreguidelines-*` cast/ownership checks, `modernize-loop-convert`,
+and `modernize-pass-by-value` — the Vulkan C API this project wraps leans on
+`reinterpret_cast`, index-based loops, and out-params in ways those checks
+flag without a real bug being present.
 
 Key naming conventions:
 - Functions: `camelBack`

@@ -129,10 +129,9 @@ private:
     }
 
 public:
-    typedef boost::log::sinks::synchronous_sink<
-            boost::log::sinks::text_ostream_backend>
-            TextSink;
-    typedef std::unordered_map<LogTag, boost::weak_ptr<TextSink>> Dict;
+    using TextSink = boost::log::sinks::synchronous_sink<
+            boost::log::sinks::text_ostream_backend>;
+    using Dict = std::unordered_map<LogTag, boost::weak_ptr<TextSink>>;
 
     /**
      * @brief Used to create a stdout source tied to a \ref LogTag.

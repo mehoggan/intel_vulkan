@@ -12,8 +12,6 @@ namespace intel_vulkan {
 VulkanTutorial05Parameters::VulkanTutorial05Parameters()
         : m_vk_render_pass(VK_NULL_HANDLE)
         , m_vk_graphics_pipeline(VK_NULL_HANDLE)
-        , m_vertex_buffer()
-        , m_staging_buffer()
         , m_vk_command_pool(VK_NULL_HANDLE)
         , m_rendering_resources(resources_count) {}
 
@@ -87,7 +85,7 @@ void VulkanTutorial05Parameters::setRenderingResources(
     m_rendering_resources = rendering_resources;
 }
 
-Tutorial05::Tutorial05() {}
+Tutorial05::Tutorial05() = default;
 
 Tutorial05::~Tutorial05() { childClear(); }
 
@@ -162,7 +160,7 @@ bool Tutorial05::createRenderPass() {
 Tools::AutoDeleter<VkShaderModule, PFN_vkDestroyShaderModule>
 Tutorial05::createShaderModule(const char* filename) {
     const std::vector<char> code = Tools::getBinaryFileContents(filename);
-    if (code.size() == 0) {
+    if (code.empty()) {
         return Tools::AutoDeleter<VkShaderModule, PFN_vkDestroyShaderModule>();
     }
 

@@ -21,7 +21,10 @@ public:
     AutoDeleter(T object, F deleter, VkDevice device)
             : Object(object), Deleter(deleter), Device(device) {}
 
-    AutoDeleter(AutoDeleter&& other) { *this = std::move(other); }
+    AutoDeleter(AutoDeleter&& other) noexcept { *this = std::move(other); }
+
+    AutoDeleter(const AutoDeleter&) = delete;
+    AutoDeleter& operator=(const AutoDeleter&) = delete;
 
     ~AutoDeleter() {
         if ((Object != VK_NULL_HANDLE) && (Deleter != nullptr) &&
@@ -30,7 +33,7 @@ public:
         }
     }
 
-    AutoDeleter& operator=(AutoDeleter&& other) {
+    AutoDeleter& operator=(AutoDeleter&& other) noexcept {
         if (this != &other) {
             Object = other.Object;
             Deleter = other.Deleter;
@@ -45,8 +48,6 @@ public:
     bool operator!() const { return Object == VK_NULL_HANDLE; }
 
 private:
-    AutoDeleter(const AutoDeleter&);
-    AutoDeleter& operator=(const AutoDeleter&);
     T Object;
     F Deleter;
     VkDevice Device;

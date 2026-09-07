@@ -12,7 +12,6 @@ namespace intel_vulkan {
 VulkanTutorial04Parameters::VulkanTutorial04Parameters()
         : m_vk_render_pass(VK_NULL_HANDLE)
         , m_vk_graphics_pipeline(VK_NULL_HANDLE)
-        , m_vertex_buffer()
         , m_vk_command_pool(VK_NULL_HANDLE)
         , m_rendering_resources(resources_count) {}
 
@@ -74,7 +73,7 @@ void VulkanTutorial04Parameters::setRenderingResources(
     m_rendering_resources = rendering_resources;
 }
 
-Tutorial04::Tutorial04() {}
+Tutorial04::Tutorial04() = default;
 
 Tutorial04::~Tutorial04() { childClear(); }
 
@@ -149,7 +148,7 @@ bool Tutorial04::createRenderPass() {
 Tools::AutoDeleter<VkShaderModule, PFN_vkDestroyShaderModule>
 Tutorial04::createShaderModule(const char* filename) {
     const std::vector<char> code = Tools::getBinaryFileContents(filename);
-    if (code.size() == 0) {
+    if (code.empty()) {
         return Tools::AutoDeleter<VkShaderModule, PFN_vkDestroyShaderModule>();
     }
 
@@ -493,12 +492,9 @@ bool Tutorial04::createCommandPool(std::uint32_t queue_family_index,
                      VK_COMMAND_POOL_CREATE_TRANSIENT_BIT,
             .queueFamilyIndex = queue_family_index};
 
-    if (vkCreateCommandPool(
-                getVkDevice(), &cmd_pool_create_info, nullptr, pool) !=
-        VK_SUCCESS) {
-        return false;
-    }
-    return true;
+    return vkCreateCommandPool(
+                   getVkDevice(), &cmd_pool_create_info, nullptr, pool) ==
+           VK_SUCCESS;
 }
 
 bool Tutorial04::allocateCommandBuffers(VkCommandPool pool,
@@ -511,12 +507,9 @@ bool Tutorial04::allocateCommandBuffers(VkCommandPool pool,
             .level = VK_COMMAND_BUFFER_LEVEL_PRIMARY,
             .commandBufferCount = count};
 
-    if (vkAllocateCommandBuffers(getVkDevice(),
-                                 &command_buffer_allocate_info,
-                                 command_buffers) != VK_SUCCESS) {
-        return false;
-    }
-    return true;
+    return vkAllocateCommandBuffers(getVkDevice(),
+                                    &command_buffer_allocate_info,
+                                    command_buffers) == VK_SUCCESS;
 }
 
 bool Tutorial04::createCommandBuffers() {

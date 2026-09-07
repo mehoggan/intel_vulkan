@@ -33,19 +33,18 @@ public:
         Logging::addStdCerrLogger(LOG_TAG, cerr_level);
     }
 
-    /**
-     * @brief dtor
-     */
-    virtual ~LoggedClass() {}
-
-protected:
-    LogTag LOG_TAG;
-
-private:
     LoggedClass(const LoggedClass& other) = delete;
     LoggedClass& operator=(const LoggedClass& rhs) = delete;
     LoggedClass(LoggedClass&& rhs) = delete;
     LoggedClass& operator=(LoggedClass&& rhs) = delete;
+
+    /**
+     * @brief dtor
+     */
+    virtual ~LoggedClass() = default;
+
+protected:
+    LogTag LOG_TAG;
 };
 }  // namespace intel_vulkan
 #endif

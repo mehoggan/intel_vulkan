@@ -111,59 +111,44 @@ std::vector<char> getImageData(std::string const& filename,
 //                                                              //
 // Function calculating perspective projection matrix           //
 // ************************************************************ //
-std::array<float, 16> getPerspectiveProjectionMatrix(float const aspect_ratio,
-                                                     float const field_of_view,
-                                                     float const near_clip,
-                                                     float const far_clip) {
+intel_vulkan::Math::Mat4<float> getPerspectiveProjectionMatrix(
+        float const aspect_ratio,
+        float const field_of_view,
+        float const near_clip,
+        float const far_clip) {
+    using intel_vulkan::Math::Vec4;
+
     float fov_value = 1.0f / std::tan(field_of_view * 0.5f *
                                       0.01745329251994329576923690768489f);
 
-    return {fov_value / aspect_ratio,
-            0.0f,
-            0.0f,
-            0.0f,
-
-            0.0f,
-            -fov_value,
-            0.0f,
-            0.0f,
-
-            0.0f,
-            0.0f,
-            far_clip / (near_clip - far_clip),
-            -1.0f,
-
-            0.0f,
-            0.0f,
-            (near_clip * far_clip) / (near_clip - far_clip),
-            0.0f};
+    return intel_vulkan::Math::Mat4<float>(
+            Vec4<float>(fov_value / aspect_ratio, 0.0f, 0.0f, 0.0f),
+            Vec4<float>(0.0f, -fov_value, 0.0f, 0.0f),
+            Vec4<float>(0.0f, 0.0f, far_clip / (near_clip - far_clip), -1.0f),
+            Vec4<float>(0.0f,
+                        0.0f,
+                        (near_clip * far_clip) / (near_clip - far_clip),
+                        0.0f));
 }
 
-std::array<float, 16> getOrthographicProjectionMatrix(float const left_plane,
-                                                      float const right_plane,
-                                                      float const top_plane,
-                                                      float const bottom_plane,
-                                                      float const near_plane,
-                                                      float const far_plane) {
-    return {2.0f / (right_plane - left_plane),
-            0.0f,
-            0.0f,
-            0.0f,
+intel_vulkan::Math::Mat4<float> getOrthographicProjectionMatrix(
+        float const left_plane,
+        float const right_plane,
+        float const top_plane,
+        float const bottom_plane,
+        float const near_plane,
+        float const far_plane) {
+    using intel_vulkan::Math::Vec4;
 
-            0.0f,
-            2.0f / (bottom_plane - top_plane),
-            0.0f,
-            0.0f,
-
-            0.0f,
-            0.0f,
-            1.0f / (near_plane - far_plane),
-            0.0f,
-
-            -(right_plane + left_plane) / (right_plane - left_plane),
-            -(bottom_plane + top_plane) / (bottom_plane - top_plane),
-            near_plane / (near_plane - far_plane),
-            1.0f};
+    return intel_vulkan::Math::Mat4<float>(
+            Vec4<float>(2.0f / (right_plane - left_plane), 0.0f, 0.0f, 0.0f),
+            Vec4<float>(0.0f, 2.0f / (bottom_plane - top_plane), 0.0f, 0.0f),
+            Vec4<float>(0.0f, 0.0f, 1.0f / (near_plane - far_plane), 0.0f),
+            Vec4<float>(
+                    -(right_plane + left_plane) / (right_plane - left_plane),
+                    -(bottom_plane + top_plane) / (bottom_plane - top_plane),
+                    near_plane / (near_plane - far_plane),
+                    1.0f));
 }
 
 }  // namespace intel_vulkan::Tools

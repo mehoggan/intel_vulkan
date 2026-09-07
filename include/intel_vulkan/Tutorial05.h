@@ -8,8 +8,10 @@
 #include <vulkan/vulkan.h>
 #include <vulkan/vulkan_core.h>
 
+#include "intel_vulkan/Math/MathTypes.hpp"
 #include "intel_vulkan/Tools.h"
 #include "intel_vulkan/TutorialBase.h"
+#include "intel_vulkan/VertexTypes/AttributeTraits.hpp"
 
 namespace intel_vulkan {
 
@@ -19,9 +21,12 @@ namespace intel_vulkan {
 // Struct describing data type and format of vertex attributes  //
 // ************************************************************ //
 struct VertexData {
-    float x, y, z, w;
-    float r, g, b, a;
+    Math::Vec4<float> position;
+    Math::Vec4<float> color;
 };
+
+using VertexAttributeTraits =
+        VertexTypes::AttributeTraits<Math::Vec4<float>, Math::Vec4<float>>;
 
 // ************************************************************ //
 // VulkanTutorial05Parameters                                   //
@@ -107,7 +112,7 @@ private:
     bool allocateBufferMemory(VkBuffer buffer,
                               VkMemoryPropertyFlags property,
                               VkDeviceMemory* memory);
-    const std::vector<float>& getVertexData() const;
+    const std::vector<VertexData>& getVertexData() const;
     bool prepareFrame(VkCommandBuffer command_buffer,
                       const ImageParameters& image_parameters,
                       VkFramebuffer& framebuffer);

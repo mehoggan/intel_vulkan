@@ -5,6 +5,8 @@
 #include <cstddef>
 #include <cstring>
 
+#include <glm/gtc/type_ptr.hpp>
+
 #include "intel_vulkan/VulkanFunctions.h"
 
 namespace intel_vulkan {
@@ -672,7 +674,7 @@ bool Tutorial07::createUniformBuffer() {
     return true;
 }
 
-std::array<float, 16> Tutorial07::getUniformBufferData() const {
+Math::Mat4<float> Tutorial07::getUniformBufferData() const {
     float half_width =
             static_cast<float>(
                     getSwapchainParameters().getVkExtent2d().width) *
@@ -687,7 +689,7 @@ std::array<float, 16> Tutorial07::getUniformBufferData() const {
 }
 
 bool Tutorial07::copyUniformBufferData() {
-    const std::array<float, 16> uniform_data = getUniformBufferData();
+    const Math::Mat4<float> uniform_data = getUniformBufferData();
     BufferParameters& uniform_buffer =
             m_vulkan_tutorial07_parameters.getUniformBufferParameters();
     BufferParameters& staging_buffer =
@@ -707,7 +709,7 @@ bool Tutorial07::copyUniformBufferData() {
     }
 
     std::memcpy(staging_buffer_memory_pointer,
-                uniform_data.data(),
+                glm::value_ptr(uniform_data),
                 uniform_buffer.getSize());
 
     VkMappedMemoryRange flush_range = {
@@ -1062,7 +1064,7 @@ bool Tutorial07::createPipeline() {
 
     std::vector<VkVertexInputBindingDescription> vertex_binding_descriptions =
             {{.binding = 0,
-              .stride = sizeof(VertexData),
+              .stride = VertexAttributeTraits::stride,
               .inputRate = VK_VERTEX_INPUT_RATE_VERTEX}};
 
     std::vector<VkVertexInputAttributeDescription>
@@ -1070,11 +1072,11 @@ bool Tutorial07::createPipeline() {
                     {.location = 0,
                      .binding = vertex_binding_descriptions[0].binding,
                      .format = VK_FORMAT_R32G32B32A32_SFLOAT,
-                     .offset = offsetof(struct VertexData, x)},
+                     .offset = offsetof(struct VertexData, position)},
                     {.location = 1,
                      .binding = vertex_binding_descriptions[0].binding,
                      .format = VK_FORMAT_R32G32_SFLOAT,
-                     .offset = offsetof(struct VertexData, u)}};
+                     .offset = offsetof(struct VertexData, texcoord)}};
 
     VkPipelineVertexInputStateCreateInfo vertex_input_state_create_info = {
             .sType = VK_STRUCTURE_TYPE_PIPELINE_VERTEX_INPUT_STATE_CREATE_INFO,
@@ -1201,40 +1203,22 @@ bool Tutorial07::createPipeline() {
     return true;
 }
 
-const std::vector<float>& Tutorial07::getVertexData() const {
-    static const std::vector<float> vertex_data = {-170.0f,
-                                                   -170.0f,
-                                                   0.0f,
-                                                   1.0f,
-                                                   -0.1f,
-                                                   -0.1f,
-                                                   //
-                                                   -170.0f,
-                                                   170.0f,
-                                                   0.0f,
-                                                   1.0f,
-                                                   -0.1f,
-                                                   1.1f,
-                                                   //
-                                                   170.0f,
-                                                   -170.0f,
-                                                   0.0f,
-                                                   1.0f,
-                                                   1.1f,
-                                                   -0.1f,
-                                                   //
-                                                   170.0f,
-                                                   170.0f,
-                                                   0.0f,
-                                                   1.0f,
-                                                   1.1f,
-                                                   1.1f};
+const std::vector<VertexData>& Tutorial07::getVertexData() const {
+    static const std::vector<VertexData> vertex_data = {
+            {Math::Vec4<float>(-170.0f, -170.0f, 0.0f, 1.0f),
+             Math::Vec2<float>(-0.1f, -0.1f)},
+            {Math::Vec4<float>(-170.0f, 170.0f, 0.0f, 1.0f),
+             Math::Vec2<float>(-0.1f, 1.1f)},
+            {Math::Vec4<float>(170.0f, -170.0f, 0.0f, 1.0f),
+             Math::Vec2<float>(1.1f, -0.1f)},
+            {Math::Vec4<float>(170.0f, 170.0f, 0.0f, 1.0f),
+             Math::Vec2<float>(1.1f, 1.1f)}};
 
     return vertex_data;
 }
 
 bool Tutorial07::copyVertexData() {
-    const std::vector<float>& vertex_data = getVertexData();
+    const std::vector<VertexData>& vertex_data = getVertexData();
     BufferParameters& vertex_buffer =
             m_vulkan_tutorial07_parameters.getVertexBufferParameters();
     BufferParameters& staging_buffer =
@@ -1333,7 +1317,7 @@ bool Tutorial07::copyVertexData() {
 }
 
 bool Tutorial07::createVertexBuffer() {
-    const std::vector<float>& vertex_data = getVertexData();
+    const std::vector<VertexData>& vertex_data = getVertexData();
 
     BufferParameters& vertex_buffer =
             m_vulkan_tutorial07_parameters.getVertexBufferParameters();

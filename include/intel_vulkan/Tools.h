@@ -1,11 +1,12 @@
 #ifndef INTEL_VULKAN_TOOLS_H
 #define INTEL_VULKAN_TOOLS_H
 
-#include <array>
 #include <string>
 #include <vector>
 
 #include <vulkan/vulkan.h>
+
+#include "intel_vulkan/Math/MathTypes.hpp"
 
 // TODO (mehoggan@gmail.com): This file needs to be doccumented.
 
@@ -62,17 +63,19 @@ std::vector<char> getImageData(std::string const& filename,
                                int* components,
                                int* data_size);
 
-std::array<float, 16> getPerspectiveProjectionMatrix(float const aspect_ratio,
-                                                     float const field_of_view,
-                                                     float const near_clip,
-                                                     float const far_clip);
+intel_vulkan::Math::Mat4<float> getPerspectiveProjectionMatrix(
+        float const aspect_ratio,
+        float const field_of_view,
+        float const near_clip,
+        float const far_clip);
 
-std::array<float, 16> getOrthographicProjectionMatrix(float const left_plane,
-                                                      float const right_plane,
-                                                      float const top_plane,
-                                                      float const bottom_plane,
-                                                      float const near_plane,
-                                                      float const far_plane);
+intel_vulkan::Math::Mat4<float> getOrthographicProjectionMatrix(
+        float const left_plane,
+        float const right_plane,
+        float const top_plane,
+        float const bottom_plane,
+        float const near_plane,
+        float const far_plane);
 
 }  // namespace intel_vulkan::Tools
 

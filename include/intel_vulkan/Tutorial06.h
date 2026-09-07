@@ -8,8 +8,10 @@
 #include <vulkan/vulkan.h>
 #include <vulkan/vulkan_core.h>
 
+#include "intel_vulkan/Math/MathTypes.hpp"
 #include "intel_vulkan/Tools.h"
 #include "intel_vulkan/TutorialBase.h"
+#include "intel_vulkan/VertexTypes/AttributeTraits.hpp"
 
 namespace intel_vulkan {
 
@@ -19,9 +21,12 @@ namespace intel_vulkan {
 // Struct describing data type and format of vertex attributes  //
 // ************************************************************ //
 struct VertexData {
-    float x, y, z, w;
-    float u, v;
+    Math::Vec4<float> position;
+    Math::Vec2<float> texcoord;
 };
+
+using VertexAttributeTraits =
+        VertexTypes::AttributeTraits<Math::Vec4<float>, Math::Vec2<float>>;
 
 // ************************************************************ //
 // VulkanTutorial06Parameters                                   //
@@ -138,7 +143,7 @@ private:
                          std::uint32_t height);
     Tools::AutoDeleter<VkShaderModule, PFN_vkDestroyShaderModule>
     createShaderModule(const char* filename);
-    const std::vector<float>& getVertexData() const;
+    const std::vector<VertexData>& getVertexData() const;
     bool copyVertexData();
     bool prepareFrame(VkCommandBuffer command_buffer,
                       const ImageParameters& image_parameters,

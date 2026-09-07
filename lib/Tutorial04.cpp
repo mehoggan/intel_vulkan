@@ -230,7 +230,7 @@ bool Tutorial04::createPipeline() {
 
     std::vector<VkVertexInputBindingDescription> vertex_binding_descriptions =
             {{.binding = 0,
-              .stride = sizeof(VertexData),
+              .stride = VertexAttributeTraits::stride,
               .inputRate = VK_VERTEX_INPUT_RATE_VERTEX}};
 
     std::vector<VkVertexInputAttributeDescription>
@@ -238,11 +238,11 @@ bool Tutorial04::createPipeline() {
                     {.location = 0,
                      .binding = vertex_binding_descriptions[0].binding,
                      .format = VK_FORMAT_R32G32B32A32_SFLOAT,
-                     .offset = offsetof(struct VertexData, x)},
+                     .offset = offsetof(struct VertexData, position)},
                     {.location = 1,
                      .binding = vertex_binding_descriptions[0].binding,
                      .format = VK_FORMAT_R32G32B32A32_SFLOAT,
-                     .offset = offsetof(struct VertexData, r)}};
+                     .offset = offsetof(struct VertexData, color)}};
 
     VkPipelineVertexInputStateCreateInfo vertex_input_state_create_info = {
             .sType = VK_STRUCTURE_TYPE_PIPELINE_VERTEX_INPUT_STATE_CREATE_INFO,
@@ -407,11 +407,14 @@ bool Tutorial04::allocateBufferMemory(VkBuffer buffer,
 }
 
 bool Tutorial04::createVertexBuffer() {
-    VertexData vertex_data[] = {
-            {-0.7f, -0.7f, 0.0f, 1.0f, 1.0f, 0.0f, 0.0f, 0.0f},
-            {-0.7f, 0.7f, 0.0f, 1.0f, 0.0f, 1.0f, 0.0f, 0.0f},
-            {0.7f, -0.7f, 0.0f, 1.0f, 0.0f, 0.0f, 1.0f, 0.0f},
-            {0.7f, 0.7f, 0.0f, 1.0f, 0.3f, 0.3f, 0.3f, 0.0f}};
+    VertexData vertex_data[] = {{Math::Vec4<float>(-0.7f, -0.7f, 0.0f, 1.0f),
+                                 Math::Vec4<float>(1.0f, 0.0f, 0.0f, 0.0f)},
+                                {Math::Vec4<float>(-0.7f, 0.7f, 0.0f, 1.0f),
+                                 Math::Vec4<float>(0.0f, 1.0f, 0.0f, 0.0f)},
+                                {Math::Vec4<float>(0.7f, -0.7f, 0.0f, 1.0f),
+                                 Math::Vec4<float>(0.0f, 0.0f, 1.0f, 0.0f)},
+                                {Math::Vec4<float>(0.7f, 0.7f, 0.0f, 1.0f),
+                                 Math::Vec4<float>(0.3f, 0.3f, 0.3f, 0.0f)}};
 
     BufferParameters& vertex_buffer =
             m_vulkan_tutorial04_parameters.getVertexBufferParameters();

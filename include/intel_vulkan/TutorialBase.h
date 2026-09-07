@@ -127,13 +127,16 @@ public:
     VkCommandBuffer& getVkCommandBuffer();
     void setVkCommandBuffer(const VkCommandBuffer& vk_command_buffer);
 
+    // Note: no "finished rendering" semaphore here on purpose. That
+    // semaphore is signaled by a submit and waited on by a swapchain
+    // present, so it must be indexed by the acquired swapchain image, not
+    // by frame-in-flight/rendering-resource slot; each tutorial that needs
+    // one keeps its own std::vector<VkSemaphore> sized to the swapchain's
+    // image count instead. See the comment in e.g. Tutorial04::
+    // createSemaphores() for the full rationale.
     const VkSemaphore& getImageAvailableVkSemaphore() const;
     VkSemaphore& getImageAvailableVkSemaphore();
     void setImageAvailableVkSemaphore(const VkSemaphore& vk_semaphore);
-
-    const VkSemaphore& getFinishedRenderingVkSemaphore() const;
-    VkSemaphore& getFinishedRenderingVkSemaphore();
-    void setFinishedRenderingVkSemaphore(const VkSemaphore& vk_semaphore);
 
     const VkFence& getVkFence() const;
     VkFence& getVkFence();
@@ -143,7 +146,6 @@ private:
     VkFramebuffer m_vk_framebuffer;
     VkCommandBuffer m_vk_command_buffer;
     VkSemaphore m_image_available_vk_semaphore;
-    VkSemaphore m_finished_rendering_vk_semaphore;
     VkFence m_vk_fence;
 };
 

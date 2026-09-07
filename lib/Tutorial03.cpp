@@ -11,7 +11,8 @@ VulkanTutorial03Parameters::VulkanTutorial03Parameters()
         , m_vk_framebuffers({})
         , m_vk_pipeline(VK_NULL_HANDLE)
         , m_image_available_vk_semaphore(VK_NULL_HANDLE)
-        , m_rendering_finished_vk_semaphore(VK_NULL_HANDLE)
+        , m_rendering_finished_semaphores({})
+        , m_vk_fence(VK_NULL_HANDLE)
         , m_vk_command_pool(VK_NULL_HANDLE)
         , m_vk_command_buffers({}) {}
 
@@ -60,16 +61,25 @@ void VulkanTutorial03Parameters::setImageAvailableVkSemaphore(
     m_image_available_vk_semaphore = vk_semaphore;
 }
 
-const VkSemaphore&
-VulkanTutorial03Parameters::getRenderingFinishedVkSemaphore() const {
-    return m_rendering_finished_vk_semaphore;
+const std::vector<VkSemaphore>&
+VulkanTutorial03Parameters::getRenderingFinishedSemaphores() const {
+    return m_rendering_finished_semaphores;
 }
-VkSemaphore& VulkanTutorial03Parameters::getRenderingFinishedVkSemaphore() {
-    return m_rendering_finished_vk_semaphore;
+std::vector<VkSemaphore>&
+VulkanTutorial03Parameters::getRenderingFinishedSemaphores() {
+    return m_rendering_finished_semaphores;
 }
-void VulkanTutorial03Parameters::setRenderingFinishedVkSemaphore(
-        const VkSemaphore& vk_semaphore) {
-    m_rendering_finished_vk_semaphore = vk_semaphore;
+void VulkanTutorial03Parameters::setRenderingFinishedSemaphores(
+        const std::vector<VkSemaphore>& rendering_finished_semaphores) {
+    m_rendering_finished_semaphores = rendering_finished_semaphores;
+}
+
+const VkFence& VulkanTutorial03Parameters::getVkFence() const {
+    return m_vk_fence;
+}
+VkFence& VulkanTutorial03Parameters::getVkFence() { return m_vk_fence; }
+void VulkanTutorial03Parameters::setVkFence(const VkFence& vk_fence) {
+    m_vk_fence = vk_fence;
 }
 
 const VkCommandPool& VulkanTutorial03Parameters::getVkCommandPool() const {
@@ -112,12 +122,23 @@ Tutorial03::~Tutorial03() {
                                nullptr);
         }
 
-        if (m_vulkan_tutorial03_parameters.getRenderingFinishedVkSemaphore() !=
-            VK_NULL_HANDLE) {
-            vkDestroySemaphore(getVkDevice(),
-                               m_vulkan_tutorial03_parameters
-                                       .getRenderingFinishedVkSemaphore(),
-                               nullptr);
+        std::vector<VkSemaphore>& rendering_finished_semaphores =
+                m_vulkan_tutorial03_parameters
+                        .getRenderingFinishedSemaphores();
+        for (std::size_t i = 0; i < rendering_finished_semaphores.size();
+             ++i) {
+            if (rendering_finished_semaphores[i] != VK_NULL_HANDLE) {
+                vkDestroySemaphore(getVkDevice(),
+                                   rendering_finished_semaphores[i],
+                                   nullptr);
+            }
+        }
+        rendering_finished_semaphores.clear();
+
+        if (m_vulkan_tutorial03_parameters.getVkFence() != VK_NULL_HANDLE) {
+            vkDestroyFence(getVkDevice(),
+                           m_vulkan_tutorial03_parameters.getVkFence(),
+                           nullptr);
         }
     }
 }
@@ -369,19 +390,50 @@ bool Tutorial03::createSemaphores() {
             .pNext = nullptr,
             .flags = 0};
 
-    if ((vkCreateSemaphore(getVkDevice(),
-                           &semaphore_create_info,
-                           nullptr,
-                           &m_vulkan_tutorial03_parameters
-                                    .getImageAvailableVkSemaphore()) !=
-         VK_SUCCESS) ||
-        (vkCreateSemaphore(getVkDevice(),
-                           &semaphore_create_info,
-                           nullptr,
-                           &m_vulkan_tutorial03_parameters
-                                    .getRenderingFinishedVkSemaphore()) !=
-         VK_SUCCESS)) {
+    if (vkCreateSemaphore(getVkDevice(),
+                          &semaphore_create_info,
+                          nullptr,
+                          &m_vulkan_tutorial03_parameters
+                                   .getImageAvailableVkSemaphore()) !=
+        VK_SUCCESS) {
         Logging::error(LOG_TAG, "Could not create semaphores!");
+        return false;
+    }
+
+    // A "rendering finished" semaphore must be indexed by the acquired
+    // swapchain image, not reused as a single semaphore every frame: the
+    // fence below only guarantees the GPU has finished this submit, not
+    // that the presentation engine has finished consuming the *previous*
+    // signal on this same semaphore object, since present completion isn't
+    // tracked by any fence here. See
+    // https://docs.vulkan.org/guide/latest/swapchain_semaphore_reuse.html
+    std::vector<VkSemaphore>& rendering_finished_semaphores =
+            m_vulkan_tutorial03_parameters.getRenderingFinishedSemaphores();
+    rendering_finished_semaphores.assign(
+            getSwapchainParameters().getImageParameters().size(),
+            VK_NULL_HANDLE);
+    for (std::size_t i = 0; i < rendering_finished_semaphores.size(); ++i) {
+        if (vkCreateSemaphore(getVkDevice(),
+                              &semaphore_create_info,
+                              nullptr,
+                              &rendering_finished_semaphores[i]) !=
+            VK_SUCCESS) {
+            Logging::error(LOG_TAG, "Could not create semaphores!");
+            return false;
+        }
+    }
+
+    VkFenceCreateInfo fence_create_info = {
+            .sType = VK_STRUCTURE_TYPE_FENCE_CREATE_INFO,
+            .pNext = nullptr,
+            .flags = VK_FENCE_CREATE_SIGNALED_BIT};
+
+    if (vkCreateFence(getVkDevice(),
+                      &fence_create_info,
+                      nullptr,
+                      &m_vulkan_tutorial03_parameters.getVkFence()) !=
+        VK_SUCCESS) {
+        Logging::error(LOG_TAG, "Could not create a fence!");
         return false;
     }
 
@@ -538,6 +590,17 @@ bool Tutorial03::draw() {
     VkSwapchainKHR swap_chain = getSwapchainParameters().getVkSwapchainKhr();
     std::uint32_t image_index;
 
+    if (vkWaitForFences(getVkDevice(),
+                        1,
+                        &m_vulkan_tutorial03_parameters.getVkFence(),
+                        VK_FALSE,
+                        1000000000) != VK_SUCCESS) {
+        Logging::error(LOG_TAG, "Waiting for fence takes too long!");
+        return false;
+    }
+    vkResetFences(
+            getVkDevice(), 1, &m_vulkan_tutorial03_parameters.getVkFence());
+
     VkResult result = vkAcquireNextImageKHR(
             getVkDevice(),
             swap_chain,
@@ -558,6 +621,10 @@ bool Tutorial03::draw() {
             return false;
     }
 
+    VkSemaphore& rendering_finished_semaphore =
+            m_vulkan_tutorial03_parameters
+                    .getRenderingFinishedSemaphores()[image_index];
+
     VkPipelineStageFlags wait_dst_stage_mask =
             VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT;
     VkSubmitInfo submit_info = {
@@ -571,13 +638,13 @@ bool Tutorial03::draw() {
             .pCommandBuffers = &m_vulkan_tutorial03_parameters
                                         .getVkCommandBuffers()[image_index],
             .signalSemaphoreCount = 1,
-            .pSignalSemaphores = &m_vulkan_tutorial03_parameters
-                                          .getRenderingFinishedVkSemaphore()};
+            .pSignalSemaphores = &rendering_finished_semaphore};
 
     if (vkQueueSubmit(getGraphicsQueueParameters().getVkQueue(),
                       1,
                       &submit_info,
-                      VK_NULL_HANDLE) != VK_SUCCESS) {
+                      m_vulkan_tutorial03_parameters.getVkFence()) !=
+        VK_SUCCESS) {
         return false;
     }
 
@@ -585,8 +652,7 @@ bool Tutorial03::draw() {
             .sType = VK_STRUCTURE_TYPE_PRESENT_INFO_KHR,
             .pNext = nullptr,
             .waitSemaphoreCount = 1,
-            .pWaitSemaphores = &m_vulkan_tutorial03_parameters
-                                        .getRenderingFinishedVkSemaphore(),
+            .pWaitSemaphores = &rendering_finished_semaphore,
             .swapchainCount = 1,
             .pSwapchains = &swap_chain,
             .pImageIndices = &image_index,

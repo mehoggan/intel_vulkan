@@ -134,7 +134,6 @@ RenderingResourceParameters::RenderingResourceParameters()
         : m_vk_framebuffer(VK_NULL_HANDLE)
         , m_vk_command_buffer(VK_NULL_HANDLE)
         , m_image_available_vk_semaphore(VK_NULL_HANDLE)
-        , m_finished_rendering_vk_semaphore(VK_NULL_HANDLE)
         , m_vk_fence(VK_NULL_HANDLE) {}
 
 const VkFramebuffer& RenderingResourceParameters::getVkFramebuffer() const {
@@ -170,18 +169,6 @@ VkSemaphore& RenderingResourceParameters::getImageAvailableVkSemaphore() {
 void RenderingResourceParameters::setImageAvailableVkSemaphore(
         const VkSemaphore& vk_semaphore) {
     m_image_available_vk_semaphore = vk_semaphore;
-}
-
-const VkSemaphore&
-RenderingResourceParameters::getFinishedRenderingVkSemaphore() const {
-    return m_finished_rendering_vk_semaphore;
-}
-VkSemaphore& RenderingResourceParameters::getFinishedRenderingVkSemaphore() {
-    return m_finished_rendering_vk_semaphore;
-}
-void RenderingResourceParameters::setFinishedRenderingVkSemaphore(
-        const VkSemaphore& vk_semaphore) {
-    m_finished_rendering_vk_semaphore = vk_semaphore;
 }
 
 const VkFence& RenderingResourceParameters::getVkFence() const {

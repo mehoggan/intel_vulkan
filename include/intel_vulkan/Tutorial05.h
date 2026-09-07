@@ -65,6 +65,14 @@ public:
     void setRenderingResources(const std::vector<RenderingResourceParameters>&
                                        rendering_resources);
 
+    // One per swapchain image, indexed by acquired image index rather than
+    // by rendering-resource slot. See the comment in createSemaphores() for
+    // why this can't just live in RenderingResourceParameters.
+    const std::vector<VkSemaphore>& getFinishedRenderingSemaphores() const;
+    std::vector<VkSemaphore>& getFinishedRenderingSemaphores();
+    void setFinishedRenderingSemaphores(
+            const std::vector<VkSemaphore>& finished_rendering_semaphores);
+
 private:
     VkRenderPass m_vk_render_pass;
     VkPipeline m_vk_graphics_pipeline;
@@ -72,6 +80,7 @@ private:
     BufferParameters m_staging_buffer;
     VkCommandPool m_vk_command_pool;
     std::vector<RenderingResourceParameters> m_rendering_resources;
+    std::vector<VkSemaphore> m_finished_rendering_semaphores;
 };
 
 // ************************************************************ //

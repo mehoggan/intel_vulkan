@@ -1,8 +1,8 @@
-#include "intel_vulkan/AttributeTraits.hpp"
-#include "intel_vulkan/BatchData.hpp"
-#include "intel_vulkan/Indices.hpp"
-#include "intel_vulkan/InterleavedData.hpp"
-#include "intel_vulkan/InterleavedDatum.hpp"
+#include "intel_vulkan/VertexTypes/AttributeTraits.hpp"
+#include "intel_vulkan/VertexTypes/BatchData.hpp"
+#include "intel_vulkan/VertexTypes/Indices.hpp"
+#include "intel_vulkan/VertexTypes/InterleavedData.hpp"
+#include "intel_vulkan/VertexTypes/InterleavedDatum.hpp"
 
 #include <cstddef>
 #include <cstdint>

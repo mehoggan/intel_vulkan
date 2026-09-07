@@ -486,7 +486,7 @@ bool Tutorial06::copyTextureData(char* texture_data,
     if (vkMapMemory(getVkDevice(),
                     staging_buffer.getVkDeviceMemory(),
                     0,
-                    data_size,
+                    VK_WHOLE_SIZE,
                     0,
                     &staging_buffer_memory_pointer) != VK_SUCCESS) {
         Logging::error(LOG_TAG,
@@ -502,7 +502,7 @@ bool Tutorial06::copyTextureData(char* texture_data,
             .pNext = nullptr,
             .memory = staging_buffer.getVkDeviceMemory(),
             .offset = 0,
-            .size = data_size};
+            .size = VK_WHOLE_SIZE};
     vkFlushMappedMemoryRanges(getVkDevice(), 1, &flush_range);
 
     vkUnmapMemory(getVkDevice(), staging_buffer.getVkDeviceMemory());
@@ -1086,7 +1086,7 @@ bool Tutorial06::copyVertexData() {
     if (vkMapMemory(getVkDevice(),
                     staging_buffer.getVkDeviceMemory(),
                     0,
-                    vertex_buffer.getSize(),
+                    VK_WHOLE_SIZE,
                     0,
                     &staging_buffer_memory_pointer) != VK_SUCCESS) {
         Logging::error(
@@ -1104,7 +1104,7 @@ bool Tutorial06::copyVertexData() {
             .pNext = nullptr,
             .memory = staging_buffer.getVkDeviceMemory(),
             .offset = 0,
-            .size = vertex_buffer.getSize()};
+            .size = VK_WHOLE_SIZE};
     vkFlushMappedMemoryRanges(getVkDevice(), 1, &flush_range);
 
     vkUnmapMemory(getVkDevice(), staging_buffer.getVkDeviceMemory());

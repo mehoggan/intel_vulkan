@@ -1655,14 +1655,53 @@ void Tutorial07::destroyBuffer(BufferParameters& buffer) {
 }
 
 bool Tutorial07::childOnWindowSizeChanged() {
-    BufferParameters& staging_buffer =
-            m_vulkan_tutorial07_parameters.getStagingBufferParameters();
-    if ((getVkDevice() != VK_NULL_HANDLE) &&
-        (staging_buffer.getVkBuffer() != VK_NULL_HANDLE)) {
-        vkDeviceWaitIdle(getVkDevice());
-        return copyUniformBufferData();
+    if (getVkDevice() == VK_NULL_HANDLE) {
+        return true;
     }
-    return true;
+    vkDeviceWaitIdle(getVkDevice());
+
+    // TutorialBase::onWindowSizeChanged() calls childClear() unconditionally
+    // before this runs, which tears down every Vulkan object this tutorial
+    // owns (fences, semaphores, command pool, pipeline, render pass,
+    // descriptor set, vertex/staging/uniform buffers, texture image) - not
+    // just the swapchain. Everything has to be rebuilt here, in the same
+    // order as tutorial07_main.cpp's initial setup. createUniformBuffer()
+    // re-uploads fresh data (aspect-ratio-dependent) as part of its own
+    // sequence, so there's no separate copyUniformBufferData() call needed.
+    if (!createRenderingResources()) {
+        return false;
+    }
+    if (!createStagingBuffer()) {
+        return false;
+    }
+    if (!createTexture()) {
+        return false;
+    }
+    if (!createUniformBuffer()) {
+        return false;
+    }
+    if (!createDescriptorSetLayout()) {
+        return false;
+    }
+    if (!createDescriptorPool()) {
+        return false;
+    }
+    if (!allocateDescriptorSet()) {
+        return false;
+    }
+    if (!updateDescriptorSet()) {
+        return false;
+    }
+    if (!createRenderPass()) {
+        return false;
+    }
+    if (!createPipelineLayout()) {
+        return false;
+    }
+    if (!createPipeline()) {
+        return false;
+    }
+    return createVertexBuffer();
 }
 
 void Tutorial07::childClear() {

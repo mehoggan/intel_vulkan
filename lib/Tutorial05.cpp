@@ -1103,6 +1103,35 @@ void Tutorial05::childClear() {
     }
 }
 
-bool Tutorial05::childOnWindowSizeChanged() { return true; }
+bool Tutorial05::childOnWindowSizeChanged() {
+    if (getVkDevice() == VK_NULL_HANDLE) {
+        return true;
+    }
+    vkDeviceWaitIdle(getVkDevice());
+
+    // TutorialBase::onWindowSizeChanged() calls childClear() unconditionally
+    // before this runs, which tears down every Vulkan object this tutorial
+    // owns (fences, semaphores, command pool, pipeline, render pass, vertex
+    // and staging buffers) - not just the swapchain. Everything has to be
+    // rebuilt here, in the same order as tutorial05_main.cpp's initial
+    // setup (rendering resources first, since copyVertexData() borrows
+    // rendering_resources[0]'s command buffer).
+    if (!createRenderingResources()) {
+        return false;
+    }
+    if (!createRenderPass()) {
+        return false;
+    }
+    if (!createPipeline()) {
+        return false;
+    }
+    if (!createVertexBuffer()) {
+        return false;
+    }
+    if (!createStagingBuffer()) {
+        return false;
+    }
+    return copyVertexData();
+}
 
 }  // namespace intel_vulkan

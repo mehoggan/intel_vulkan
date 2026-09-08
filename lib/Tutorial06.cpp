@@ -1481,7 +1481,50 @@ void Tutorial06::destroyBuffer(BufferParameters& buffer) {
     }
 }
 
-bool Tutorial06::childOnWindowSizeChanged() { return true; }
+bool Tutorial06::childOnWindowSizeChanged() {
+    if (getVkDevice() == VK_NULL_HANDLE) {
+        return true;
+    }
+    vkDeviceWaitIdle(getVkDevice());
+
+    // TutorialBase::onWindowSizeChanged() calls childClear() unconditionally
+    // before this runs, which tears down every Vulkan object this tutorial
+    // owns (fences, semaphores, command pool, pipeline, render pass,
+    // descriptor set, vertex/staging buffers, texture image) - not just the
+    // swapchain. Everything has to be rebuilt here, in the same order as
+    // tutorial06_main.cpp's initial setup.
+    if (!createRenderingResources()) {
+        return false;
+    }
+    if (!createStagingBuffer()) {
+        return false;
+    }
+    if (!createTexture()) {
+        return false;
+    }
+    if (!createDescriptorSetLayout()) {
+        return false;
+    }
+    if (!createDescriptorPool()) {
+        return false;
+    }
+    if (!allocateDescriptorSet()) {
+        return false;
+    }
+    if (!updateDescriptorSet()) {
+        return false;
+    }
+    if (!createRenderPass()) {
+        return false;
+    }
+    if (!createPipelineLayout()) {
+        return false;
+    }
+    if (!createPipeline()) {
+        return false;
+    }
+    return createVertexBuffer();
+}
 
 void Tutorial06::childClear() {
     if (getVkDevice() == VK_NULL_HANDLE) {

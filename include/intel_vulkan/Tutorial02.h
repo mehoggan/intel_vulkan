@@ -73,10 +73,18 @@ public:
     void setImageAvailableVkSemaphore(
             const VkSemaphore& image_available_vk_semaphore);
 
-    const VkSemaphore& getRenderingFinishedVkSemaphore() const;
-    VkSemaphore& getRenderingFinishedVkSemaphore();
-    void setRenderingFinishedVkSemaphore(
-            const VkSemaphore& rendering_finished_vk_semaphore);
+    // One per swapchain image, indexed by acquired image index rather than
+    // a single semaphore reused every frame. See the comment in
+    // Tutorial02::createCommandBuffers() for why a single semaphore isn't
+    // safe here.
+    const std::vector<VkSemaphore>& getRenderingFinishedSemaphores() const;
+    std::vector<VkSemaphore>& getRenderingFinishedSemaphores();
+    void setRenderingFinishedSemaphores(
+            const std::vector<VkSemaphore>& rendering_finished_semaphores);
+
+    const VkFence& getVkFence() const;
+    VkFence& getVkFence();
+    void setVkFence(const VkFence& vk_fence);
 
     const VkDebugUtilsMessengerEXT& getVkDebugUtilsMessenger() const;
     VkDebugUtilsMessengerEXT& getVkDebugUtilsMessenger();
@@ -96,7 +104,8 @@ private:
     std::vector<VkCommandBuffer> m_present_queue_vk_command_buffers;
     VkCommandPool m_present_queue_vk_command_pool;
     VkSemaphore m_image_available_vk_semaphore;
-    VkSemaphore m_rendering_finished_vk_semaphore;
+    std::vector<VkSemaphore> m_rendering_finished_semaphores;
+    VkFence m_vk_fence;
     VkDebugUtilsMessengerEXT m_vk_debug_utils_messenger;
 };
 

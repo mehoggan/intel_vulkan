@@ -17,6 +17,10 @@ public:
     Vec3<T> const& p1() const { return m_point1; }
     Vec3<T> const& p2() const { return m_point2; }
 
+    Vec3<T> centroid() const {
+        return (m_point0 + m_point1 + m_point2) / T(3);
+    }
+
 private:
     Vec3<T> m_point0;
     Vec3<T> m_point1;

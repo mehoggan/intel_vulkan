@@ -3,6 +3,7 @@
 #include "intel_vulkan/Math/CubicCurve.hpp"
 #include "intel_vulkan/Math/CurveSample3D.hpp"
 #include "intel_vulkan/Math/Geometry.hpp"
+#include "intel_vulkan/Math/Icosahedron.hpp"
 #include "intel_vulkan/Math/Line.hpp"
 #include "intel_vulkan/Math/MathTypes.hpp"
 #include "intel_vulkan/Math/Plane3D.hpp"
@@ -148,16 +149,55 @@ TEST(TessellationOpsTest, MidpointSubdivisionSharesEdgeVertices) {
     EXPECT_EQ(12u, once.indices().size());
 }
 
-TEST(SphereTest, OctahedronGeneratorProducesEightTrianglesAtZeroSubdivision) {
-    OctahedronGenerator<float, std::uint32_t> generator(1.0f, 0);
-    Sphere<float, std::uint32_t> sphere(generator);
+TEST(IcosahedronTest, HasTwelvePointsAndTwentyTriangles) {
+    Icosahedron<float, std::uint32_t> icosahedron(1.0f);
 
-    TessellatedTriangleData<float, std::uint32_t> data;
-    sphere.generate(data);
+    EXPECT_FLOAT_EQ(1.0f, icosahedron.radius());
+    EXPECT_EQ(12u, icosahedron.points().size());
+    EXPECT_EQ(12u, icosahedron.normals().size());
+    EXPECT_EQ(60u, icosahedron.indices().size());  // 20 triangles * 3.
+}
+
+TEST(SphereTest, UvSphereProducesExpectedVertexAndIndexCounts) {
+    std::uint16_t const theta_steps = 8;
+    std::uint16_t const phi_steps = 4;
+    Sphere<float, std::uint32_t> sphere(1.0f, theta_steps, phi_steps);
 
     EXPECT_FLOAT_EQ(1.0f, sphere.radius());
-    EXPECT_EQ(24u, data.indices().size());  // 8 triangles * 3 indices.
-    EXPECT_EQ(6u, data.points().size());    // An octahedron has 6 vertices.
+    // Two poles + (phi_steps - 1) rings of theta_steps points each.
+    std::size_t const expected_points = 2u + (phi_steps - 1u) * theta_steps;
+    EXPECT_EQ(expected_points, sphere.points().size());
+    EXPECT_EQ(sphere.points().size(), sphere.normals().size());
+    // phi_steps rings of triangles, 2 triangles per quad except the pole
+    // rings which are single-triangle fans.
+    std::size_t const expected_triangles =
+            2u * theta_steps + (phi_steps - 2u) * 2u * theta_steps;
+    EXPECT_EQ(expected_triangles * 3u, sphere.indices().size());
+}
+
+TEST(SphereTest, IcosphereSubdivisionGrowsPointCountWithLevelOfDetail) {
+    Sphere<float, std::uint32_t> base(1.0f, static_cast<std::uint8_t>(0));
+    Sphere<float, std::uint32_t> subdivided_once(1.0f,
+                                                 static_cast<std::uint8_t>(1));
+    Sphere<float, std::uint32_t> subdivided_twice(
+            1.0f, static_cast<std::uint8_t>(2));
+
+    EXPECT_EQ(12u, base.points().size());
+    EXPECT_EQ(60u, base.indices().size());
+
+    // Each level replaces every triangle with four (via its three edge
+    // midpoints, shared with the adjacent triangle across each edge), the
+    // standard icosphere vertex/triangle progression: V(n) = 10*4^n + 2,
+    // T(n) = 20*4^n.
+    EXPECT_EQ(42u, subdivided_once.points().size());
+    EXPECT_EQ(240u, subdivided_once.indices().size());  // 80 triangles * 3.
+
+    EXPECT_EQ(162u, subdivided_twice.points().size());
+    EXPECT_EQ(960u, subdivided_twice.indices().size());  // 320 triangles * 3.
+
+    for (Vec3<float> const& normal : subdivided_twice.normals()) {
+        EXPECT_NEAR(1.0f, glm::length(normal), 1e-4f);
+    }
 }
 
 TEST(CurveSample3DTest, NormalizeTangentProducesUnitLength) {

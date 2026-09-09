@@ -147,12 +147,12 @@ flowchart TD
 
     DIV3{{"⬦ Divergence Point 3"}}
 
-    DIV3 -->|"Tutorial03 only"| T03_PL
-    DIV3 -->|"Tutorial04"| T04_PL
-    DIV3 -->|"Tutorial05"| T05_PL
-    DIV3 -->|"Tutorial06"| T06_DSL
-    DIV3 -->|"Tutorial07"| T07_DSL
-    DIV3 -->|"Tutorial08"| T08_RR
+    DIV3 --> LBL_T03["Tutorial03 only"] --> T03_PL
+    DIV3 --> LBL_T04["Tutorial04"] --> T04_PL
+    DIV3 --> LBL_T05["Tutorial05"] --> T05_PL
+    DIV3 --> LBL_T06["Tutorial06"] --> T06_DSL
+    DIV3 --> LBL_T07["Tutorial07"] --> T07_DSL
+    DIV3 --> LBL_T08["Tutorial08"] --> T08_RR
 
     T03_PL["**createPipeline**
     vkCreateShaderModule × 2 (vert + frag SPIR-V)
@@ -441,6 +441,8 @@ flowchart TD
     same fix retroactively applied to Tutorial04–07"]
 
     %% ─── STYLES ───
+    classDef divLabel fill:#2a2a2a,color:#ccc,stroke:#555,font-size:11px
+    class LBL_T03,LBL_T04,LBL_T05,LBL_T06,LBL_T07,LBL_T08 divLabel
     style DIV1 fill:#7b4f00,color:#fff,stroke:#c47d00
     style DIV2 fill:#7b4f00,color:#fff,stroke:#c47d00
     style DIV3 fill:#7b4f00,color:#fff,stroke:#c47d00

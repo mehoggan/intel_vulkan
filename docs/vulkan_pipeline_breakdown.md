@@ -153,6 +153,7 @@ flowchart TD
     DIV3 --> LBL_T06["Tutorial06"] --> T06_DSL
     DIV3 --> LBL_T07["Tutorial07"] --> T07_DSL
     DIV3 --> LBL_T08["Tutorial08"] --> T08_RR
+    DIV3 --> LBL_T09["Tutorial09"] --> T09_RR
 
     T03_PL["**createPipeline**
     vkCreateShaderModule × 2 (vert + frag SPIR-V)
@@ -440,9 +441,90 @@ flowchart TD
     leaving fences/pipeline/buffers dangling after a real resize —
     same fix retroactively applied to Tutorial04–07"]
 
+    %% ─── TUTORIAL 09 BRANCH (diverges from Tutorial08 at DIV3) ───
+    T09_RR["**createRenderingResources**
+    Same as Tutorial08 (cmd pool/buffers, fences, semaphores)"] --> T09_STG
+
+    T09_STG["**createStagingBuffer**
+    Same as Tutorial08"] --> T09_DEPTH
+
+    T09_DEPTH["**createDepthResources**
+    Same as Tutorial08 (VK_FORMAT_D32_SFLOAT)"] --> T09_TEX
+
+    T09_TEX["**createTexture** ← re-introduces Tutorial07's texture
+    loading (image + view + sampler + staged upload) - Tutorial08
+    had no texture at all
+    addressMode = REPEAT (Tutorial06/07 used CLAMP_TO_EDGE)
+    ⚠ UVs intentionally exceed [0,1] so the ground texture tiles
+      across the terrain instead of stretching one copy over it"] --> T09_UBO
+
+    T09_UBO["**createUniformBuffer**
+    Same shape/host-visible-every-frame strategy as Tutorial08"] --> T09_DSL
+
+    T09_DSL["**createDescriptorSetLayout** ← differs from Tutorial08
+    binding 0: UNIFORM_BUFFER (vertex+fragment, same as Tutorial08)
+    binding 1: COMBINED_IMAGE_SAMPLER (fragment) ← NEW here
+    (Tutorial08 had no sampler binding at all)"] --> T09_DP
+
+    T09_DP["**createDescriptorPool + allocateDescriptorSet**
+    Sized for 1× UNIFORM_BUFFER + 1× COMBINED_IMAGE_SAMPLER"] --> T09_UDS
+
+    T09_UDS["**updateDescriptorSet**
+    2× VkWriteDescriptorSet (buffer info + image info)"] --> T09_RP
+
+    T09_RP["**createRenderPass**
+    Same as Tutorial08 (color + depth attachments)"] --> T09_PLL
+
+    T09_PLL["**createPipelineLayout**
+    References descriptor set layout (UBO + sampler)"] --> T09_PL
+
+    T09_PL["**createPipeline** ← differs from Tutorial08
+    Vertex input: position + normal + texcoord ← first tutorial
+      combining all three attributes
+    cullMode = NONE (Tutorial03–08 were all BACK) ← explicit ask:
+      see the terrain's underside from below
+    Fragment shader flips the normal to face the camera when
+      culling is off, so the underside is lit instead of black"] --> T09_VB
+
+    T09_VB["**createVertexBuffer** ← geometry source differs
+    Two large triangles spanning a flat square, subdivided via
+      Math::tessellateTrianglesByMidpointSubdivision (the *vector*
+      overload, sharing one dedup map across both triangles so
+      their shared diagonal edge doesn't duplicate vertices)
+    ⚠ First tutorial building its mesh from the tessellation module
+      directly, instead of a purpose-built generator like
+      Tutorial08's Math::Sphere"] --> T09_IB
+
+    T09_IB["**createIndexBuffer**
+    Same mechanism as Tutorial08; indices come from the tessellator"] --> T09_DRAW
+
+    T09_DRAW(["**draw() loop** ← differs from Tutorial08
+    Model matrix: identity, static terrain (Tutorial08 rotated its
+      model instead)
+    View matrix: rebuilt from OrbitCamera state every frame
+      (Tutorial08 used a fixed glm::lookAt)
+    vkDeviceWaitIdle + updateUniformBufferData() every frame, same
+      single-shared-UBO rationale as Tutorial08
+    ─────────────────────
+    ✓ Tutorial09 COMPLETE
+    Renders a lit, textured, tessellated flat terrain, orbitable
+    by mouse, underside visible"])
+
+    T09_DRAW -.->|"on mouse drag / scroll"| T09_CAMERA["**OrbitCamera** ← NEW capability
+    os::ProjectBase::onMouseButton/onMouseMove ← NEW virtuals
+      (empty default bodies - Tutorial01–08 unaffected)
+    os::Window::renderingLoop() now selects Button{Press,Release}Mask
+      + PointerMotionMask and dispatches to them
+    ⚠ First tutorial with any mouse input; left-drag orbits yaw/pitch
+      (clamped to ±89°), scroll wheel (X11 buttons 4/5) zooms"]
+
+    T09_DRAW -.->|"on window resize"| T09_RESIZE["**childOnWindowSizeChanged()**
+    Same full-rebuild pattern as Tutorial08, now also recreating the
+    texture image (the one resource kind Tutorial08 didn't have)"]
+
     %% ─── STYLES ───
     classDef divLabel fill:#2a2a2a,color:#ccc,stroke:#555,font-size:11px
-    class LBL_T03,LBL_T04,LBL_T05,LBL_T06,LBL_T07,LBL_T08 divLabel
+    class LBL_T03,LBL_T04,LBL_T05,LBL_T06,LBL_T07,LBL_T08,LBL_T09 divLabel
     style DIV1 fill:#7b4f00,color:#fff,stroke:#c47d00
     style DIV2 fill:#7b4f00,color:#fff,stroke:#c47d00
     style DIV3 fill:#7b4f00,color:#fff,stroke:#c47d00
@@ -468,6 +550,12 @@ flowchart TD
     style T08_PL   fill:#0a3a24,color:#ddf,stroke:#0abf7a
     style T08_IB   fill:#0a3a24,color:#ddf,stroke:#0abf7a
     style T08_RESIZE fill:#0a3a24,color:#ddf,stroke:#0abf7a
+    style T09_DRAW fill:#0d5a7a,color:#fff,stroke:#22ccff
+    style T09_TEX  fill:#0a2a3a,color:#ddf,stroke:#22ccff
+    style T09_PL   fill:#0a2a3a,color:#ddf,stroke:#22ccff
+    style T09_VB   fill:#0a2a3a,color:#ddf,stroke:#22ccff
+    style T09_CAMERA fill:#0a2a3a,color:#ddf,stroke:#22ccff
+    style T09_RESIZE fill:#0a2a3a,color:#ddf,stroke:#22ccff
 ```
 
 ---
@@ -844,50 +932,52 @@ Per buffer:
 
 ## Key Differences Summary
 
-| Concept | Tutorial01 | Tutorial02 | Tutorial03 | Tutorial04 | Tutorial05 | Tutorial06 | Tutorial07 | Tutorial08 |
-|---|:---:|:---:|:---:|:---:|:---:|:---:|:---:|:---:|
-| `VkInstance` | Yes | Yes | Yes (TutorialBase) | Yes (TutorialBase) | Yes (TutorialBase) | Yes (TutorialBase) | Yes (TutorialBase) | Yes (TutorialBase) |
-| `VkDevice` | Yes (no exts) | Yes (`VK_KHR_swapchain`) | Yes (TutorialBase) | Yes (TutorialBase) | Yes (TutorialBase) | Yes (TutorialBase) | Yes (TutorialBase) | Yes (TutorialBase) |
-| Debug messenger | Optional | Optional | Optional | Optional | Optional | Optional | Optional | Optional |
-| `VkSurfaceKHR` | No | Yes (Xlib) | Yes (TutorialBase) | Yes (TutorialBase) | Yes (TutorialBase) | Yes (TutorialBase) | Yes (TutorialBase) | Yes (TutorialBase) |
-| `VkSwapchainKHR` | No | Yes | Yes (TutorialBase) | Yes (TutorialBase) | Yes (TutorialBase) | Yes (TutorialBase) | Yes (TutorialBase) | Yes (TutorialBase) |
-| `VkImageView` per image | No | **No** | **Yes** | Yes | Yes | Yes | Yes | Yes |
-| Present queue | No | Yes | Yes | Yes | Yes | Yes | Yes | Yes |
-| `VkSemaphore` | No | 2 | 2 | 2 | 2 | 2 | 2 | 2 |
-| `VkCommandPool` family | — | Present | **Graphics** | Graphics | Graphics | Graphics | Graphics | Graphics |
-| `VkRenderPass` | No | **No** | **Yes** | Yes | Yes | Yes (0 subpass deps) | Yes (0 subpass deps) | Yes (0 subpass deps, **+ depth attachment**) |
-| `VkFramebuffer` | No | No | **Yes** | Yes | Yes | Yes | Yes | Yes (color + depth) |
-| `VkShaderModule` | No | No | **Yes** (vert + frag) | Yes (vert + frag) | Yes (vert + frag) | Yes (vert + frag) | Yes (vert + frag) | Yes (vert + frag) |
-| `VkPipelineLayout` | No | No | **Yes** (empty) | Yes (empty) | Yes (empty) | **Yes** (1 descriptor set) | Yes (1 descriptor set) | Yes (1 descriptor set) |
-| `VkPipeline` | No | No | **Yes** | Yes | Yes | Yes | Yes | Yes (**+ depth-stencil state**) |
-| `VkBuffer` / vertex | No | No | No | **Yes** (host-visible, mapped) | **Yes** (device-local) | Yes (device-local) | Yes (device-local) | Yes (device-local) |
-| `VkBuffer` / index | No | No | No | No | No | No | No | **Yes** (device-local, via staging) |
-| `VkBuffer` / staging | No | No | No | No | **Yes** (vertex upload) | Yes (vertex + texture upload) | Yes (vertex + texture + UBO upload) | Yes (vertex + index upload — **not** uniform) |
-| `VkBuffer` / uniform | No | No | No | No | No | No | **Yes** (mat4 projection, device-local) | Yes (**host-visible/coherent**, rewritten every frame) |
-| Descriptor set layout | No | No | No | No | No | **Yes** (1 binding: sampler) | **Yes** (2 bindings: sampler + UBO) | Yes (1 binding: UBO only — **no sampler**) |
-| Descriptor pool / set | No | No | No | No | No | **Yes** | Yes (2 descriptor types) | Yes (1 descriptor type) |
-| Texture image + sampler | No | No | No | No | No | **Yes** | Yes | **No** |
-| Depth buffer | No | No | No | No | No | No | No | **Yes** (`VK_FORMAT_D32_SFLOAT`) |
-| Push constants | No | No | No | No | No | No | No | No |
-| Vertex attributes | N/A (shader-gen) | N/A | N/A (shader-gen) | position + color | position + color | position + texcoord | position (pixel-space) + texcoord | position + **normal** |
-| Cull mode / front face | N/A | N/A | BACK / CCW | BACK / CCW | BACK / CCW | BACK / CCW | BACK / CCW | BACK / **CW** |
-| Projection | N/A | N/A | N/A | N/A | N/A | N/A | Orthographic | **Perspective** |
-| `vkCmdBindVertexBuffers` | No | No | No | **Yes** | Yes | Yes | Yes | Yes |
-| `vkCmdBindIndexBuffer` | No | No | No | No | No | No | No | **Yes** |
-| `vkCmdBindDescriptorSets` | No | No | No | No | No | **Yes** | Yes | Yes |
-| Clear method | N/A | `vkCmdClearColorImage` (transfer) | Render pass `loadOp = CLEAR` | Render pass `loadOp = CLEAR` | Render pass `loadOp = CLEAR` | Render pass `loadOp = CLEAR` | Render pass `loadOp = CLEAR` | Render pass `loadOp = CLEAR` (color **+ depth**) |
-| Draw call | N/A | None | `vkCmdDraw(3,1,0,0)` | `vkCmdDraw(4,1,0,0)` | `vkCmdDraw(4,1,0,0)` | `vkCmdDraw(4,1,0,0)` | `vkCmdDraw(4,1,0,0)` | `vkCmdDrawIndexed(indexCount,1,0,0,0)` |
-| Vertex source | N/A | N/A | Shader (`gl_VertexIndex`) | Vertex buffer | Vertex buffer | Vertex buffer | Vertex buffer | Vertex + index buffer (icosphere) |
-| Per-frame CPU work | N/A | N/A | None | None | None | None | None | `vkDeviceWaitIdle` + uniform buffer rewrite (model rotation) |
-| Resize behavior | N/A | Swapchain recreate | Full rebuild (render pass/pipeline/cmd buffers) | Full rebuild | Full rebuild | Full rebuild | Full rebuild (+ UBO re-upload) | Full rebuild (+ depth image) |
-| Submit queue | — | Present queue | **Graphics queue** | Graphics queue | Graphics queue | Graphics queue | Graphics queue | Graphics queue |
-| Submit wait stage | — | `TRANSFER_BIT` | `COLOR_ATTACHMENT_OUTPUT_BIT` | `COLOR_ATTACHMENT_OUTPUT_BIT` | `COLOR_ATTACHMENT_OUTPUT_BIT` | `COLOR_ATTACHMENT_OUTPUT_BIT` | `COLOR_ATTACHMENT_OUTPUT_BIT` | `COLOR_ATTACHMENT_OUTPUT_BIT` |
+| Concept | Tutorial01 | Tutorial02 | Tutorial03 | Tutorial04 | Tutorial05 | Tutorial06 | Tutorial07 | Tutorial08 | Tutorial09 |
+|---|:---:|:---:|:---:|:---:|:---:|:---:|:---:|:---:|:---:|
+| `VkInstance` | Yes | Yes | Yes (TutorialBase) | Yes (TutorialBase) | Yes (TutorialBase) | Yes (TutorialBase) | Yes (TutorialBase) | Yes (TutorialBase) | Yes (TutorialBase) |
+| `VkDevice` | Yes (no exts) | Yes (`VK_KHR_swapchain`) | Yes (TutorialBase) | Yes (TutorialBase) | Yes (TutorialBase) | Yes (TutorialBase) | Yes (TutorialBase) | Yes (TutorialBase) | Yes (TutorialBase) |
+| Debug messenger | Optional | Optional | Optional | Optional | Optional | Optional | Optional | Optional | Optional |
+| `VkSurfaceKHR` | No | Yes (Xlib) | Yes (TutorialBase) | Yes (TutorialBase) | Yes (TutorialBase) | Yes (TutorialBase) | Yes (TutorialBase) | Yes (TutorialBase) | Yes (TutorialBase) |
+| `VkSwapchainKHR` | No | Yes | Yes (TutorialBase) | Yes (TutorialBase) | Yes (TutorialBase) | Yes (TutorialBase) | Yes (TutorialBase) | Yes (TutorialBase) | Yes (TutorialBase) |
+| `VkImageView` per image | No | **No** | **Yes** | Yes | Yes | Yes | Yes | Yes | Yes |
+| Present queue | No | Yes | Yes | Yes | Yes | Yes | Yes | Yes | Yes |
+| `VkSemaphore` | No | 2 | 2 | 2 | 2 | 2 | 2 | 2 | 2 |
+| `VkCommandPool` family | — | Present | **Graphics** | Graphics | Graphics | Graphics | Graphics | Graphics | Graphics |
+| `VkRenderPass` | No | **No** | **Yes** | Yes | Yes | Yes (0 subpass deps) | Yes (0 subpass deps) | Yes (0 subpass deps, **+ depth attachment**) | Yes (same as Tutorial08) |
+| `VkFramebuffer` | No | No | **Yes** | Yes | Yes | Yes | Yes | Yes (color + depth) | Yes (color + depth) |
+| `VkShaderModule` | No | No | **Yes** (vert + frag) | Yes (vert + frag) | Yes (vert + frag) | Yes (vert + frag) | Yes (vert + frag) | Yes (vert + frag) | Yes (vert + frag) |
+| `VkPipelineLayout` | No | No | **Yes** (empty) | Yes (empty) | Yes (empty) | **Yes** (1 descriptor set) | Yes (1 descriptor set) | Yes (1 descriptor set) | Yes (1 descriptor set) |
+| `VkPipeline` | No | No | **Yes** | Yes | Yes | Yes | Yes | Yes (**+ depth-stencil state**) | Yes (+ depth-stencil state) |
+| `VkBuffer` / vertex | No | No | No | **Yes** (host-visible, mapped) | **Yes** (device-local) | Yes (device-local) | Yes (device-local) | Yes (device-local) | Yes (device-local) |
+| `VkBuffer` / index | No | No | No | No | No | No | No | **Yes** (device-local, via staging) | Yes (device-local, via staging) |
+| `VkBuffer` / staging | No | No | No | No | **Yes** (vertex upload) | Yes (vertex + texture upload) | Yes (vertex + texture + UBO upload) | Yes (vertex + index upload — **not** uniform) | Yes (vertex + index + **texture** upload — not uniform) |
+| `VkBuffer` / uniform | No | No | No | No | No | No | **Yes** (mat4 projection, device-local) | Yes (**host-visible/coherent**, rewritten every frame) | Yes (host-visible/coherent, rewritten every frame) |
+| Descriptor set layout | No | No | No | No | No | **Yes** (1 binding: sampler) | **Yes** (2 bindings: sampler + UBO) | Yes (1 binding: UBO only — **no sampler**) | Yes (2 bindings: UBO + sampler, **re-added**) |
+| Descriptor pool / set | No | No | No | No | No | **Yes** | Yes (2 descriptor types) | Yes (1 descriptor type) | Yes (2 descriptor types) |
+| Texture image + sampler | No | No | No | No | No | **Yes** (CLAMP_TO_EDGE) | Yes (CLAMP_TO_EDGE) | **No** | **Yes** (**REPEAT** — tiled, not clamped) |
+| Depth buffer | No | No | No | No | No | No | No | **Yes** (`VK_FORMAT_D32_SFLOAT`) | Yes (same format) |
+| Mouse input | No | No | No | No | No | No | No | No | **Yes** (orbit camera: drag rotates, scroll zooms) |
+| Push constants | No | No | No | No | No | No | No | No | No |
+| Vertex attributes | N/A (shader-gen) | N/A | N/A (shader-gen) | position + color | position + color | position + texcoord | position (pixel-space) + texcoord | position + normal | position + normal + **texcoord** (first to combine all three) |
+| Cull mode / front face | N/A | N/A | BACK / CCW | BACK / CCW | BACK / CCW | BACK / CCW | BACK / CCW | BACK / CW | **NONE** (underside visible) |
+| Projection | N/A | N/A | N/A | N/A | N/A | N/A | Orthographic | Perspective | Perspective |
+| `vkCmdBindVertexBuffers` | No | No | No | **Yes** | Yes | Yes | Yes | Yes | Yes |
+| `vkCmdBindIndexBuffer` | No | No | No | No | No | No | No | **Yes** | Yes |
+| `vkCmdBindDescriptorSets` | No | No | No | No | No | **Yes** | Yes | Yes | Yes |
+| Clear method | N/A | `vkCmdClearColorImage` (transfer) | Render pass `loadOp = CLEAR` | Render pass `loadOp = CLEAR` | Render pass `loadOp = CLEAR` | Render pass `loadOp = CLEAR` | Render pass `loadOp = CLEAR` | Render pass `loadOp = CLEAR` (color **+ depth**) | Render pass `loadOp = CLEAR` (color + depth) |
+| Draw call | N/A | None | `vkCmdDraw(3,1,0,0)` | `vkCmdDraw(4,1,0,0)` | `vkCmdDraw(4,1,0,0)` | `vkCmdDraw(4,1,0,0)` | `vkCmdDraw(4,1,0,0)` | `vkCmdDrawIndexed(indexCount,1,0,0,0)` | `vkCmdDrawIndexed(indexCount,1,0,0,0)` |
+| Vertex source | N/A | N/A | Shader (`gl_VertexIndex`) | Vertex buffer | Vertex buffer | Vertex buffer | Vertex buffer | Vertex + index buffer (icosphere) | Vertex + index buffer (**tessellated terrain grid**) |
+| Per-frame CPU work | N/A | N/A | None | None | None | None | None | `vkDeviceWaitIdle` + uniform buffer rewrite (model rotation) | `vkDeviceWaitIdle` + uniform buffer rewrite (**camera** update) |
+| Resize behavior | N/A | Swapchain recreate | Full rebuild (render pass/pipeline/cmd buffers) | Full rebuild | Full rebuild | Full rebuild | Full rebuild (+ UBO re-upload) | Full rebuild (+ depth image) | Full rebuild (+ depth image **+ texture**) |
+| Submit queue | — | Present queue | **Graphics queue** | Graphics queue | Graphics queue | Graphics queue | Graphics queue | Graphics queue | Graphics queue |
+| Submit wait stage | — | `TRANSFER_BIT` | `COLOR_ATTACHMENT_OUTPUT_BIT` | `COLOR_ATTACHMENT_OUTPUT_BIT` | `COLOR_ATTACHMENT_OUTPUT_BIT` | `COLOR_ATTACHMENT_OUTPUT_BIT` | `COLOR_ATTACHMENT_OUTPUT_BIT` | `COLOR_ATTACHMENT_OUTPUT_BIT` | `COLOR_ATTACHMENT_OUTPUT_BIT` |
 
-> **Resize behavior note:** Tutorial04–08 all now fully rebuild every
+> **Resize behavior note:** Tutorial04–09 all now fully rebuild every
 > resource `childClear()` destroys on a real window resize (fences,
-> semaphores, command pool, pipeline, render pass, buffers, and for
-> Tutorial08 the depth image too). Tutorial04–06 previously had a no-op
-> `childOnWindowSizeChanged()` and Tutorial07's only re-ran
-> `copyUniformBufferData()` — both left dangling handles after a resize
-> and crashed on the next `draw()`. Fixed across the board; see git log
-> for the fix commits.
+> semaphores, command pool, pipeline, render pass, buffers, and the depth
+> image for Tutorial08/09, plus the texture image for Tutorial09).
+> Tutorial04–06 previously had a no-op `childOnWindowSizeChanged()` and
+> Tutorial07's only re-ran `copyUniformBufferData()` — both left dangling
+> handles after a resize and crashed on the next `draw()`. Fixed across
+> the board; see git log for the fix commits. Tutorial09 was built with
+> the fix already in place, so it never had this bug.

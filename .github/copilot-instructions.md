@@ -2,7 +2,7 @@
 
 ## Project Overview
 
-A collection of Vulkan API tutorials built as a shared library (`libintel_vulkan.la`) plus individual tutorial runner binaries. Tutorials build progressively — each one adds Vulkan concepts on top of the previous.
+A collection of Vulkan API tutorials built as a shared library (`libvulkan_graphix.la`) plus individual tutorial runner binaries. Tutorials build progressively — each one adds Vulkan concepts on top of the previous.
 
 ## Build & Development
 
@@ -54,7 +54,7 @@ Compiles `.vert` / `.frag` files to `.spv` in the `Data/` folder. Pre-compiled S
 
 ### Library + Binary Split
 
-All Vulkan logic lives in `lib/` and is compiled into `libintel_vulkan.la`. Each `bin/tutorial0X_main.cpp` is a thin entry point that constructs a window (`os::Window`), a tutorial instance, calls `prepareVulkan()`, and runs `window.renderingLoop(tutorial)`.
+All Vulkan logic lives in `lib/` and is compiled into `libvulkan_graphix.la`. Each `bin/tutorial0X_main.cpp` is a thin entry point that constructs a window (`os::Window`), a tutorial instance, calls `prepareVulkan()`, and runs `window.renderingLoop(tutorial)`.
 
 ### Tutorial Class Pattern
 
@@ -89,8 +89,8 @@ Classes gain per-instance logging by inheriting `LoggedClass<DerivedType>` (CRTP
 
 ### Adding a New Tutorial
 
-1. Create `lib/Tutorial0X.cpp` and `include/intel_vulkan/Tutorial0X.h`.
-2. Add `Tutorial0X.cpp` to `lib/Makefile.am` under `libintel_vulkan_la_SOURCES`.
+1. Create `lib/Tutorial0X.cpp` and `include/vulkan_graphix/Tutorial0X.h`.
+2. Add `Tutorial0X.cpp` to `lib/Makefile.am` under `libvulkan_graphix_la_SOURCES`.
 3. Create `bin/tutorial0X_main.cpp` and add it to `bin/Makefile.am` following the existing pattern.
 4. Add any new Vulkan functions to `ListOfFunctions.inl` with a `// Tutorial 0X` comment.
 5. Place GLSL shaders in `Tutorials/0X/Data/`; compiled SPV goes in `resources/0X/Data/`.
@@ -105,4 +105,4 @@ Classes gain per-instance logging by inheriting `LoggedClass<DerivedType>` (CRTP
 - **Build flags**: `-Werror -Wall -pedantic` — all warnings are errors.
 - **C++ standard**: C++20.
 - **No `using namespace`** in headers.
-- Header guards use the `#ifndef INTEL_VULKAN_<FILENAME>_H` pattern.
+- Header guards use the `#ifndef VULKAN_GRAPHIX_<FILENAME>_H` pattern.

@@ -1,13 +1,13 @@
-#include "intel_vulkan/Tutorial02.h"
+#include "vulkan_graphix/Tutorial02.h"
 
 #include <vulkan/vulkan_core.h>
 
 #include <algorithm>
 #include <limits>
 
-#include "intel_vulkan/VulkanFunctions.h"
+#include "vulkan_graphix/VulkanFunctions.h"
 
-namespace intel_vulkan {
+namespace vulkan_graphix {
 
 VulkanTutorial02Parameters::VulkanTutorial02Parameters()
         : m_vk_instance(VK_NULL_HANDLE)
@@ -644,7 +644,7 @@ bool Tutorial02::loadExportedEntryPoints() {
         return false;                                                     \
     }
 
-#include "intel_vulkan/ListOfFunctions.inl"
+#include "vulkan_graphix/ListOfFunctions.inl"
 
     return true;
 }
@@ -659,7 +659,7 @@ bool Tutorial02::loadGlobalLevelEntryPoints() {
         return false;                                                 \
     }
 
-#include "intel_vulkan/ListOfFunctions.inl"
+#include "vulkan_graphix/ListOfFunctions.inl"
 
     return true;
 }
@@ -752,7 +752,7 @@ bool Tutorial02::loadInstanceLevelEntryPoints() {
         return false;                                                       \
     }
 
-#include "intel_vulkan/ListOfFunctions.inl"
+#include "vulkan_graphix/ListOfFunctions.inl"
 
     return true;
 }
@@ -1022,7 +1022,7 @@ bool Tutorial02::loadDeviceLevelEntryPoints() {
         return false;                                                     \
     }
 
-#include "intel_vulkan/ListOfFunctions.inl"
+#include "vulkan_graphix/ListOfFunctions.inl"
 
     return true;
 }
@@ -1499,4 +1499,4 @@ VkPresentModeKHR Tutorial02::getSwapChainPresentMode(
                    "FIFO present mode is not supported by the swap chain!");
     return static_cast<VkPresentModeKHR>(-1);
 }
-}  // namespace intel_vulkan
+}  // namespace vulkan_graphix

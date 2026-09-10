@@ -1,16 +1,16 @@
-#include "intel_vulkan/Math/AxisAligned2D.hpp"
-#include "intel_vulkan/Math/Combinatorics.hpp"
-#include "intel_vulkan/Math/CubicCurve.hpp"
-#include "intel_vulkan/Math/CurveSample3D.hpp"
-#include "intel_vulkan/Math/Geometry.hpp"
-#include "intel_vulkan/Math/Icosahedron.hpp"
-#include "intel_vulkan/Math/Line.hpp"
-#include "intel_vulkan/Math/MathTypes.hpp"
-#include "intel_vulkan/Math/Plane3D.hpp"
-#include "intel_vulkan/Math/Sphere.hpp"
-#include "intel_vulkan/Math/TessellationOps.hpp"
-#include "intel_vulkan/Math/TessellationTypes.hpp"
-#include "intel_vulkan/Math/Triangle.hpp"
+#include "vulkan_graphix/Math/AxisAligned2D.hpp"
+#include "vulkan_graphix/Math/Combinatorics.hpp"
+#include "vulkan_graphix/Math/CubicCurve.hpp"
+#include "vulkan_graphix/Math/CurveSample3D.hpp"
+#include "vulkan_graphix/Math/Geometry.hpp"
+#include "vulkan_graphix/Math/Icosahedron.hpp"
+#include "vulkan_graphix/Math/Line.hpp"
+#include "vulkan_graphix/Math/MathTypes.hpp"
+#include "vulkan_graphix/Math/Plane3D.hpp"
+#include "vulkan_graphix/Math/Sphere.hpp"
+#include "vulkan_graphix/Math/TessellationOps.hpp"
+#include "vulkan_graphix/Math/TessellationTypes.hpp"
+#include "vulkan_graphix/Math/Triangle.hpp"
 
 #include <cstddef>
 #include <cstdint>
@@ -18,7 +18,7 @@
 
 #include <gtest/gtest.h>
 
-using namespace intel_vulkan::Math;
+using namespace vulkan_graphix::Math;
 
 TEST(CombinatoricsTest, NextCombinationEnumeratesInLexicographicOrder) {
     std::vector<int> values = {0, 1, 2, 3, 4};

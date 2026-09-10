@@ -1,10 +1,10 @@
-#include "intel_vulkan/Tutorial04.h"
-#include "intel_vulkan/TutorialBase.h"
+#include "vulkan_graphix/Tutorial04.h"
+#include "vulkan_graphix/TutorialBase.h"
 
 int main(int /*argc*/, char** /*argv*/) {
-    intel_vulkan::os::Window window;
-    std::shared_ptr<intel_vulkan::TutorialBase> tutorial =
-            std::make_shared<intel_vulkan::Tutorial04>();
+    vulkan_graphix::os::Window window;
+    std::shared_ptr<vulkan_graphix::TutorialBase> tutorial =
+            std::make_shared<vulkan_graphix::Tutorial04>();
 
     // Window creation
     if (!window.create("04 - Vertex Attributes")) {
@@ -16,8 +16,8 @@ int main(int /*argc*/, char** /*argv*/) {
         return -1;
     }
 
-    std::shared_ptr<intel_vulkan::Tutorial04> tutorial04 =
-            std::dynamic_pointer_cast<intel_vulkan::Tutorial04>(tutorial);
+    std::shared_ptr<vulkan_graphix::Tutorial04> tutorial04 =
+            std::dynamic_pointer_cast<vulkan_graphix::Tutorial04>(tutorial);
 
     // Tutorial 04
     if (!tutorial04->createRenderPass()) {

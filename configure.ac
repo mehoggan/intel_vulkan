@@ -1,5 +1,5 @@
 AC_PREREQ([2.69])
-AC_INIT([intel_vulkan], [1.0], [mehoggan@gmail.com])
+AC_INIT([vulkan_graphix], [1.0], [mehoggan@gmail.com])
 AM_INIT_AUTOMAKE([-Wall foreign subdir-objects])
 AC_CONFIG_HEADERS([config.h])
 AC_CONFIG_MACRO_DIR([m4])

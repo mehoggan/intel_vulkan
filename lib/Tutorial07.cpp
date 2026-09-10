@@ -1,4 +1,4 @@
-#include "intel_vulkan/Tutorial07.h"
+#include "vulkan_graphix/Tutorial07.h"
 
 #include <vulkan/vulkan_core.h>
 
@@ -7,9 +7,9 @@
 
 #include <glm/gtc/type_ptr.hpp>
 
-#include "intel_vulkan/VulkanFunctions.h"
+#include "vulkan_graphix/VulkanFunctions.h"
 
-namespace intel_vulkan {
+namespace vulkan_graphix {
 
 VulkanTutorial07Parameters::VulkanTutorial07Parameters()
         : m_vk_render_pass(VK_NULL_HANDLE)
@@ -1825,4 +1825,4 @@ void Tutorial07::childClear() {
     }
 }
 
-}  // namespace intel_vulkan
+}  // namespace vulkan_graphix

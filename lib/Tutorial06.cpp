@@ -1,13 +1,13 @@
-#include "intel_vulkan/Tutorial06.h"
+#include "vulkan_graphix/Tutorial06.h"
 
 #include <vulkan/vulkan_core.h>
 
 #include <cstddef>
 #include <cstring>
 
-#include "intel_vulkan/VulkanFunctions.h"
+#include "vulkan_graphix/VulkanFunctions.h"
 
-namespace intel_vulkan {
+namespace vulkan_graphix {
 
 VulkanTutorial06Parameters::VulkanTutorial06Parameters()
         : m_vk_render_pass(VK_NULL_HANDLE)
@@ -1645,4 +1645,4 @@ void Tutorial06::childClear() {
     }
 }
 
-}  // namespace intel_vulkan
+}  // namespace vulkan_graphix

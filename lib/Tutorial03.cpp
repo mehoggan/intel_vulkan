@@ -1,10 +1,10 @@
-#include "intel_vulkan/Tutorial03.h"
+#include "vulkan_graphix/Tutorial03.h"
 
 #include <vulkan/vulkan_core.h>
 
-#include "intel_vulkan/VulkanFunctions.h"
+#include "vulkan_graphix/VulkanFunctions.h"
 
-namespace intel_vulkan {
+namespace vulkan_graphix {
 
 VulkanTutorial03Parameters::VulkanTutorial03Parameters()
         : m_vk_render_pass(VK_NULL_HANDLE)
@@ -838,4 +838,4 @@ bool Tutorial03::childOnWindowSizeChanged() {
     return true;
 }
 
-}  // namespace intel_vulkan
+}  // namespace vulkan_graphix

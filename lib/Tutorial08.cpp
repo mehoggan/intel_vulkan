@@ -1,4 +1,4 @@
-#include "intel_vulkan/Tutorial08.h"
+#include "vulkan_graphix/Tutorial08.h"
 
 #include <vulkan/vulkan_core.h>
 
@@ -8,10 +8,10 @@
 #include <glm/gtc/matrix_transform.hpp>
 #include <glm/gtc/type_ptr.hpp>
 
-#include "intel_vulkan/Math/Sphere.hpp"
-#include "intel_vulkan/VulkanFunctions.h"
+#include "vulkan_graphix/Math/Sphere.hpp"
+#include "vulkan_graphix/VulkanFunctions.h"
 
-namespace intel_vulkan {
+namespace vulkan_graphix {
 
 namespace {
 constexpr VkFormat c_depth_format = VK_FORMAT_D32_SFLOAT;
@@ -1674,4 +1674,4 @@ void Tutorial08::childClear() {
     destroyDepthResources();
 }
 
-}  // namespace intel_vulkan
+}  // namespace vulkan_graphix

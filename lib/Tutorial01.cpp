@@ -1,14 +1,14 @@
-#include "intel_vulkan/Tutorial01.h"
+#include "vulkan_graphix/Tutorial01.h"
 
 #include <climits>
 #include <cstdint>
 #include <functional>
 #include <vector>
 
-#include "intel_vulkan/Logging.h"
-#include "intel_vulkan/VulkanFunctions.h"
+#include "vulkan_graphix/Logging.h"
+#include "vulkan_graphix/VulkanFunctions.h"
 
-namespace intel_vulkan {
+namespace vulkan_graphix {
 
 VulkanTutorial01Parameters::VulkanTutorial01Parameters()
         : m_vk_instance(VK_NULL_HANDLE)
@@ -150,7 +150,7 @@ bool Tutorial01::loadExportedEntryPoints() {
         return false;                                                     \
     }
 
-#include "intel_vulkan/ListOfFunctions.inl"
+#include "vulkan_graphix/ListOfFunctions.inl"
 
     return true;
 }
@@ -166,7 +166,7 @@ bool Tutorial01::loadGlobalLevelEntryPoints() {
         return false;                                                         \
     }
 
-#include "intel_vulkan/ListOfFunctions.inl"
+#include "vulkan_graphix/ListOfFunctions.inl"
 
     return true;
 }
@@ -248,7 +248,7 @@ bool Tutorial01::loadInstanceLevelEntryPoints() {
         return false;                                                       \
     }
 
-#include "intel_vulkan/ListOfFunctions.inl"
+#include "vulkan_graphix/ListOfFunctions.inl"
 
     return true;
 }
@@ -406,7 +406,7 @@ bool Tutorial01::loadDeviceLevelEntryPoints() {
         return false;                                                         \
     }
 
-#include "intel_vulkan/ListOfFunctions.inl"
+#include "vulkan_graphix/ListOfFunctions.inl"
 
     return true;
 }
@@ -532,4 +532,4 @@ bool Tutorial01::destroyDebugMessenger() {
 
     return response;
 }
-}  // namespace intel_vulkan
+}  // namespace vulkan_graphix

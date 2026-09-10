@@ -1,13 +1,13 @@
-#include "intel_vulkan/Tutorial05.h"
+#include "vulkan_graphix/Tutorial05.h"
 
 #include <vulkan/vulkan_core.h>
 
 #include <cstddef>
 #include <cstring>
 
-#include "intel_vulkan/VulkanFunctions.h"
+#include "vulkan_graphix/VulkanFunctions.h"
 
-namespace intel_vulkan {
+namespace vulkan_graphix {
 
 VulkanTutorial05Parameters::VulkanTutorial05Parameters()
         : m_vk_render_pass(VK_NULL_HANDLE)
@@ -1134,4 +1134,4 @@ bool Tutorial05::childOnWindowSizeChanged() {
     return copyVertexData();
 }
 
-}  // namespace intel_vulkan
+}  // namespace vulkan_graphix

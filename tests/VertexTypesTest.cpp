@@ -1,8 +1,8 @@
-#include "intel_vulkan/VertexTypes/AttributeTraits.hpp"
-#include "intel_vulkan/VertexTypes/BatchData.hpp"
-#include "intel_vulkan/VertexTypes/Indices.hpp"
-#include "intel_vulkan/VertexTypes/InterleavedData.hpp"
-#include "intel_vulkan/VertexTypes/InterleavedDatum.hpp"
+#include "vulkan_graphix/VertexTypes/AttributeTraits.hpp"
+#include "vulkan_graphix/VertexTypes/BatchData.hpp"
+#include "vulkan_graphix/VertexTypes/Indices.hpp"
+#include "vulkan_graphix/VertexTypes/InterleavedData.hpp"
+#include "vulkan_graphix/VertexTypes/InterleavedDatum.hpp"
 
 #include <cstddef>
 #include <cstdint>
@@ -26,12 +26,12 @@ struct ZeroInitAttribute {
 
 }  // namespace
 
-using intel_vulkan::VertexTypes::AttributeDimension;
-using intel_vulkan::VertexTypes::AttributeTraits;
-using intel_vulkan::VertexTypes::BatchData;
-using intel_vulkan::VertexTypes::Indices;
-using intel_vulkan::VertexTypes::InterleavedData;
-using intel_vulkan::VertexTypes::InterleavedDatum;
+using vulkan_graphix::VertexTypes::AttributeDimension;
+using vulkan_graphix::VertexTypes::AttributeTraits;
+using vulkan_graphix::VertexTypes::BatchData;
+using vulkan_graphix::VertexTypes::Indices;
+using vulkan_graphix::VertexTypes::InterleavedData;
+using vulkan_graphix::VertexTypes::InterleavedDatum;
 
 TEST(AttributeDimensionTest, GlmVectorsReportTheirComponentCount) {
     EXPECT_EQ(2u, AttributeDimension<glm::vec2>::value);

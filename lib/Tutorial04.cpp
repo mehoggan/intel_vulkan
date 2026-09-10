@@ -1,13 +1,13 @@
-#include "intel_vulkan/Tutorial04.h"
+#include "vulkan_graphix/Tutorial04.h"
 
 #include <vulkan/vulkan_core.h>
 
 #include <cstddef>
 #include <cstring>
 
-#include "intel_vulkan/VulkanFunctions.h"
+#include "vulkan_graphix/VulkanFunctions.h"
 
-namespace intel_vulkan {
+namespace vulkan_graphix {
 
 VulkanTutorial04Parameters::VulkanTutorial04Parameters()
         : m_vk_render_pass(VK_NULL_HANDLE)
@@ -999,4 +999,4 @@ bool Tutorial04::childOnWindowSizeChanged() {
     return createRenderingResources();
 }
 
-}  // namespace intel_vulkan
+}  // namespace vulkan_graphix

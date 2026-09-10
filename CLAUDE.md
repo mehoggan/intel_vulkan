@@ -4,7 +4,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ## Project Overview
 
-A collection of Vulkan API tutorials and examples, demonstrating progressive concepts from device initialization through rendering. The codebase uses autotools build system with a shared library (`libintel_vulkan.la`) containing common Vulkan utilities and individual tutorial implementations.
+A collection of Vulkan API tutorials and examples, demonstrating progressive concepts from device initialization through rendering. The codebase uses autotools build system with a shared library (`libvulkan_graphix.la`) containing common Vulkan utilities and individual tutorial implementations.
 
 ## Build & Development
 
@@ -76,7 +76,7 @@ This compiles `.vert` and `.frag` files to `.spv` format in the Data folder.
 - **bin/**: Tutorial executable entry points
   - One main per active tutorial (01-03)
 
-- **include/intel_vulkan/**: Public headers
+- **include/vulkan_graphix/**: Public headers
   - `ListOfFunctions.inl` - Pre-defined Vulkan function list
   - `stb_image.h` - Single-header image loading library
   - `vk_platform.h` - Platform-specific Vulkan definitions
@@ -156,7 +156,7 @@ Tutorial classes inherit patterns from Tutorial01, building incrementally:
 
 1. Create `Tutorial0X.cpp/.h` in lib/
 2. Implement the tutorial class with Vulkan setup
-3. Add `Tutorial0X.cpp` to `lib/Makefile.am` libintel_vulkan_la_SOURCES
+3. Add `Tutorial0X.cpp` to `lib/Makefile.am` libvulkan_graphix_la_SOURCES
 4. Create `tutorial0X_main.cpp` in bin/
 5. Add binary target to `bin/Makefile.am`
 6. Create shader files in `Tutorials/0X/Data/`

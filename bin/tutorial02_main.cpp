@@ -1,8 +1,8 @@
-#include "intel_vulkan/Tutorial02.h"
+#include "vulkan_graphix/Tutorial02.h"
 
 int main(int /*argc*/, char** /*argv*/) {
-    intel_vulkan::os::Window window;
-    intel_vulkan::Tutorial02 tutorial02;
+    vulkan_graphix::os::Window window;
+    vulkan_graphix::Tutorial02 tutorial02;
 
     // Window creation
     if (!window.create("02 - Swap chain")) {

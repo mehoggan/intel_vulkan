@@ -1,12 +1,12 @@
-#include "intel_vulkan/TutorialBase.h"
+#include "vulkan_graphix/TutorialBase.h"
 
 #include <vulkan/vulkan_core.h>
 
 #include <cstdint>
 
-#include "intel_vulkan/VulkanFunctions.h"
+#include "vulkan_graphix/VulkanFunctions.h"
 
-namespace intel_vulkan {
+namespace vulkan_graphix {
 
 // ************************************************************ //
 // QueueParameters                                              //
@@ -498,7 +498,7 @@ bool TutorialBase::loadExportedEntryPoints() {
         return false;                                                     \
     }
 
-#include "intel_vulkan/ListOfFunctions.inl"
+#include "vulkan_graphix/ListOfFunctions.inl"
 
     return true;
 }
@@ -513,7 +513,7 @@ bool TutorialBase::loadGlobalLevelEntryPoints() {
         return false;                                                 \
     }
 
-#include "intel_vulkan/ListOfFunctions.inl"
+#include "vulkan_graphix/ListOfFunctions.inl"
 
     return true;
 }
@@ -612,7 +612,7 @@ bool TutorialBase::loadInstanceLevelEntryPoints() {
         return false;                                                   \
     }
 
-#include "intel_vulkan/ListOfFunctions.inl"
+#include "vulkan_graphix/ListOfFunctions.inl"
 
     return true;
 }
@@ -875,7 +875,7 @@ bool TutorialBase::loadDeviceLevelEntryPoints() {
         return false;                                                         \
     }
 
-#include "intel_vulkan/ListOfFunctions.inl"
+#include "vulkan_graphix/ListOfFunctions.inl"
 
     return true;
 }
@@ -1442,4 +1442,4 @@ bool TutorialBase::destroyDebugMessenger() {
     return response;
 }
 
-}  // namespace intel_vulkan
+}  // namespace vulkan_graphix

@@ -1,4 +1,4 @@
-#include "intel_vulkan/Tools.h"
+#include "vulkan_graphix/Tools.h"
 
 #include <unistd.h>
 #include <cmath>
@@ -6,9 +6,9 @@
 #include <fstream>
 #include <iostream>
 #define STB_IMAGE_IMPLEMENTATION
-#include "intel_vulkan/STBImage.h"
+#include "vulkan_graphix/STBImage.h"
 
-namespace intel_vulkan::Tools {
+namespace vulkan_graphix::Tools {
 
 namespace {
 std::filesystem::path executableDir() {
@@ -111,17 +111,17 @@ std::vector<char> getImageData(std::string const& filename,
 //                                                              //
 // Function calculating perspective projection matrix           //
 // ************************************************************ //
-intel_vulkan::Math::Mat4<float> getPerspectiveProjectionMatrix(
+vulkan_graphix::Math::Mat4<float> getPerspectiveProjectionMatrix(
         float const aspect_ratio,
         float const field_of_view,
         float const near_clip,
         float const far_clip) {
-    using intel_vulkan::Math::Vec4;
+    using vulkan_graphix::Math::Vec4;
 
     float fov_value = 1.0f / std::tan(field_of_view * 0.5f *
                                       0.01745329251994329576923690768489f);
 
-    return intel_vulkan::Math::Mat4<float>(
+    return vulkan_graphix::Math::Mat4<float>(
             Vec4<float>(fov_value / aspect_ratio, 0.0f, 0.0f, 0.0f),
             Vec4<float>(0.0f, -fov_value, 0.0f, 0.0f),
             Vec4<float>(0.0f, 0.0f, far_clip / (near_clip - far_clip), -1.0f),
@@ -131,16 +131,16 @@ intel_vulkan::Math::Mat4<float> getPerspectiveProjectionMatrix(
                         0.0f));
 }
 
-intel_vulkan::Math::Mat4<float> getOrthographicProjectionMatrix(
+vulkan_graphix::Math::Mat4<float> getOrthographicProjectionMatrix(
         float const left_plane,
         float const right_plane,
         float const top_plane,
         float const bottom_plane,
         float const near_plane,
         float const far_plane) {
-    using intel_vulkan::Math::Vec4;
+    using vulkan_graphix::Math::Vec4;
 
-    return intel_vulkan::Math::Mat4<float>(
+    return vulkan_graphix::Math::Mat4<float>(
             Vec4<float>(2.0f / (right_plane - left_plane), 0.0f, 0.0f, 0.0f),
             Vec4<float>(0.0f, 2.0f / (bottom_plane - top_plane), 0.0f, 0.0f),
             Vec4<float>(0.0f, 0.0f, 1.0f / (near_plane - far_plane), 0.0f),
@@ -151,4 +151,4 @@ intel_vulkan::Math::Mat4<float> getOrthographicProjectionMatrix(
                     1.0f));
 }
 
-}  // namespace intel_vulkan::Tools
+}  // namespace vulkan_graphix::Tools

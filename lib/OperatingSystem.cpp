@@ -1,8 +1,8 @@
-#include "intel_vulkan/OperatingSystem.h"
+#include "vulkan_graphix/OperatingSystem.h"
 
 #include <thread>
 
-namespace intel_vulkan::os {
+namespace vulkan_graphix::os {
 
 ProjectBase::ProjectBase() : m_can_render(false) {}
 
@@ -147,4 +147,4 @@ bool Window::renderingLoop(ProjectBase& project) {
 
     return result;
 }
-}  // namespace intel_vulkan::os
+}  // namespace vulkan_graphix::os

@@ -1,8 +1,8 @@
-#include "intel_vulkan/Tutorial01.h"
+#include "vulkan_graphix/Tutorial01.h"
 
 int main(int /*argc*/, char** /*argv*/) {
-    intel_vulkan::os::Window window;
-    intel_vulkan::Tutorial01 tutorial01(true);
+    vulkan_graphix::os::Window window;
+    vulkan_graphix::Tutorial01 tutorial01(true);
 
     // Window creation
     if (!window.create("01 - The Beginning")) {

@@ -1,9 +1,9 @@
-lib_LTLIBRARIES = libintel_vulkan.la
+lib_LTLIBRARIES = libvulkan_graphix.la
 
-libintel_vulkan_la_CPPFLAGS = -Werror -Wall -pedantic \
+libvulkan_graphix_la_CPPFLAGS = -Werror -Wall -pedantic \
 		-I$(abs_top_srcdir)/include $(GLM_CFLAGS)
 
-libintel_vulkan_la_SOURCES = ./LoggerHelpers.cpp \
+libvulkan_graphix_la_SOURCES = ./LoggerHelpers.cpp \
 															./Logging.cpp \
 															./OperatingSystem.cpp \
 															./Tools.cpp \
@@ -18,7 +18,7 @@ libintel_vulkan_la_SOURCES = ./LoggerHelpers.cpp \
 															./TutorialBase.cpp \
 															./VulkanFunctions.cpp
 
-libintel_vulkan_la_LIBADD = -lboost_log -lboost_system -lboost_thread \
+libvulkan_graphix_la_LIBADD = -lboost_log -lboost_system -lboost_thread \
 														$(VULKAN_LIBS) $(X11_LIBS)
 
-libintel_vulkan_la_LDFLAGS = -pthread
+libvulkan_graphix_la_LDFLAGS = -pthread

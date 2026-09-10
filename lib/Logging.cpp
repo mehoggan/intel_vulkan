@@ -1,4 +1,4 @@
-#include "intel_vulkan/Logging.h"
+#include "vulkan_graphix/Logging.h"
 
 #include <boost/core/null_deleter.hpp>
 #include <boost/date_time/posix_time/ptime.hpp>
@@ -33,7 +33,7 @@ BOOST_LOG_ATTRIBUTE_KEYWORD(severity,
                             boost::log::trivial::severity_level)
 BOOST_LOG_ATTRIBUTE_KEYWORD(tag_attr, "Tag", std::string)
 
-namespace intel_vulkan {
+namespace vulkan_graphix {
 std::atomic<bool> Logging::s_init(false);
 std::unordered_map<LogTag, boost::weak_ptr<Logging::TextSink>>
         Logging::s_loggers;
@@ -215,4 +215,4 @@ bool Logging::clearAll() {
 
     return ret_val;
 }
-}  // namespace intel_vulkan
+}  // namespace vulkan_graphix

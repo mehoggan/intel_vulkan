@@ -7,7 +7,7 @@ tutorial01_runner_SOURCES = ./tutorial01_main.cpp
 tutorial01_runner_CPPFLAGS = -Werror -Wall -pedantic \
     -I$(abs_top_srcdir)/include $(GLM_CFLAGS)
 tutorial01_runner_LDADD = \
-    $(abs_top_builddir)/lib/libintel_vulkan.la $(VULKAN_LIBS) $(X11_LIBS)
+    $(abs_top_builddir)/lib/libvulkan_graphix.la $(VULKAN_LIBS) $(X11_LIBS)
 tutorial01_runner_LDFLAGS = -pthread
 
 # Tutorial 02 Binary
@@ -15,7 +15,7 @@ tutorial02_runner_SOURCES = ./tutorial02_main.cpp
 tutorial02_runner_CPPFLAGS = -Werror -Wall -pedantic \
     -I$(abs_top_srcdir)/include $(GLM_CFLAGS)
 tutorial02_runner_LDADD = \
-    $(abs_top_builddir)/lib/libintel_vulkan.la $(VULKAN_LIBS) $(X11_LIBS)
+    $(abs_top_builddir)/lib/libvulkan_graphix.la $(VULKAN_LIBS) $(X11_LIBS)
 tutorial02_runner_LDFLAGS = -pthread
 
 # Tutorial 03 Binary
@@ -23,7 +23,7 @@ tutorial03_runner_SOURCES = ./tutorial03_main.cpp
 tutorial03_runner_CPPFLAGS = -Werror -Wall -pedantic \
     -I$(abs_top_srcdir)/include $(GLM_CFLAGS)
 tutorial03_runner_LDADD = \
-    $(abs_top_builddir)/lib/libintel_vulkan.la $(VULKAN_LIBS) $(X11_LIBS)
+    $(abs_top_builddir)/lib/libvulkan_graphix.la $(VULKAN_LIBS) $(X11_LIBS)
 tutorial03_runner_LDFLAGS = -pthread
 
 # Tutorial 04 Binary
@@ -31,7 +31,7 @@ tutorial04_runner_SOURCES = ./tutorial04_main.cpp
 tutorial04_runner_CPPFLAGS = -Werror -Wall -pedantic \
     -I$(abs_top_srcdir)/include $(GLM_CFLAGS)
 tutorial04_runner_LDADD = \
-    $(abs_top_builddir)/lib/libintel_vulkan.la $(VULKAN_LIBS) $(X11_LIBS)
+    $(abs_top_builddir)/lib/libvulkan_graphix.la $(VULKAN_LIBS) $(X11_LIBS)
 tutorial04_runner_LDFLAGS = -pthread
 
 # Tutorial 05 Binary
@@ -39,7 +39,7 @@ tutorial05_runner_SOURCES = ./tutorial05_main.cpp
 tutorial05_runner_CPPFLAGS = -Werror -Wall -pedantic \
     -I$(abs_top_srcdir)/include $(GLM_CFLAGS)
 tutorial05_runner_LDADD = \
-    $(abs_top_builddir)/lib/libintel_vulkan.la $(VULKAN_LIBS) $(X11_LIBS)
+    $(abs_top_builddir)/lib/libvulkan_graphix.la $(VULKAN_LIBS) $(X11_LIBS)
 tutorial05_runner_LDFLAGS = -pthread
 
 # Tutorial 06 Binary
@@ -47,7 +47,7 @@ tutorial06_runner_SOURCES = ./tutorial06_main.cpp
 tutorial06_runner_CPPFLAGS = -Werror -Wall -pedantic \
     -I$(abs_top_srcdir)/include $(GLM_CFLAGS)
 tutorial06_runner_LDADD = \
-    $(abs_top_builddir)/lib/libintel_vulkan.la $(VULKAN_LIBS) $(X11_LIBS)
+    $(abs_top_builddir)/lib/libvulkan_graphix.la $(VULKAN_LIBS) $(X11_LIBS)
 tutorial06_runner_LDFLAGS = -pthread
 
 # Tutorial 07 Binary
@@ -55,7 +55,7 @@ tutorial07_runner_SOURCES = ./tutorial07_main.cpp
 tutorial07_runner_CPPFLAGS = -Werror -Wall -pedantic \
     -I$(abs_top_srcdir)/include $(GLM_CFLAGS)
 tutorial07_runner_LDADD = \
-    $(abs_top_builddir)/lib/libintel_vulkan.la $(VULKAN_LIBS) $(X11_LIBS)
+    $(abs_top_builddir)/lib/libvulkan_graphix.la $(VULKAN_LIBS) $(X11_LIBS)
 tutorial07_runner_LDFLAGS = -pthread
 
 # Tutorial 08 Binary
@@ -63,7 +63,7 @@ tutorial08_runner_SOURCES = ./tutorial08_main.cpp
 tutorial08_runner_CPPFLAGS = -Werror -Wall -pedantic \
     -I$(abs_top_srcdir)/include $(GLM_CFLAGS)
 tutorial08_runner_LDADD = \
-    $(abs_top_builddir)/lib/libintel_vulkan.la $(VULKAN_LIBS) $(X11_LIBS)
+    $(abs_top_builddir)/lib/libvulkan_graphix.la $(VULKAN_LIBS) $(X11_LIBS)
 tutorial08_runner_LDFLAGS = -pthread
 pkgdatadir = $(bindir)
 

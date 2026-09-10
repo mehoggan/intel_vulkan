@@ -3,10 +3,12 @@
 ######
 .idea
 **/autom4te.cache/
-deps/build/
 lib/.deps/
 lib/.libs/
 **/.libs
+bin/.deps/
+bin/.libs/
+tests/.deps/
 
 ######
 # Files
@@ -40,30 +42,27 @@ stamp-h1
 tags
 test-driver
 scripts/**.log
-**/.o
+**/*.o
 **/configure
+**/.dirstamp
+m4/libtool.m4
+m4/lt~obsolete.m4
+m4/ltoptions.m4
+m4/ltsugar.m4
+m4/ltversion.m4
 
 ######
 # Build Files
 ######
-bin/.deps/
-bin/.libs/
-bin/dag_serializer_runner
-bin/dag_serializer_runner-dag_serializer_main.o
-bin/https_dag_scheduler_runner
-bin/https_dag_scheduler_runner-service_main.o
 compile_commands.json
-stages_lib/lib/.deps/
-stages_lib/lib/.libs/
-stages_lib/lib/libstages_lib.la
-stages_lib/lib/libstages_lib_la-print_stage.lo
-stages_lib/lib/libstages_lib_la-print_stage.o
-test/.deps/
-test/utils/.deps/
-test/utils/.dirstamp
-**/**/*.o
-test/gtest_libdag_scheduler
-test/gtest_libdag_scheduler.log
-test/gtest_libdag_scheduler.trs
-test/test-suite.log
+bin/tutorial*_runner
+bin/shader.*.spv
+bin/texture.*.png
+tests/math_test
+tests/math_test.log
+tests/math_test.trs
+tests/vertex_types_test
+tests/vertex_types_test.log
+tests/vertex_types_test.trs
+tests/test-suite.log
 **/.cache

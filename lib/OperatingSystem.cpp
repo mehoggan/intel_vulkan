@@ -14,6 +14,13 @@ ProjectBase& ProjectBase::operator=(const ProjectBase& other) = default;
 
 bool ProjectBase::readyToDraw() const { return m_can_render; }
 
+void ProjectBase::onMouseButton(int /*button*/,
+                                bool /*pressed*/,
+                                int /*pos_x*/,
+                                int /*pos_y*/) {}
+
+void ProjectBase::onMouseMove(int /*pos_x*/, int /*pos_y*/) {}
+
 WindowParameters::WindowParameters() : m_display_ptr(nullptr), m_handle{} {}
 
 Display* WindowParameters::getDisplayPtr() const { return m_display_ptr; }
@@ -69,7 +76,9 @@ bool Window::create(const std::string& title) {
                            nullptr);
     XSelectInput(m_parameters.getDisplayPtr(),
                  m_parameters.getWindowHandle(),
-                 ExposureMask | KeyPressMask | StructureNotifyMask);
+                 ExposureMask | KeyPressMask | StructureNotifyMask |
+                         ButtonPressMask | ButtonReleaseMask |
+                         PointerMotionMask);
 
     return true;
 }
@@ -123,6 +132,23 @@ bool Window::renderingLoop(ProjectBase& project) {
                         delete_window_atom) {
                         loop = false;
                     }
+                    break;
+                case ButtonPress:
+                    project.onMouseButton(
+                            static_cast<int>(event.xbutton.button),
+                            true,
+                            event.xbutton.x,
+                            event.xbutton.y);
+                    break;
+                case ButtonRelease:
+                    project.onMouseButton(
+                            static_cast<int>(event.xbutton.button),
+                            false,
+                            event.xbutton.x,
+                            event.xbutton.y);
+                    break;
+                case MotionNotify:
+                    project.onMouseMove(event.xmotion.x, event.xmotion.y);
                     break;
             }
         } else {

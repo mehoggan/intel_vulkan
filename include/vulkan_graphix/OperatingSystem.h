@@ -34,6 +34,14 @@ public:
     virtual bool onWindowSizeChanged() = 0;
     virtual bool draw() = 0;
 
+    // Mouse input hooks. Default implementations do nothing, so tutorials
+    // that don't need mouse input (i.e. all of them except Tutorial09) are
+    // unaffected. `button` follows X11 convention: 1/2/3 = left/middle/
+    // right, 4/5 = scroll wheel up/down (reported as a press with no
+    // matching release).
+    virtual void onMouseButton(int button, bool pressed, int pos_x, int pos_y);
+    virtual void onMouseMove(int pos_x, int pos_y);
+
 protected:
     bool m_can_render;
 };
